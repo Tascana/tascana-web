@@ -1,7 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
-  "homepage": "./",
+  "homepage": "tascana-web/build",
   "private": true,
   "dependencies": {
     "next": "^9.1.4",
