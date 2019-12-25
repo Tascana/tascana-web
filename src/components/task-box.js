@@ -7,16 +7,16 @@ function hwb(hue,sat,int) {
 	var h = (hue%360) / 60;
 	var s = sat / 100;
 	var i = int / 100;
-  
+
   var z = 1-Math.abs(h % 2 -1);
 	var c = (3*i*s)/(1+z);
 	var x = c*z;
 
   //c=s;
   //x=c*(1-Math.abs(h%2-1));
-  
+
 	var j = Math.floor(h);
-	
+
 	var r;
 	var g;
 	var b;
@@ -67,11 +67,11 @@ function TextMode({todo, edited, selected, i}) {
   let textField = React.useRef();
   let bg = React.useRef();
   useEffect(() => { if(todo.selected) bg.current.classList.add("BoxSelected"); else bg.current.classList.remove("BoxSelected") }, [{todo}]);
-  
+
   return(
     <div onDoubleClick={() => { textField.current.contentEditable=true; textField.current.focus(); selected(true);  } }
           onMouseDown={(e) => { if (e.detail > 1) e.preventDefault()  } }
-          onClick={(e) => { 
+          onClick={(e) => {
               if(!e.currentTarget.getAttribute("clicked")) { console.log("click"); selected(); }
               e.currentTarget.setAttribute("clicked", true);
               setTimeout((e) => { e.removeAttribute("clicked"); }, 500, e.currentTarget);
@@ -79,7 +79,7 @@ function TextMode({todo, edited, selected, i}) {
           className="TaskBox" style={{background: randomgrad(i)}}
           ref={bg}>
       <div style={{padding: "15px"}}>
-        <div onBlur={(item) => { edited(item.target.innerHTML); item.target.contentEditable=false; } } 
+        <div onBlur={(item) => { edited(item.target.innerHTML); item.target.contentEditable=false; } }
             className="TextBoxContents"
             contentEditable={false}
             spellCheck={false}
@@ -87,7 +87,7 @@ function TextMode({todo, edited, selected, i}) {
           {todo.task}
         </div>
       </div>
-      
+
       {(todo.type === "MONTH" || todo.type === "YEAR") ? <ProgressBar progress={todo.progress}/> : ""}
     </div>
   );
@@ -98,19 +98,19 @@ function AddMode({added, selected}) {
   return(
     <div className="TaskBox AddBox">
       <div style={{padding: "15px", display: "table-cell", textAlign:"center", verticalAlign: "middle"}}>
-        <div className="AddBoxContents" 
-          onClick={(e) => { e.target.className="TextBoxContents"; 
-                            e.target.contentEditable=true; 
+        <div className="AddBoxContents"
+          onClick={(e) => { e.target.className="TextBoxContents";
+                            e.target.contentEditable=true;
                             e.target.innerHTML="";
                             e.currentTarget.parentElement.parentElement.className="TaskBox";
                             e.currentTarget.parentElement.style="padding: 15px";
                             e.currentTarget.focus();
                             selected(); }}
-            
-          onBlur={(e) => { 
+
+          onBlur={(e) => {
                             if(e.target.innerHTML !== "") added(e.target.innerHTML);
-                            e.target.className="AddBoxContents"; 
-                            e.target.contentEditable=false; 
+                            e.target.className="AddBoxContents";
+                            e.target.contentEditable=false;
                             e.target.innerHTML="Add task";
                             e.currentTarget.parentElement.parentElement.className="TaskBox AddBox";
                             e.currentTarget.parentElement.style="padding: 15px; display:table-cell; text-align:center; vertical-align:middle;";
@@ -129,24 +129,11 @@ function TaskBox({todos, children, dispatch, type, id}) {
 
   return (
     <React.Fragment>
-      
-      { todos.map((item, i) => 
+
+      { todos.map((item, i) =>
         <TextMode todo={item} i={i}
           edited={(input) => { todos[i].task = input; dispatch({type: 'EDIT_TASK', text: input, id: todos[i].id}); }}
-          selected={(arg=null) => { const sum = (a,b) => { return a+b.selected; };
-                            //console.log(todos.reduce(sum, 0));
-                            if(arg!==null) { todos[i].selected = arg }
-                            if(todos.reduce(sum, 0)===0) {
-                              todos.forEach(element => { element.selected = true });
-                              todos[i].selected=false; 
-                            } else if(todos[i].selected === false) {
-                              todos.forEach(element => { element.selected = false });
-                              todos[i].selected=false;
-                            } else {
-                              todos.forEach(element => { element.selected = true });
-                              todos[i].selected=false;
-                            }
-                          }} /> 
+          selected={() => dispatch({type: 'SELECT_TASK', id: todos[i].id})} />
       ) }
       <AddMode added={(input) => { dispatch({type: 'ADD_TASK', text: input, tasktype: type, date: Date.now(), year: id.year, month: id.month, day: id.day}); }}
                selected={() => { todos.forEach(element => { element.selected = false }); } } />
