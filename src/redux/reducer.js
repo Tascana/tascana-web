@@ -1,4 +1,6 @@
-/* 
+import _ from 'lodash'
+
+/*
 
 const tasks = [{task:"test1", done: false, year:0, month: 0, type:[YEAR,MONTH,DAY], date: 1213121312},...];
 const UI = [{year: 0, month: 0, day: 0, isSelected=false, selectedId:0}]
@@ -41,6 +43,51 @@ export function tasks(state = {}, action) {
             return {...state,
                     [action.id]:{...state[action.id],done: !state[action.id].done}
             }
+        case ('SELECT_TASK'):
+            const todos = Object.entries(state).map(i => ({...i[1],id:i[0]}));
+
+            todos.forEach(todo => todo.selected = false);
+            const todo = state[action.id];
+
+            const type = todo.type;
+            const year = todo.year;
+            const month = todo.month;
+
+
+            switch (type) {
+                case 'YEAR':
+                    todos.filter(todo => ((todo.type === 'MONTH' && todo.year === year) || (todo.type === 'DAY' && todo.year === year))).forEach(todo => todo.selected = true);
+                    state = _.zipObject(todos.map(t => t.id), todos);
+
+                    return {
+                        ...state,
+                        [action.id]: {
+                            ...state[action.id],
+                            selected: true,
+                        },
+                    };
+                case 'MONTH':
+                    todos.filter(todo => todo.type === 'DAY' && todo.year === year && todo.month === month).forEach(todo => todo.selected = true);
+                    state = _.zipObject(todos.map(t => t.id), todos);
+
+                    return {
+                        ...state,
+                        [action.id]: {
+                            ...state[action.id],
+                            selected: true,
+                        },
+                    };
+                case 'DAY':
+                    return {
+                        ...state,
+                        [action.id]: {
+                            ...state[action.id],
+                            selected: true,
+                        },
+                    };
+                default:
+                    return state;
+            }
     // For now, don't handle any actions
     // and just return the state given to us.
         default:
@@ -50,8 +97,8 @@ export function tasks(state = {}, action) {
 
 const now = new Date(Date.now())
 
-export function UI(state = {year: now.getFullYear(), month: now.getMonth()+1, day: now.getDate(), 
-                            prevyear: now.getFullYear(), prevmonth: now.getMonth()+1, 
+export function UI(state = {year: now.getFullYear(), month: now.getMonth()+1, day: now.getDate(),
+                            prevyear: now.getFullYear(), prevmonth: now.getMonth()+1,
                             prevday: now.getDate(), isSelected:false, selectedId:0}, action) {
     switch(action.type) {
         case ('SET'):
