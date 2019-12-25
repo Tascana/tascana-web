@@ -5,7 +5,7 @@ import { useSprings, animated } from 'react-spring'
 import { connect } from 'react-redux'
 import './app.css'
 
-function HorzUI({type, children, num, dispatch, items0, UI}) {
+function HorzUI({type, children, num, dispatch, tasks, items0, UI}) {
 
     function extractHeight(parent, dx) {
         var a = [];
@@ -29,7 +29,14 @@ function HorzUI({type, children, num, dispatch, items0, UI}) {
         scale: 1, 
         display: "block", 
         height: "unset"
-    } }))
+    } }));
+
+    const selectedId = (UI.isSelected 
+        && tasks[UI.selectedId].type === "YEAR" 
+        && type === "MONTH") || (UI.isSelected 
+        && tasks[UI.selectedId].type === "MONTH" 
+        && type === "DAY") ? UI.selectedId
+         : null;
       
     function sleep(millis)
     {
@@ -147,7 +154,7 @@ function HorzUI({type, children, num, dispatch, items0, UI}) {
                 return "tasks";
         }
     }
-
+    
     return (
         <React.Fragment>
             <animated.div {...bind()} ref={animatedContainer} style={style()}>
@@ -155,7 +162,7 @@ function HorzUI({type, children, num, dispatch, items0, UI}) {
                     <animated.div key={i} style={{position:"absolute", float:"left", width:"630px", x, scale, display, height}}>
                         <div>
                             <h1>{items[i].name}'s {tasktype()}</h1>
-                            <TaskBox type={type} id={items[i].id}/>
+                            <TaskBox type={type} id={items[i].id} parentid={selectedId} tasksCount={Object.keys(tasks).length}/>
                         </div>
                     </animated.div>
                 ))}
@@ -207,7 +214,7 @@ function translateMonth(month, year) {
     }
 }
 
-function translateDay(date: Date)   {
+function translateDay(date)   {
     const now = new Date(Date.now());
     if(date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear())
         return "Today";
@@ -226,18 +233,34 @@ function translateDay(date: Date)   {
 const mapStateToPropsHorzUI = (state, ownProps) => {
     switch (ownProps.type) {
         case ('YEAR'):
-            return { num: Object.keys(state.tasks).length, items0: [ {id:{year: state.UI.year-1}, name:translateYear(state.UI.year-1)},
-                                                                    {id:{year: state.UI.year}, name:translateYear(state.UI.year)},
-                                                                    {id:{year: state.UI.year+1}, name:translateYear(state.UI.year+1)}], 
-                                                            UI: state.UI }
-                                                            break;
+            return { 
+                num: Object.keys(state.tasks).length, 
+                items0: [ 
+                    {
+                        id:{year: state.UI.year-1}, 
+                        name:translateYear(state.UI.year-1)
+                    },
+                    {
+                        id:{year: state.UI.year}, 
+                        name:translateYear(state.UI.year)
+                    },
+                    {
+                        id:{year: state.UI.year+1}, 
+                        name:translateYear(state.UI.year+1)
+                    }
+                ], 
+                tasks: state.tasks,
+                UI: state.UI 
+            }
+        break;
         case ('MONTH'):
             { const date1 = new Date(state.UI.year, state.UI.month-2, state.UI.day);
             const date2 = new Date(state.UI.year, state.UI.month-1, state.UI.day);
             const date3 = new Date(state.UI.year, state.UI.month, state.UI.day);
             return { num: Object.keys(state.tasks).length, items0: [ {id:{year: date1.getFullYear(), month: date1.getMonth()+1}, name:translateMonth(date1.getMonth()+1, date1.getFullYear())},
                                                                      {id:{year: date2.getFullYear(), month: date2.getMonth()+1}, name:translateMonth(date2.getMonth()+1, date2.getFullYear())},
-                                                                     {id:{year: date3.getFullYear(), month: date3.getMonth()+1}, name:translateMonth(date3.getMonth()+1, date3.getFullYear())}], 
+                                                                     {id:{year: date3.getFullYear(), month: date3.getMonth()+1}, name:translateMonth(date3.getMonth()+1, date3.getFullYear())}],
+                                                                     tasks: state.tasks, 
                                                             UI: state.UI } }
                                                             break;
         case ('DAY'):
@@ -246,7 +269,8 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
             const date3 = new Date(state.UI.year, state.UI.month-1, state.UI.day+1);
             return { num: Object.keys(state.tasks).length, items0: [ {id:{year: date1.getFullYear(), month: date1.getMonth()+1, day: date1.getDate()}, name:translateDay(date1)},
                                                                     {id:{year: date2.getFullYear(), month: date2.getMonth()+1, day: date2.getDate()}, name:translateDay(date2)},
-                                                                    {id:{year: date3.getFullYear(), month: date3.getMonth()+1, day: date3.getDate()}, name:translateDay(date3)} ], 
+                                                                    {id:{year: date3.getFullYear(), month: date3.getMonth()+1, day: date3.getDate()}, name:translateDay(date3)} ],
+                                                                    tasks: state.tasks, 
                                                             UI: state.UI } }
                                                             break;
     }

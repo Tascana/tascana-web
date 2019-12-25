@@ -66,11 +66,13 @@ function TextMode({todo, edited, selected, i}) {
 
   let textField = React.useRef();
   let bg = React.useRef();
-  useEffect(() => { if(todo.selected) bg.current.classList.add("BoxSelected"); else bg.current.classList.remove("BoxSelected") }, [{todo}]);
+  useEffect(() => { console.log('use effect'); if(todo.selected) {
+    console.log('use effect run'); bg.current.classList.add("BoxSelected");
+   } else bg.current.classList.remove("BoxSelected") }, [{todo}]);
   
   return(
     <div onDoubleClick={() => { textField.current.contentEditable=true; textField.current.focus(); selected(true);  } }
-          onMouseDown={(e) => { if (e.detail > 1) e.preventDefault()  } }
+          onMouseDown={(e) => { if (e.detail > 1) e.preventDefault() } }
           onClick={(e) => { 
               if(!e.currentTarget.getAttribute("clicked")) { console.log("click"); selected(); }
               e.currentTarget.setAttribute("clicked", true);
@@ -123,38 +125,52 @@ function AddMode({added, selected}) {
   )
 }
 
-function TaskBox({todos, children, dispatch, type, id}) {
+function TaskBox({todos, children, dispatch, type, id, parentid, tasksCount}) {
 
   //const [todos, updateTodo] = useState(data)
-
+  //console.log('selectedId: ', parentid);
+  //console.log('tasks count: ', tasksCount);
   return (
     <React.Fragment>
       
       { todos.map((item, i) => 
         <TextMode todo={item} i={i}
-          edited={(input) => { todos[i].task = input; dispatch({type: 'EDIT_TASK', text: input, id: todos[i].id}); }}
-          selected={(arg=null) => { const sum = (a,b) => { return a+b.selected; };
-                            //console.log(todos.reduce(sum, 0));
-                            if(arg!==null) { todos[i].selected = arg }
-                            if(todos.reduce(sum, 0)===0) {
-                              todos.forEach(element => { element.selected = true });
-                              todos[i].selected=false; 
-                            } else if(todos[i].selected === false) {
-                              todos.forEach(element => { element.selected = false });
-                              todos[i].selected=false;
-                            } else {
-                              todos.forEach(element => { element.selected = true });
-                              todos[i].selected=false;
-                            }
-                          }} /> 
+          edited={(input) => { 
+            todos[i].task = input; 
+            dispatch({type: 'EDIT_TASK', text: input, id: todos[i].id}); 
+          }}
+          selected={(arg = null) => {
+            selectedFn(arg, todos, item);
+            dispatch({type: 'SELECT', id: todos[i].id});
+          }} 
+        /> 
       ) }
-      <AddMode added={(input) => { dispatch({type: 'ADD_TASK', text: input, tasktype: type, date: Date.now(), year: id.year, month: id.month, day: id.day}); }}
-               selected={() => { todos.forEach(element => { element.selected = false }); } } />
+      <AddMode added={(input) => {
+            dispatch({type: 'ADD_TASK', text: input, tasktype: type, date: Date.now(), year: id.year, month: id.month, day: id.day, parentid}); 
+            dispatch({type: 'SELECT', id: tasksCount});
+        }}
+        selected={() => { todos.forEach(element => { element.selected = false }); } } 
+      />
       {JSON.stringify({todos,id,type})}
     </React.Fragment>
   );
 }
 
+function selectedFn (arg, todos, todo) {
+  const sum = (a,b) => { return a+b.selected; };
+  console.log(todos);
+  if(arg!==null) { todo.selected = arg }
+  if(todos.reduce(sum, 0)===0) {
+    todos.forEach(element => { element.selected = false });
+    todo.selected=true; 
+  } else if(todo.selected === false) {
+    todos.forEach(element => { element.selected = false });
+    todo.selected=false;
+  } else {
+    todos.forEach(element => { element.selected = true });
+    todo.selected=false;
+  }
+}
 
 
 const mapStateToProps = (state, ownProps) => {
