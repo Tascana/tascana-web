@@ -94,7 +94,9 @@ export function UI(state = {year: now.getFullYear(), month: now.getMonth()+1, da
             }
         case ('SELECT'):
             return {...state,
-                    isSelected:true,selectedId:action.id
+                    //if we select currently selected item, change flag to opposite
+                    isSelected: action.id === state.selectedId ? !state.isSelected : true, 
+                    selectedId: action.id.toString()
                 }
     // For now, don't handle any actions
     // and just return the state given to us.
