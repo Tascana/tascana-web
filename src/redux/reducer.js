@@ -198,4 +198,20 @@ export const getTodosByType = (
   }
 }
 
+export const user = (
+  state = JSON.parse(localStorage.getItem('authUser')),
+  action,
+) => {
+  const { type, payload } = action
+
+  switch (type) {
+    case 'SIGN_IN':
+      return payload
+    case 'SIGN_OUT':
+      return null
+    default:
+      return state
+  }
+}
+
 export default tasks

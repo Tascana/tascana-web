@@ -24,18 +24,34 @@ class Firebase {
 
   signInWithGoogle = () => this.auth.signInWithPopup(this.googleProvider)
 
-  signInWIthFacebook = () => this.auth.signInWithPopup(this.facebookProvider)
+  signInWithFacebook = () => this.auth.signInWithPopup(this.facebookProvider)
 
   signOut = () => this.auth.signOut()
 
   onAuthUserListener = (next, fallback) =>
     this.auth.onAuthStateChanged(authUser => {
       if (authUser) {
-        next(authUser)
+        this.user(authUser.uid)
+          .once('value')
+          .then(snapshot => {
+            const dbUser = snapshot.val()
+
+            authUser = {
+              uid: authUser.uid,
+              email: authUser.email,
+              emailVerified: authUser.emailVerified,
+              providerData: authUser.providerData,
+              ...dbUser,
+            }
+
+            next(authUser)
+          })
       } else {
         fallback()
       }
     })
+
+  user = uid => this.db.ref(`users/${uid}`)
 }
 
 export default Firebase

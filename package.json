@@ -53,7 +53,8 @@
     "jsxSingleQuote": false,
     "trailingComma": "all",
     "jsxBracketSameLine": false,
-    "arrowParens": "avoid"
+    "arrowParens": "avoid",
+    "endOfLine": "auto"
   },
   "husky": {
     "hooks": {
