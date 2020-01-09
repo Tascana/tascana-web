@@ -24,7 +24,7 @@ const useCheckAuth = condition => {
     return function cleanup() {
       listener()
     }
-  }, [condition, firebase, history, dispatch])
+  }, []) // eslint-disable-line
 
   return condition(authUser)
 }

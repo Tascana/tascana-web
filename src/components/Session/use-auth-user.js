@@ -21,7 +21,7 @@ const useAuthUser = () => {
     return function cleanup() {
       listener()
     }
-  }, [firebase, dispatch])
+  }, []) // eslint-disable-line
 }
 
 export default useAuthUser

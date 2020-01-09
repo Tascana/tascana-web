@@ -1,13 +1,3 @@
-/* 
-
-const tasks = [{task:"test1", done: false, year:0, month: 0, type:[YEAR,MONTH,DAY], date: 1213121312},...];
-const UI = [{year: 0, month: 0, day: 0, isSelected=false, selectedId:0}]
--> Add
--> Edit
--> Select
-
-*/
-
 export function tasks(state = {}, action) {
   switch (action.type) {
     case 'ADD_TASK':
@@ -85,8 +75,6 @@ export function tasks(state = {}, action) {
         ...state,
         [action.id]: { ...state[action.id], done: !state[action.id].done },
       }
-    // For now, don't handle any actions
-    // and just return the state given to us.
     default:
       return state
   }
@@ -116,31 +104,28 @@ export function UI(
             prevyear: state.year,
             year: state.year + action.id,
           }
-        case 'MONTH':
-          console.log(state.year, state.month + action.id, state.day)
-          {
-            var date = new Date(
-              state.year,
-              state.month - 1 + action.id,
-              state.day,
-            )
-            console.log(date)
-            date =
-              date.getMonth() + 1 != state.month + action.id &&
-              date.getMonth() != 0 &&
-              date.getMonth() != 11
-                ? new Date(state.year, state.month + action.id, 0)
-                : date
-            return {
-              ...state,
-              prevyear: state.year,
-              prevmonth: state.month,
-              prevday: state.day,
-              month: date.getMonth() + 1,
-              year: date.getFullYear(),
-              day: date.getDate(),
-            }
+        case 'MONTH': {
+          var date = new Date(
+            state.year,
+            state.month - 1 + action.id,
+            state.day,
+          )
+          date =
+            +date.getMonth() + 1 !== state.month + action.id &&
+            +date.getMonth() !== 0 &&
+            +date.getMonth() !== 11
+              ? new Date(state.year, state.month + action.id, 0)
+              : date
+          return {
+            ...state,
+            prevyear: state.year,
+            prevmonth: state.month,
+            prevday: state.day,
+            month: date.getMonth() + 1,
+            year: date.getFullYear(),
+            day: date.getDate(),
           }
+        }
         case 'DAY': {
           const date = new Date(
             state.year,
@@ -162,8 +147,6 @@ export function UI(
       }
     case 'SELECT':
       return { ...state, isSelected: true, selectedId: action.id }
-    // For now, don't handle any actions
-    // and just return the state given to us.
     default:
       return state
   }
