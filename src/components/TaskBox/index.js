@@ -1,7 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef, useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import { getTodosByType } from '../../redux/reducer'
+import { FirebaseContext } from '../Firebase'
+import ui from '../../redux/ui'
+import tasks from '../../redux/tasks'
 import classes from './styles.module.scss'
 
 function hwb(hue, sat, int) {
@@ -62,18 +65,6 @@ function hwb(hue, sat, int) {
   )})`
 }
 
-function randomgrad(i) {
-  const deg = ((20 * i) % 360) + 190
-  const s = 50
-  const l = 60
-
-  return `linear-gradient(330deg, ${hwb(deg + 25, s - 40, l + 30)} 0%, ${hwb(
-    deg,
-    s,
-    l,
-  )} 100%)`
-}
-
 const ProgressBar = ({ progress }) => (
   <svg
     version="1.1"
@@ -91,41 +82,78 @@ const ProgressBar = ({ progress }) => (
   </svg>
 )
 
-function TextMode({ todo, edited, selected, i }) {
+function TextMode({ todo, edited, selected, i, todos }) {
   const textField = useRef(null)
   const bg = useRef(null)
+  const dispatch = useDispatch()
+  const selectedId = useSelector(state => state.ui.selectedId)
 
-  useEffect(() => {
-    if (todo.selected) bg.current.classList.add(classes.BoxSelected)
-    else bg.current.classList.remove(classes.BoxSelected)
-  }, [todo.selected])
+  function randomGrad(i) {
+    const modifiedI = Math.ceil(
+      i +
+        ''
+          .split('')
+          .reverse()
+          .join('') /
+          10000000000,
+    )
+    const deg = ((20 * modifiedI) % 360) + 190
+    const s = 50
+    const l = 60
+
+    return `linear-gradient(330deg, ${hwb(deg + 25, s - 40, l + 30)} 0%, ${hwb(
+      deg,
+      s,
+      l,
+    )} 100%)`
+  }
+
+  let gradient = randomGrad(
+    Math.ceil(todo.parent ? todos[todo.parent].date : todo.date),
+  )
+
+  if (todo.type === 'DAY') {
+    const month = todos[todo.parent].parent
+    const year = todos[month]
+
+    gradient = randomGrad(Math.ceil(year.date))
+  }
 
   return (
     <div
-      onDoubleClick={() => {
-        textField.current.contentEditable = true
-        textField.current.focus()
-        selected(true)
+      onClick={() => {
+        // textField.current.contentEditable = true
+        // textField.current.focus()
+
+        if (todo.type === 'DAY') return
+
+        if (selectedId !== null) {
+          if (selectedId === todo.id) dispatch(ui.actions.select(null))
+          else dispatch(ui.actions.select(todo.id))
+        } else dispatch(ui.actions.select(todo.id))
       }}
       onMouseDown={e => {
         if (e.detail > 1) e.preventDefault()
       }}
-      onClick={e => {
-        if (!e.currentTarget.getAttribute('clicked')) {
-          console.log('click')
-          selected()
-        }
-        e.currentTarget.setAttribute('clicked', true)
-        setTimeout(
-          e => {
-            e.removeAttribute('clicked')
-          },
-          500,
-          e.currentTarget,
-        )
-      }}
-      className={classes.TaskBox}
-      style={{ background: randomgrad(i) }}
+      // onClick={e => {
+      //   if (!e.currentTarget.getAttribute('clicked')) {
+      //     console.log('click')
+      //     selected()
+      //   }
+      //   e.currentTarget.setAttribute('clicked', true)
+      //   setTimeout(
+      //     e => {
+      //       e.removeAttribute('clicked')
+      //     },
+      //     500,
+      //     e.currentTarget,
+      //   )
+      // }}
+      className={cx(classes.TaskBox, {
+        [classes.BoxSelected]: selectedId === todo.id,
+        [classes.BoxUnselected]: selectedId !== null && selectedId !== todo.id,
+      })}
+      style={{ background: gradient }}
       ref={bg}
     >
       <div style={{ padding: '15px' }}>
@@ -152,9 +180,22 @@ function TextMode({ todo, edited, selected, i }) {
   )
 }
 
-function AddMode({ added, selected }) {
+function AddMode({ added, selected, type, selectedTask, selectedId }) {
+  let disable = false
+
+  if (selectedId === null && type !== 'YEAR') disable = true
+  if (selectedTask && selectedTask.type === 'YEAR' && type === 'DAY')
+    disable = true
+  if (selectedTask && selectedTask.type === 'MONTH' && type === 'YEAR')
+    disable = true
+  if (selectedTask && selectedTask.type === type) disable = true
+
   return (
-    <div className={cx(classes.TaskBox, classes.AddBox)}>
+    <div
+      className={cx(classes.TaskBox, classes.AddBox, {
+        [classes.TaskBoxDisable]: disable,
+      })}
+    >
       <div
         style={{
           padding: '15px',
@@ -211,7 +252,14 @@ function getTodos(state, type, id) {
 
 function TaskBox({ type, id }) {
   const todos = useSelector(state => getTodos(state, type, id))
+  const allTasks = useSelector(state => state.tasks)
+  const selectedId = useSelector(state => state.ui.selectedId)
+  const selectedTask = useSelector(
+    state => state.tasks[selectedId],
+    () => !!selectedId,
+  )
   const dispatch = useDispatch()
+  const firebase = useContext(FirebaseContext)
 
   return (
     <>
@@ -222,8 +270,8 @@ function TaskBox({ type, id }) {
           i={i}
           edited={input => {
             todos[i].task = input
-            dispatch({ type: 'EDIT_TASK', text: input, id: todos[i].id })
           }}
+          todos={allTasks}
           selected={(arg = null) => {
             const sum = (a, b) => a + b.selected
             if (arg !== null) {
@@ -249,16 +297,44 @@ function TaskBox({ type, id }) {
         />
       ))}
       <AddMode
+        selectedId={selectedId}
+        selectedTask={selectedTask}
+        type={type}
         added={input => {
-          dispatch({
-            type: 'ADD_TASK',
-            text: input,
-            tasktype: type,
-            date: Date.now(),
+          const getParentId = () => {
+            if (type === 'YEAR') return null
+
+            if (
+              selectedTask &&
+              selectedTask.type === 'YEAR' &&
+              type === 'MONTH'
+            )
+              return selectedId
+
+            if (selectedTask && selectedTask.type === 'MONTH' && type === 'DAY')
+              return selectedId
+          }
+          const newTaskId = Date.now()
+          const newTask = {
+            task: input,
+            done: false,
+            progress: 0,
+            type,
+            date: newTaskId,
             year: id.year,
-            month: id.month,
-            day: id.day,
-          })
+            month: id.month || -1,
+            day: id.day || -1,
+            parent: getParentId(),
+          }
+
+          firebase.createTask(newTask, newTaskId)
+          dispatch(
+            tasks.actions.createTask({
+              id: newTaskId,
+              task: newTask,
+            }),
+          )
+          dispatch(ui.actions.select(null))
         }}
         selected={() => {
           todos.forEach(element => {

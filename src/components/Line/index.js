@@ -4,6 +4,7 @@ import { useDrag } from 'react-use-gesture'
 import { useDispatch } from 'react-redux'
 import TaskBox from '../TaskBox'
 import { translateDay, translateMonth, extractHeight } from './utils'
+import ui from '../../redux/ui'
 import classes from './styles.module.scss'
 
 const offset = window.innerWidth
@@ -54,7 +55,13 @@ function Line({ type, children, num, itemsOnPage, UI }) {
           }
         })
 
-        dispatch({ type: 'SET', tasktype: type, id: dx > 0 ? -1 : 1 })
+        dispatch(
+          ui.actions.set({
+            tasktype: type,
+            id: dx > 0 ? -1 : 1,
+          }),
+        )
+
         return
       }
 

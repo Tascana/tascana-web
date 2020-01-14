@@ -14,6 +14,11 @@
   border-radius: 10px;
 }
 
+.TaskBoxDisable {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
 .ProgressBar {
   position: absolute;
   bottom: 0;
@@ -28,6 +33,10 @@
 }
 
 .BoxSelected {
+  opacity: 1;
+}
+
+.BoxUnselected {
   opacity: 0.3;
 }
 
@@ -55,4 +64,15 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   outline: none;
+}
+
+.TextBoxInner {
+  display: table-cell;
+  padding: 15px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.TextBoxInnerIsEditable {
+  padding: 15px;
 }

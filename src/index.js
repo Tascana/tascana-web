@@ -8,9 +8,11 @@ import Firebase, { FirebaseContext } from './components/Firebase'
 import store from './redux/store'
 import * as serviceWorker from './serviceWorker'
 
+export const firebase = new Firebase()
+
 ReactDOM.render(
   <Provider store={store}>
-    <FirebaseContext.Provider value={new Firebase()}>
+    <FirebaseContext.Provider value={firebase}>
       <App />
     </FirebaseContext.Provider>
   </Provider>,

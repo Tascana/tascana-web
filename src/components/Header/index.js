@@ -1,15 +1,15 @@
 import React, { useState, useContext, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import useOnClickOutside from 'use-onclickoutside'
 import { FirebaseContext } from '../Firebase'
 import classes from './styles.module.scss'
 
 function Header() {
   const [isOpenSettings, toggleSettings] = useState(false)
-  const user = useSelector(state => state.user)
+  const user = useSelector(state => state.session.authUser)
   const firebase = useContext(FirebaseContext)
-  const dispatch = useDispatch()
   const ref = useRef(null)
+
   useOnClickOutside(ref, () => toggleSettings(false))
 
   return (
@@ -30,7 +30,7 @@ function Header() {
           <div
             className={classes.avatar}
             style={{
-              backgroundImage: `url(${user.providerData[0].photoURL})`,
+              backgroundImage: `url(${user.providerData.photoURL})`,
             }}
           />
           {isOpenSettings ? (
@@ -43,7 +43,6 @@ function Header() {
                 type="button"
                 onClick={() => {
                   firebase.signOut()
-                  dispatch({ type: 'SIGN_OUT' })
                 }}
               >
                 Log Out

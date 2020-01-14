@@ -1,4 +1,12 @@
-import { combineReducers, createStore } from 'redux'
-import { tasks, UI, user } from './reducer'
+import { configureStore } from '@reduxjs/toolkit'
+import session from './session'
+import tasks from './tasks'
+import ui from './ui'
 
-export default createStore(combineReducers({ tasks, UI, user }))
+export default configureStore({
+  reducer: {
+    tasks: tasks.reducer,
+    session: session.reducer,
+    ui: ui.reducer,
+  },
+})

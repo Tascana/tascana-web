@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useContext } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import Line from '../components/Line'
 import Header from '../components/Header'
 import {
@@ -6,8 +7,9 @@ import {
   translateMonth,
   translateYear,
 } from '../components/Line/utils'
-import { useCheckAuth } from '../components/Session'
-import { useSelector } from 'react-redux'
+import { FirebaseContext } from '../components/Firebase'
+import useAuthorization from '../hooks/use-authorization'
+import tasks from '../redux/tasks'
 
 const getLineProps = ({ tasks, UI }, type) => {
   switch (type) {
@@ -93,17 +95,38 @@ const getLineProps = ({ tasks, UI }, type) => {
 }
 
 function IndexPage() {
-  const UI = useSelector(state => state.UI)
-  const tasks = useSelector(state => state.tasks)
+  const ui = useSelector(state => state.ui)
+  const tasksFromStore = useSelector(state => state.tasks)
+  const firebase = useContext(FirebaseContext)
+  const dispatch = useDispatch()
 
-  useCheckAuth(authUser => !!authUser)
+  useEffect(() => {
+    firebase.tasks().once('value', snapshot => {
+      if (!snapshot.val()) return
+
+      dispatch(tasks.actions.setTasks(snapshot.val()))
+    })
+  }, [])
+
+  const isAuth = useAuthorization()
+
+  if (!isAuth) return null
 
   return (
     <>
       <Header />
-      <Line type="YEAR" {...getLineProps({ tasks, UI }, 'YEAR')} />
-      <Line type="MONTH" {...getLineProps({ tasks, UI }, 'MONTH')} />
-      <Line type="DAY" {...getLineProps({ tasks, UI }, 'DAY')} />
+      <Line
+        type="YEAR"
+        {...getLineProps({ tasks: tasksFromStore, UI: ui }, 'YEAR')}
+      />
+      <Line
+        type="MONTH"
+        {...getLineProps({ tasks: tasksFromStore, UI: ui }, 'MONTH')}
+      />
+      <Line
+        type="DAY"
+        {...getLineProps({ tasks: tasksFromStore, UI: ui }, 'DAY')}
+      />
     </>
   )
 }

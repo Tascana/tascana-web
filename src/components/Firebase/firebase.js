@@ -36,11 +36,20 @@ class Firebase {
           .then(snapshot => {
             const dbUser = snapshot.val()
 
+            let providerData = {}
+
+            if (
+              Array.isArray(authUser.providerData) &&
+              authUser.providerData[0]
+            ) {
+              providerData = { ...authUser.providerData[0] }
+            }
+
             authUser = {
               uid: authUser.uid,
               email: authUser.email,
               emailVerified: authUser.emailVerified,
-              providerData: authUser.providerData,
+              providerData,
               ...dbUser,
             }
 
@@ -52,6 +61,19 @@ class Firebase {
     })
 
   user = uid => this.db.ref(`users/${uid}`)
+
+  tasks = () =>
+    this.db
+      .ref()
+      .child('todos')
+      .orderByKey()
+
+  createTask = (task, id) => this.db.ref('todos/' + id).set(task)
+
+  onTasksListener = () =>
+    this.tasks().on('value', snapshot => {
+      console.log(snapshot.val())
+    })
 }
 
 export default Firebase

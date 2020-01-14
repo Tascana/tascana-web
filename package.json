@@ -10,10 +10,12 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.2.1",
     "classnames": "^2.2.6",
     "date-fns": "^2.9.0",
     "firebase": "^7.6.1",
     "lodash": "^4.17.15",
+    "nanoid": "^2.1.9",
     "node-sass": "^4.13.0",
     "normalize.css": "^8.0.1",
     "react": "^16.12.0",
@@ -29,10 +31,10 @@
   "devDependencies": {
     "eslint-config-prettier": "^6.9.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "husky": "^3.1.0",
+    "husky": "^4.0.6",
     "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
-    "stylelint": "^12.0.1",
+    "stylelint": "^13.0.0",
     "stylelint-config-recess-order": "^2.0.3",
     "stylelint-config-recommended-scss": "^4.1.0",
     "stylelint-scss": "^3.13.0"
