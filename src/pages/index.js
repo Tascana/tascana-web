@@ -106,7 +106,7 @@ function IndexPage() {
 
       dispatch(tasks.actions.setTasks(snapshot.val()))
     })
-  }, [])
+  }, []) // eslint-disable-line
 
   const isAuth = useAuthorization()
 
