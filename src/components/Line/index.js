@@ -37,6 +37,7 @@ function Line({ type, children, num, itemsOnPage, UI }) {
 
       if (last) {
         draggingRef.current = false
+        animatedRef.current.classList.remove('noselect')
       }
 
       if (down && Math.abs(x) > window.innerWidth / 3) {
