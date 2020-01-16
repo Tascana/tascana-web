@@ -116,9 +116,8 @@ function TextMode({
             contentEditable={false}
             spellCheck={false}
             ref={textField}
-          >
-            {todo.task}
-          </div>
+            dangerouslySetInnerHTML={{ __html: todo.task }}
+          ></div>
         </div>
 
         {todo.done ? (
