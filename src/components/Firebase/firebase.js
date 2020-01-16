@@ -70,6 +70,10 @@ class Firebase {
 
   createTask = (task, id) => this.db.ref('todos/' + id).set(task)
 
+  editTask = (task, id) => this.db.ref('todos/' + id).update(task)
+
+  deleteTask = id => this.db.ref('todos/' + id).remove()
+
   onTasksListener = () =>
     this.tasks().on('value', snapshot => {
       console.log(snapshot.val())

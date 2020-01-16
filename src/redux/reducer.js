@@ -159,7 +159,7 @@ export const getTodosByType = (
   month = -1,
   day = -1,
 ) => {
-  const todos = Object.entries(store.tasks).map(i => ({ ...i[1], id: i[0] }))
+  const todos = Object.entries(store.tasks).map(i => ({ ...i[1] }))
   switch (type) {
     case 'YEAR':
       return todos.filter(todo => todo.type === type && todo.year === year)
@@ -178,22 +178,6 @@ export const getTodosByType = (
       )
     default:
       return todos
-  }
-}
-
-export const user = (
-  state = JSON.parse(localStorage.getItem('authUser')),
-  action,
-) => {
-  const { type, payload } = action
-
-  switch (type) {
-    case 'SIGN_IN':
-      return payload
-    case 'SIGN_OUT':
-      return null
-    default:
-      return state
   }
 }
 

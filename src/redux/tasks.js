@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import omit from 'lodash/omit'
 
 const INITIAL_STATE = {}
 
@@ -21,6 +22,7 @@ const tasksSlice = createSlice({
         ...action.payload.task,
       },
     }),
+    deleteTask: (state, action) => omit(state, action.payload),
   },
 })
 
