@@ -45,6 +45,10 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
       if (last) {
         dragging.current = false
       }
+      
+      if(last && x==0) {
+        animatedContainer.current.classList.remove("noselect");
+      }
 
       if (down && Math.abs(x) > window.innerWidth / 3) {
         cancel()
