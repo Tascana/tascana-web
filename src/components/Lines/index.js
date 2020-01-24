@@ -38,16 +38,20 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   const bind = useDrag(
     ({ down, first, last, movement: [x, y], direction: [dx], cancel }) => {
-      if (first) {
-        animatedContainer.current.classList.add('noselect')
-        dragging.current = true
-      }
-      if (last) {
-        dragging.current = false
+      if(first) { 
+            dragging.current = true; 
       }
       
-      if(last && x==0) {
-        animatedContainer.current.classList.remove("noselect");
+      if(last) {
+            dragging.current = false;
+      }
+      
+      if((first || last) && x==0) {
+            animatedContainer.current.setAttribute("class", "");
+      }
+      
+      if(Math.abs(x)>0) {
+            animatedContainer.current.setAttribute("class", "noselect");
       }
 
       if (down && Math.abs(x) > window.innerWidth / 3) {
@@ -88,12 +92,13 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
         }
       })
     }, 1)
-  }, [num])
+  }, [num]) // updates row height
 
   useEffect(() => {
     setItems(items0)
     console.log(type, ' ', dragging.current)
-
+    animatedContainer.current.setAttribute("class", "noselect");
+    
     function pos(dx) {
       items[dx > 0 ? 2 : 0] = items[1]
       switch (type) {
@@ -156,7 +161,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
       pos(dx)
       return
     }
-  }, [UI.year, UI.month, UI.day, UI.prevyear, UI.prevmonth, UI.prevday])
+  }, [UI.year, UI.month, UI.day, UI.prevyear, UI.prevmonth, UI.prevday]) // handles changes in dates
 
   function style() {
     var h = springs[0]
