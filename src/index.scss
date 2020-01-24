@@ -58,6 +58,12 @@ ul {
   list-style-type: none;
 }
 
+#root {
+  width: 100%;
+  overflow-x: hidden;
+  position: absolute;
+}
+
 .noselect {
   user-select: none;
 }
