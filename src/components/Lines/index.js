@@ -80,7 +80,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
               40,
       }))
     },
-    { dragDelay: true, event: { passive: true, capture: false } },
+    { event: { passive: true, capture: false } },
   )
 
   useEffect(() => {
