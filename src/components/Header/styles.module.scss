@@ -1,0 +1,84 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1240px;
+  height: 64px;
+  padding: 0 16px;
+  margin: 15px auto 22px;
+  background-color: rgba(234, 234, 234, 0.33);
+  border-radius: 19px;
+}
+
+.logo {
+  width: 27px;
+  height: 65px;
+  font-family: 'Avenir Next', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 66px;
+  color: #000;
+  letter-spacing: -1.84px;
+}
+
+.right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.username {
+  margin-right: 14px;
+  font-family: 'SF Pro Text', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #000;
+  letter-spacing: -0.77px;
+}
+
+.avatar {
+  width: 41px;
+  height: 41px;
+  background-position: center;
+  background-size: cover;
+  border: 3px solid #808080;
+  border-radius: 50%;
+}
+
+.settings {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: -16px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 156px;
+  padding: 15px 25px;
+  background-color: #f8f8f8;
+  border-radius: 19px;
+
+  button {
+    width: 100%;
+    height: 21px;
+    font-family: 'SF Pro Text', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 21px;
+    color: #000;
+    text-align: center;
+    letter-spacing: -0.69px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .separator {
+    width: 100%;
+    height: 1px;
+    margin: 7px 0;
+    border-bottom: 1px solid #808080;
+    opacity: 0.15;
+  }
+}
