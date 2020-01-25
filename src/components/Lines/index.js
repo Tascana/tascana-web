@@ -165,7 +165,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   function style() {
     var h = springs[0]
-    return { height: h.height }
+    return { height: h.height, width: "630px", margin: "auto" }
   }
 
   function tasktype() {
