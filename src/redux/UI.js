@@ -12,6 +12,7 @@ const INITIAL_STATE = {
   isSelected: false,
   selectedId: null,
   swipeableLine: '',
+  selectedTree: [],
 }
 
 const UISlice = createSlice({
@@ -75,6 +76,10 @@ const UISlice = createSlice({
       ...state,
       isSelected: true,
       selectedId: action.payload,
+    }),
+    selectTree: (state, action) => ({
+      ...state,
+      selectedTree: action.payload,
     }),
   },
 })

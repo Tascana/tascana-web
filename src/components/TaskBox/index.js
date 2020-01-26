@@ -20,11 +20,14 @@ function TextMode({
   setIsVisibleContextMenu,
   done,
   remove,
+  selectedTree,
 }) {
   const textField = useRef(null)
   const bg = useRef(null)
   const dispatch = useDispatch()
   const selectedId = useSelector(state => state.UI.selectedId)
+
+  console.log(selectedTree.includes(todo.id), selectedTree, todo.id)
 
   const getProgress = () => {
     const { id } = todo
@@ -99,20 +102,58 @@ function TextMode({
       <div
         onDoubleClick={setEdit}
         onClick={() => {
-          if (todo.type === 'DAY') return
+          function getTree(id) {
+            let parent = []
+
+            function getParent(parentId) {
+              if (parentId && todos[parentId]) {
+                parent.push(todos[parentId])
+                return getParent(todos[parentId].parentId)
+              }
+              return parent.map(p => p.id)
+            }
+
+            function getChildren(todoId) {
+              const todosArr = Object.values(todos)
+
+              const child = todosArr.filter(i => i.parentId === todoId)
+
+              const allChild = [
+                ...child,
+                ...todosArr.filter(i =>
+                  child.map(i => i.id).includes(i.parentId),
+                ),
+              ]
+
+              return allChild.map(c => c.id)
+            }
+
+            return [...getParent(todo.parentId), ...getChildren(todo.id)]
+          }
 
           if (selectedId !== null) {
-            if (selectedId === todo.id) dispatch(ui.actions.select(null))
-            else dispatch(ui.actions.select(todo.id))
-          } else dispatch(ui.actions.select(todo.id))
+            if (selectedId === todo.id) {
+              dispatch(ui.actions.select(null))
+              dispatch(ui.actions.selectTree([]))
+            } else {
+              dispatch(ui.actions.select(todo.id))
+              dispatch(ui.actions.selectTree(getTree()))
+            }
+          } else {
+            dispatch(ui.actions.select(todo.id))
+            dispatch(ui.actions.selectTree(getTree()))
+          }
         }}
         onMouseDown={e => {
           if (e.detail > 1) e.preventDefault()
         }}
         className={cx(classes.TaskBox, {
-          [classes.BoxSelected]: selectedId === todo.id,
+          [classes.BoxSelected]:
+            selectedId === todo.id || selectedTree.includes(todo.id),
           [classes.BoxUnselected]:
-            selectedId !== null && selectedId !== todo.id,
+            selectedId !== null &&
+            selectedId !== todo.id &&
+            !selectedTree.includes(todo.id),
         })}
         style={{ background: getGradient() }}
         ref={bg}
@@ -205,6 +246,7 @@ function AddMode({ added, selected, type, selectedTask, selectedId }) {
   if (selectedTask && selectedTask.type === 'MONTH' && type === 'YEAR')
     disable = true
   if (selectedTask && selectedTask.type === type) disable = true
+  if (selectedTask && selectedTask.type === 'DAY') disable = true
 
   return (
     <div
@@ -259,6 +301,7 @@ function TaskBox({ type, id }) {
   const todos = useSelector(state => getTodos(state, type, id))
   const allTasks = useSelector(state => state.tasks)
   const selectedId = useSelector(state => state.UI.selectedId)
+  const selectedTree = useSelector(state => state.UI.selectedTree)
   const selectedTask = useSelector(
     state => state.tasks[selectedId],
     () => !!selectedId,
@@ -276,6 +319,7 @@ function TaskBox({ type, id }) {
           key={`task-${i}`}
           todo={item}
           i={i}
+          selectedTree={selectedTree}
           edited={(input, id) => {
             const taskForEdit = allTasks[id]
 
@@ -384,7 +428,7 @@ function TaskBox({ type, id }) {
 
           const parent = allTasks[getParentId()]
 
-          if (parent.done) {
+          if (parent && parent.done) {
             const updatedParent = {
               ...parent,
               done: false,
