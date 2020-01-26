@@ -26,10 +26,11 @@ function TextMode({
   const dispatch = useDispatch()
   const selectedId = useSelector(state => state.UI.selectedId)
 
-  function getProgress() {
+  const getProgress = () => {
     const { id } = todo
 
     const child = Object.values(todos).filter(i => i.parentId === id)
+
     const doneChild = child.filter(i => i.done)
 
     const progress = (doneChild.length / child.length) * 100
@@ -136,7 +137,10 @@ function TextMode({
           </div>
         ) : null}
 
-        {!todo.done && todo.type !== 'DAY' ? (
+        {!todo.done &&
+        todo.type !== 'DAY' &&
+        getProgress() > 0 &&
+        getProgress() < 100 ? (
           <ProgressBar progress={getProgress()} />
         ) : null}
         {isVisibleContextMenu === todo.id ? (
@@ -377,6 +381,25 @@ function TaskBox({ type, id }) {
             if (selectedTask && selectedTask.type === 'MONTH' && type === 'DAY')
               return selectedId
           }
+
+          const parent = allTasks[getParentId()]
+
+          if (parent.done) {
+            const updatedParent = {
+              ...parent,
+              done: false,
+              updatedAt: Date.now(),
+            }
+            firebase.editTask(updatedParent, userId, parent.id)
+
+            dispatch(
+              tasks.actions.editTask({
+                id: parent.id,
+                task: updatedParent,
+              }),
+            )
+          }
+
           const newTaskId = nanoid(12)
           const newTask = {
             task: input,
