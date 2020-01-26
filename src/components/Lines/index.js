@@ -3,12 +3,13 @@ import TaskBox from '../TaskBox'
 import { useDrag } from 'react-use-gesture'
 import { useSprings, animated } from 'react-spring'
 import { connect } from 'react-redux'
+import { format } from 'date-fns'
 import '../app.css'
 
 import ui from '../../redux/UI'
 import classes from './styles.module.scss'
 
-/* eslint-disable default-case, react-hooks/exhaustive-deps */
+/* eslint-disable default-case, eqeqeq, react-hooks/exhaustive-deps */
 
 function HorzUI({ type, children, num, dispatch, items0, UI }) {
   function extractHeight(parent, dx) {
@@ -38,20 +39,20 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   const bind = useDrag(
     ({ down, first, last, movement: [x, y], direction: [dx], cancel }) => {
-      if(first) { 
-            dragging.current = true; 
+      if (first) {
+        dragging.current = true
       }
-      
-      if(last) {
-            dragging.current = false;
+
+      if (last) {
+        dragging.current = false
       }
-      
-      if((first || last) && x==0) {
-            animatedContainer.current.setAttribute("class", "");
+
+      if ((first || last) && x == 0) {
+        animatedContainer.current.setAttribute('class', '')
       }
-      
-      if(Math.abs(x)>0) {
-            animatedContainer.current.setAttribute("class", "noselect");
+
+      if (Math.abs(x) > 0) {
+        animatedContainer.current.setAttribute('class', 'noselect')
       }
 
       if (down && Math.abs(x) > window.innerWidth / 3) {
@@ -97,8 +98,8 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
   useEffect(() => {
     setItems(items0)
     console.log(type, ' ', dragging.current)
-    animatedContainer.current.setAttribute("class", "noselect");
-    
+    animatedContainer.current.setAttribute('class', 'noselect')
+
     function pos(dx) {
       items[dx > 0 ? 2 : 0] = items[1]
       switch (type) {
@@ -165,20 +166,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   function style() {
     var h = springs[0]
-    return { height: h.height, width: "630px", margin: "auto" }
-  }
-
-  function tasktype() {
-    switch (type) {
-      case 'YEAR':
-        return 'goals'
-      case 'MONTH':
-        return 'targets'
-      case 'DAY':
-        return 'tasks'
-      default:
-        return
-    }
+    return { height: h.height, width: '630px', margin: 'auto' }
   }
 
   return (
@@ -203,9 +191,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
             }}
           >
             <div>
-              <h1>
-                {items[i].name}'s {tasktype()}
-              </h1>
+              <h1>{items[i].name}</h1>
               <TaskBox type={type} id={items[i].id} />
             </div>
           </animated.div>
@@ -291,7 +277,7 @@ function translateDay(date: Date) {
   )
     return 'Tomorrow'
 
-  return date.toLocaleDateString()
+  return format(date, 'EEEE, d')
 }
 
 const mapStateToPropsHorzUI = (state, ownProps) => {

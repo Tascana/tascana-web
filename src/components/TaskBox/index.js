@@ -87,9 +87,16 @@ function TextMode({
     }
   }
 
+  function setEdit(e) {
+    e.stopPropagation()
+    textField.current.contentEditable = true
+    textField.current.focus()
+  }
+
   return (
     <>
       <div
+        onDoubleClick={setEdit}
         onClick={() => {
           if (todo.type === 'DAY') return
 
@@ -134,18 +141,11 @@ function TextMode({
         ) : null}
         {isVisibleContextMenu === todo.id ? (
           <div className={classes.ContextMenu}>
-            <button
-              type="button"
-              onClick={e => {
-                e.stopPropagation()
-                textField.current.contentEditable = true
-                textField.current.focus()
-              }}
-            >
+            <button type="button" onClick={setEdit}>
               Edit
             </button>
             <div className={classes.Separator} />
-            {todo.type === 'DAY' && (
+            {(todo.type === 'DAY' || todo.type === 'MONTH') && (
               <>
                 <button
                   type="button"
