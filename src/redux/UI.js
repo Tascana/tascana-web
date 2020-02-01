@@ -84,4 +84,51 @@ const UISlice = createSlice({
   },
 })
 
+export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
+  const {
+    tasks,
+    UI: { selectedId },
+  } = getState()
+
+  function getTree(id) {
+    let parent = []
+
+    function getParent(parentId) {
+      if (parentId && tasks[parentId]) {
+        parent.push(tasks[parentId])
+        return getParent(tasks[parentId].parentId)
+      }
+      return parent.map(p => p.id)
+    }
+
+    function getChildren(todoId) {
+      const todosArr = Object.values(tasks)
+
+      const child = todosArr.filter(i => i.parentId === todoId)
+
+      const allChild = [
+        ...child,
+        ...todosArr.filter(i => child.map(i => i.id).includes(i.parentId)),
+      ]
+
+      return allChild.map(c => c.id)
+    }
+
+    return [...getParent(todo.parentId), ...getChildren(todo.id)]
+  }
+
+  if (selectedId !== null) {
+    if (selectedId === todo.id) {
+      dispatch(UISlice.actions.select(null))
+      dispatch(UISlice.actions.selectTree([]))
+    } else {
+      dispatch(UISlice.actions.select(todo.id))
+      dispatch(UISlice.actions.selectTree(getTree()))
+    }
+  } else {
+    dispatch(UISlice.actions.select(todo.id))
+    dispatch(UISlice.actions.selectTree(getTree()))
+  }
+}
+
 export default UISlice

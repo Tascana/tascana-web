@@ -1,23 +1,31 @@
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useSpring, animated } from 'react-spring'
 import cx from 'classnames'
-import nanoid from 'nanoid'
 import { FirebaseContext } from '../Firebase'
-import ui from '../../redux/UI'
-import tasks from '../../redux/tasks'
 import ProgressBar from './progress-bar'
+import ContextMenu from './context-menu'
 import classes from './styles.module.scss'
 import { randomGrad, getTodos } from './utils'
 import checkMark from '../../assets/icons/checkmark.png'
+import * as types from '../../constants/task-types'
+
+import {
+  createTaskAction,
+  editTaskAction,
+  removeTaskAction,
+  doneTaskAction,
+} from '../../redux/tasks'
+
+import { selectTreeAction } from '../../redux/UI'
 
 function TextMode({
   todo,
   edited,
-  selected,
   i,
   todos,
-  isVisibleContextMenu,
-  setIsVisibleContextMenu,
+  contextMenu,
+  setContextMenu,
   done,
   remove,
   selectedTree,
@@ -26,8 +34,6 @@ function TextMode({
   const bg = useRef(null)
   const dispatch = useDispatch()
   const selectedId = useSelector(state => state.UI.selectedId)
-
-  console.log(selectedTree.includes(todo.id), selectedTree, todo.id)
 
   const getProgress = () => {
     const { id } = todo
@@ -47,36 +53,6 @@ function TextMode({
 
     return progress
   }
-
-  useEffect(() => {
-    const item = bg.current
-
-    function handleContextMenu(e) {
-      e.preventDefault()
-
-      setIsVisibleContextMenu(todo.id)
-    }
-
-    function handleClick(e) {
-      const wasOutside = !(e.target.contains === this.root)
-
-      if (wasOutside && isVisibleContextMenu) setIsVisibleContextMenu(false)
-    }
-
-    function handleScroll() {
-      if (isVisibleContextMenu) setIsVisibleContextMenu(false)
-    }
-
-    item.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('click', handleClick)
-    document.addEventListener('scroll', handleScroll)
-
-    return function cleanup() {
-      item.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('click', handleClick)
-      document.removeEventListener('scroll', handleScroll)
-    }
-  }, [isVisibleContextMenu]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function getGradient() {
     if (todo.type === 'YEAR') return randomGrad(todo.createdAt)
@@ -102,47 +78,19 @@ function TextMode({
       <div
         onDoubleClick={setEdit}
         onClick={() => {
-          function getTree(id) {
-            let parent = []
+          dispatch(selectTreeAction({ todo }))
+        }}
+        onContextMenu={e => {
+          e.preventDefault()
+          e.stopPropagation()
 
-            function getParent(parentId) {
-              if (parentId && todos[parentId]) {
-                parent.push(todos[parentId])
-                return getParent(todos[parentId].parentId)
-              }
-              return parent.map(p => p.id)
-            }
-
-            function getChildren(todoId) {
-              const todosArr = Object.values(todos)
-
-              const child = todosArr.filter(i => i.parentId === todoId)
-
-              const allChild = [
-                ...child,
-                ...todosArr.filter(i =>
-                  child.map(i => i.id).includes(i.parentId),
-                ),
-              ]
-
-              return allChild.map(c => c.id)
-            }
-
-            return [...getParent(todo.parentId), ...getChildren(todo.id)]
-          }
-
-          if (selectedId !== null) {
-            if (selectedId === todo.id) {
-              dispatch(ui.actions.select(null))
-              dispatch(ui.actions.selectTree([]))
-            } else {
-              dispatch(ui.actions.select(todo.id))
-              dispatch(ui.actions.selectTree(getTree()))
-            }
-          } else {
-            dispatch(ui.actions.select(todo.id))
-            dispatch(ui.actions.selectTree(getTree()))
-          }
+          setContextMenu({
+            taskId: todo.id,
+            position: {
+              x: e.clientX,
+              y: e.clientY,
+            },
+          })
         }}
         onMouseDown={e => {
           if (e.detail > 1) e.preventDefault()
@@ -184,60 +132,32 @@ function TextMode({
         getProgress() < 100 ? (
           <ProgressBar progress={getProgress()} />
         ) : null}
-        {isVisibleContextMenu === todo.id ? (
-          <div className={classes.ContextMenu}>
-            <button type="button" onClick={setEdit}>
-              Edit
-            </button>
-            <div className={classes.Separator} />
-            {(todo.type === 'DAY' || todo.type === 'MONTH') && (
-              <>
-                <button
-                  type="button"
-                  onClick={e => {
-                    e.stopPropagation()
-                    done(todo.id)
-                  }}
-                >
-                  Done
-                </button>
-                <div className={classes.Separator} />
-              </>
-            )}
-            <button
-              className={classes.Delete}
-              type="button"
-              onClick={e => {
-                e.stopPropagation()
-                remove(todo.id)
-                const todosArr = Object.values(todos)
-
-                const child = todosArr.filter(i => i.parentId === todo.id)
-
-                const allChild = [
-                  ...child,
-                  ...todosArr.filter(i =>
-                    child.map(i => i.id).includes(i.parentId),
-                  ),
-                ]
-
-                if (allChild.length) {
-                  allChild.forEach(c => {
-                    remove(c.id)
-                  })
-                }
-              }}
-            >
-              Delete
-            </button>
-          </div>
-        ) : null}
+        <ContextMenu
+          isOpen={contextMenu.taskId === todo.id}
+          position={contextMenu.position}
+          onClose={() => {
+            setContextMenu({
+              taskId: null,
+              position: { x: null, y: null },
+            })
+          }}
+          edit={setEdit}
+          hasDone={todo.type === types.DAY || todo.type === types.MONTH}
+          done={e => {
+            e.stopPropagation()
+            done()
+          }}
+          remove={e => {
+            e.stopPropagation()
+            remove()
+          }}
+        />
       </div>
     </>
   )
 }
 
-function AddMode({ added, selected, type, selectedTask, selectedId }) {
+function AddMode({ added, type, selectedTask, selectedId }) {
   let disable = false
 
   if (selectedId === null && type !== 'YEAR') disable = true
@@ -272,7 +192,6 @@ function AddMode({ added, selected, type, selectedTask, selectedId }) {
               classes.TaskBox
             e.currentTarget.parentElement.style = 'padding: 15px'
             e.currentTarget.focus()
-            selected()
           }}
           onBlur={e => {
             if (e.target.innerHTML !== '') added(e.target.innerHTML)
@@ -295,8 +214,226 @@ function AddMode({ added, selected, type, selectedTask, selectedId }) {
   )
 }
 
+function DaySubtask({
+  type,
+  selectedTask,
+  add,
+  edit,
+  tasks,
+  allTasks,
+  contextMenu,
+  setContextMenu,
+  selectedTree,
+}) {
+  const selectedId = useSelector(state => state.UI.selectedId)
+  const dispatch = useDispatch()
+  const firebase = useContext(FirebaseContext)
+  const [isEdit, setIsEdit] = useState(null)
+  const [isAdd, setIsAdd] = useState(false)
+  const wrapper = useRef(null)
+  const list = useRef(null)
+  const input = useRef(null)
+  const [props, set] = useSpring(() => ({
+    height: 'auto',
+  }))
+  const isDisableAdding =
+    !selectedTask || (selectedTask && selectedTask.type !== types.MONTH)
+
+  useEffect(() => {
+    set({
+      height: wrapper.current.scrollHeight,
+    })
+  }, []) // eslint-disable-line
+
+  useEffect(() => {
+    set({
+      height: wrapper.current.scrollHeight + 2,
+    })
+  }, [tasks]) // eslint-disable-line
+
+  useEffect(() => {
+    const editable = document.querySelector('[contenteditable="true"]')
+    if (editable) {
+      editable.focus()
+    }
+  }, [isEdit])
+
+  useEffect(() => {
+    if (isAdd) {
+      setTimeout(() => {
+        input.current.focus()
+      }, 250) // after animation
+    }
+  }, [isAdd])
+
+  const handleAdd = e => {
+    const subtaskText = e.target.value
+    if (subtaskText) {
+      setIsAdd(false)
+      add(subtaskText)
+    }
+  }
+
+  const handleEdit = (e, { task, id }) => {
+    if (e.target.textContent !== task) {
+      edit(e.target.textContent, id)
+    }
+    setIsEdit(null)
+  }
+
+  return (
+    <animated.div className={classes.SubtaskBox} style={props} ref={wrapper}>
+      <div className={classes.SubtaskBoxHeading}>
+        <h4>{type.toLowerCase()}</h4>
+        <button
+          type="button"
+          disabled={isDisableAdding}
+          className={classes.AddSubtask}
+          onClick={() => {
+            setIsAdd(!isAdd)
+            set({
+              height: !isAdd
+                ? wrapper.current.scrollHeight + 34
+                : wrapper.current.scrollHeight - 34,
+            })
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 341.4 341.4">
+            <path
+              d="M192 149.4V0h-42.6v149.4H0V192h149.4v149.4H192V192h149.4v-42.6z"
+              fill="#616161"
+            />
+          </svg>
+        </button>
+      </div>
+      {tasks.length > 0 && (
+        <ul ref={list} className={classes.SubtaskList}>
+          {tasks.map((s, i) => {
+            function getGradient() {
+              if (s.type === 'YEAR') return randomGrad(s.createdAt)
+
+              if (s.type === 'MONTH')
+                return randomGrad(allTasks[s.parentId].createdAt)
+
+              if (s.type === 'DAY') {
+                const dayParent = allTasks[s.parentId]
+                const monthParent = allTasks[dayParent.parentId]
+
+                return randomGrad(monthParent.createdAt)
+              }
+            }
+
+            return (
+              <li
+                key={i}
+                data-isedit={typeof isEdit === 'number' ? i + s.id : 'null'}
+                onDoubleClick={() => {
+                  setIsEdit(i)
+                }}
+                className={cx({
+                  [classes.BoxSelected]:
+                    selectedId === s.id || selectedTree.includes(s.id),
+                  [classes.BoxUnselected]:
+                    selectedId !== null &&
+                    selectedId !== s.id &&
+                    !selectedTree.includes(s.id),
+                })}
+                onContextMenu={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+
+                  setContextMenu({
+                    taskId: s.id,
+                    position: {
+                      x: e.clientX,
+                      y: e.clientY,
+                    },
+                  })
+                }}
+              >
+                <div
+                  className={classes.Mark}
+                  style={{
+                    background: getGradient(),
+                  }}
+                >
+                  <div>
+                    {s.done && (
+                      <div
+                        style={{
+                          background: getGradient(),
+                        }}
+                      ></div>
+                    )}
+                  </div>
+                </div>{' '}
+                <p
+                  contentEditable={isEdit === i}
+                  onKeyPress={e => {
+                    if (e.key === 'Enter') {
+                      handleEdit(e, s)
+                    }
+                  }}
+                  onBlur={e => {
+                    handleEdit(e, s)
+                  }}
+                >
+                  {s.task}
+                </p>
+                <ContextMenu
+                  isOpen={contextMenu.taskId === s.id}
+                  position={contextMenu.position}
+                  onClose={() => {
+                    setContextMenu({
+                      taskId: null,
+                      position: { x: null, y: null },
+                    })
+                  }}
+                  edit={e => {
+                    e.stopPropagation()
+                    setIsEdit(i)
+                  }}
+                  done={e => {
+                    e.stopPropagation()
+                    dispatch(doneTaskAction({ firebase, id: s.id }))
+                  }}
+                  remove={e => {
+                    e.stopPropagation()
+                    dispatch(removeTaskAction({ todo: s, firebase }))
+                  }}
+                />
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      <input
+        style={{
+          display: isAdd ? 'initial' : 'none',
+        }}
+        ref={input}
+        type="text"
+        autoCorrect="true"
+        className={classes.SubtaskBoxInput}
+        onKeyPress={e => {
+          if (e.key === 'Enter') {
+            handleAdd(e)
+          }
+        }}
+        onBlur={handleAdd}
+      />
+    </animated.div>
+  )
+}
+
 function TaskBox({ type, id }) {
-  const [isVisibleContextMenu, setIsVisibleContextMenu] = useState(false)
+  const [contextMenu, setContextMenu] = useState({
+    taskId: null,
+    position: {
+      x: null,
+      y: null,
+    },
+  })
 
   const todos = useSelector(state => getTodos(state, type, id))
   const allTasks = useSelector(state => state.tasks)
@@ -306,173 +443,87 @@ function TaskBox({ type, id }) {
     state => state.tasks[selectedId],
     () => !!selectedId,
   )
-  const userId = useSelector(state => state.session.authUser.uid)
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
+
+  if (type === types.DAY) {
+    return [types.MORNING, types.EVENING, types.AFTERNOON].map(i => (
+      <DaySubtask
+        key={i}
+        type={i}
+        selectedTask={selectedTask}
+        allTasks={allTasks}
+        contextMenu={contextMenu}
+        setContextMenu={setContextMenu}
+        selectedTree={selectedTree}
+        add={text => {
+          dispatch(
+            createTaskAction({
+              type: types.DAY,
+              text,
+              subtype: i,
+              firebase,
+              id,
+            }),
+          )
+        }}
+        edit={(input, id) => {
+          dispatch(
+            editTaskAction({
+              newText: input,
+              firebase,
+              id,
+            }),
+          )
+        }}
+        tasks={todos
+          .map(t => (t.subtype ? t : { ...t, subtype: types.MORNING }))
+          .filter(t => t.subtype === i)}
+      />
+    ))
+  }
 
   return (
     <>
       {todos.map((item, i) => (
         <TextMode
-          isVisibleContextMenu={isVisibleContextMenu}
-          setIsVisibleContextMenu={setIsVisibleContextMenu}
+          contextMenu={contextMenu}
+          setContextMenu={setContextMenu}
           key={`task-${i}`}
           todo={item}
           i={i}
           selectedTree={selectedTree}
           edited={(input, id) => {
-            const taskForEdit = allTasks[id]
-
-            const editedTask = {
-              ...taskForEdit,
-              task: input,
-              updatedAt: Date.now(),
-            }
-
-            firebase.editTask(editedTask, userId, taskForEdit.id)
             dispatch(
-              tasks.actions.editTask({
-                id: taskForEdit.id,
-                task: editedTask,
+              editTaskAction({
+                newText: input,
+                firebase,
+                id,
               }),
             )
-            dispatch(ui.actions.select(null))
           }}
-          remove={id => {
-            firebase.deleteTask(userId, id)
-            dispatch(tasks.actions.deleteTask(id))
-            dispatch(ui.actions.select(null))
+          remove={() => {
+            dispatch(removeTaskAction({ todo: item, firebase }))
           }}
-          done={id => {
-            const completedTask = allTasks[id]
-
-            const childrenTasks = Object.values(allTasks).filter(
-              i => i.parentId === id,
-            )
-
-            const completed = {
-              ...completedTask,
-              done: !completedTask.done,
-              updatedAt: Date.now(),
-            }
-
-            firebase.editTask(completed, userId, completedTask.id)
-            dispatch(
-              tasks.actions.editTask({
-                id: completedTask.id,
-                task: completed,
-              }),
-            )
-
-            childrenTasks.forEach(c => {
-              const updatedChildren = {
-                ...c,
-                done: !completedTask.done,
-                updatedAt: Date.now(),
-              }
-
-              firebase.editTask(updatedChildren, userId, c.id)
-              dispatch(
-                tasks.actions.editTask({
-                  id: c.id,
-                  task: updatedChildren,
-                }),
-              )
-            })
-
-            dispatch(ui.actions.select(null))
+          done={() => {
+            dispatch(doneTaskAction({ firebase, id: item.id }))
           }}
           todos={allTasks}
-          selected={(arg = null) => {
-            const sum = (a, b) => a + b.selected
-            if (arg !== null) {
-              todos[i].selected = arg
-            }
-            if (todos.reduce(sum, 0) === 0) {
-              todos.forEach(element => {
-                element.selected = true
-              })
-              todos[i].selected = false
-            } else if (todos[i].selected === false) {
-              todos.forEach(element => {
-                element.selected = false
-              })
-              todos[i].selected = false
-            } else {
-              todos.forEach(element => {
-                element.selected = true
-              })
-              todos[i].selected = false
-            }
-          }}
         />
       ))}
       <AddMode
         selectedId={selectedId}
         selectedTask={selectedTask}
         type={type}
-        added={input => {
-          const getParentId = () => {
-            if (type === 'YEAR') return null
-
-            if (
-              selectedTask &&
-              selectedTask.type === 'YEAR' &&
-              type === 'MONTH'
-            )
-              return selectedId
-
-            if (selectedTask && selectedTask.type === 'MONTH' && type === 'DAY')
-              return selectedId
-          }
-
-          const parent = allTasks[getParentId()]
-
-          if (parent && parent.done) {
-            const updatedParent = {
-              ...parent,
-              done: false,
-              updatedAt: Date.now(),
-            }
-            firebase.editTask(updatedParent, userId, parent.id)
-
-            dispatch(
-              tasks.actions.editTask({
-                id: parent.id,
-                task: updatedParent,
-              }),
-            )
-          }
-
-          const newTaskId = nanoid(12)
-          const newTask = {
-            task: input,
-            done: false,
-            progress: 0,
-            type,
-            id: newTaskId,
-            year: id.year,
-            month: id.month || -1,
-            day: id.day || -1,
-            parentId: getParentId(),
-            userId,
-            createdAt: Date.now(),
-            updatedAt: -1,
-          }
-
-          firebase.createTask(newTask, userId, newTaskId)
+        added={text => {
           dispatch(
-            tasks.actions.createTask({
-              id: newTaskId,
-              task: newTask,
+            createTaskAction({
+              type,
+              text,
+              firebase,
+              id,
             }),
           )
-          dispatch(ui.actions.select(null))
-        }}
-        selected={() => {
-          todos.forEach(element => {
-            element.selected = false
-          })
         }}
       />
     </>

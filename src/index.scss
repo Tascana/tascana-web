@@ -59,9 +59,10 @@ ul {
 }
 
 #root {
-  width: 100%;
-  overflow-x: hidden;
   position: absolute;
+  width: 100%;
+  padding-bottom: 80px;
+  overflow-x: hidden;
 }
 
 .noselect {
