@@ -87,7 +87,7 @@ function hwb(hue, sat, int) {
   )})`
 }
 
-export function randomgrad(i) {
+export function randomGrad(i) {
   const deg = Math.round(20 * i + 210 - 30 / Math.trunc((i + 18) / 18)) % 360
   const deg2 =
     Math.round(20 * i + 210 + 20 - 30 / Math.trunc((i + 18) / 18)) % 360
@@ -108,25 +108,25 @@ export function randomgrad(i) {
   )
 }
 
-export function randomGrad(i) {
-  const modifiedI = Math.ceil(
-    i +
-      ''
-        .split('')
-        .reverse()
-        .join('') /
-        10000000000,
-  )
-  const deg = ((20 * modifiedI) % 360) + 190
-  const s = 50
-  const l = 60
+// export function randomGrad(i) {
+//   const modifiedI = Math.ceil(
+//     i +
+//       ''
+//         .split('')
+//         .reverse()
+//         .join('') /
+//         10000000000,
+//   )
+//   const deg = ((20 * modifiedI) % 360) + 190
+//   const s = 50
+//   const l = 60
 
-  return `linear-gradient(330deg, ${hwb(deg + 25, s - 40, l + 30)} 0%, ${hwb(
-    deg,
-    s,
-    l,
-  )} 100%)`
-}
+//   return `linear-gradient(330deg, ${hwb(deg + 25, s - 40, l + 30)} 0%, ${hwb(
+//     deg,
+//     s,
+//     l,
+//   )} 100%)`
+// }
 
 export function getTodos(state, type, id) {
   switch (type) {
