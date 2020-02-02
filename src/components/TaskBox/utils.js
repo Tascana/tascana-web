@@ -1,3 +1,5 @@
+import { rainbow } from '../../constants/rainbow'
+
 export const getTodosByType = (
   store,
   type,
@@ -83,6 +85,27 @@ function hwb(hue, sat, int) {
   return `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(
     b * 255,
   )})`
+}
+
+export function randomgrad(i) {
+  const deg = Math.round(20 * i + 210 - 30 / Math.trunc((i + 18) / 18)) % 360
+  const deg2 =
+    Math.round(20 * i + 210 + 20 - 30 / Math.trunc((i + 18) / 18)) % 360
+  return (
+    'linear-gradient(330deg, rgb(' +
+    rainbow[deg * 4 + 0] +
+    ',' +
+    rainbow[deg * 4 + 1] +
+    ',' +
+    rainbow[deg * 4 + 2] +
+    ') 0%, rgb(' +
+    rainbow[deg2 * 4 + 0] +
+    ',' +
+    rainbow[deg2 * 4 + 1] +
+    ',' +
+    rainbow[deg2 * 4 + 2] +
+    ') 100%)'
+  )
 }
 
 export function randomGrad(i) {
