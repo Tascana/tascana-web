@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useSpring, animated } from 'react-spring'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import cx from 'classnames'
 import arrayMove from 'array-move'
 import { FirebaseContext } from '../Firebase'
@@ -241,26 +241,11 @@ function DaySubtask({
   const firebase = useContext(FirebaseContext)
   const [isEdit, setIsEdit] = useState(null)
   const [isAdd, setIsAdd] = useState(false)
-  const wrapper = useRef(null)
   const list = useRef(null)
   const input = useRef(null)
-  const [props, set] = useSpring(() => ({
-    height: 'auto',
-  }))
+
   const isDisableAdding =
     !selectedTask || (selectedTask && selectedTask.type !== types.MONTH)
-
-  useEffect(() => {
-    set({
-      height: wrapper.current.scrollHeight,
-    })
-  }, []) // eslint-disable-line
-
-  useEffect(() => {
-    set({
-      height: wrapper.current.scrollHeight + 2,
-    })
-  }, [tasks]) // eslint-disable-line
 
   useEffect(() => {
     const editable = document.querySelector('[contenteditable="true"]')
@@ -293,147 +278,173 @@ function DaySubtask({
   }
 
   return (
-    <animated.div className={classes.SubtaskBox} style={props} ref={wrapper}>
-      <div className={classes.SubtaskBoxHeading}>
-        <h4>{type.toLowerCase()}</h4>
-        <button
-          type="button"
-          disabled={isDisableAdding}
-          className={classes.AddSubtask}
-          onClick={() => {
-            setIsAdd(!isAdd)
-            set({
-              height: !isAdd
-                ? wrapper.current.scrollHeight + 34
-                : wrapper.current.scrollHeight - 34,
-            })
-          }}
+    <Droppable droppableId={type}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={classes.SubtaskBox}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 341.4 341.4">
-            <path
-              d="M192 149.4V0h-42.6v149.4H0V192h149.4v149.4H192V192h149.4v-42.6z"
-              fill="#616161"
-            />
-          </svg>
-        </button>
-      </div>
-      {tasks.length > 0 && (
-        <ul ref={list} className={classes.SubtaskList}>
-          {tasks.map((s, i) => {
-            function getGradient() {
-              if (s.type === 'YEAR') return randomGrad(s.createdAt)
-
-              if (s.type === 'MONTH')
-                return randomGrad(allTasks[s.parentId].createdAt)
-
-              if (s.type === 'DAY') {
-                const dayParent = allTasks[s.parentId]
-                const monthParent = allTasks[dayParent.parentId]
-
-                return randomGrad(monthParent.createdAt)
-              }
-            }
-
-            return (
-              <li
-                key={i}
-                data-isedit={typeof isEdit === 'number' ? i + s.id : 'null'}
-                onDoubleClick={() => {
-                  setIsEdit(i)
-                }}
-                className={cx({
-                  [classes.BoxSelected]:
-                    selectedId === s.id || selectedTree.includes(s.id),
-                  [classes.BoxUnselected]:
-                    selectedId !== null &&
-                    selectedId !== s.id &&
-                    !selectedTree.includes(s.id),
-                })}
-                onContextMenu={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-
-                  setContextMenu({
-                    taskId: s.id,
-                    position: {
-                      x: e.clientX,
-                      y: e.clientY,
-                    },
-                  })
+          <>
+            <div className={classes.SubtaskBoxHeading}>
+              <h4>{type.toLowerCase()}</h4>
+              <button
+                type="button"
+                disabled={isDisableAdding}
+                className={classes.AddSubtask}
+                onClick={() => {
+                  setIsAdd(!isAdd)
                 }}
               >
-                <div
-                  className={classes.Mark}
-                  style={{
-                    background: getGradient(),
-                  }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 341.4 341.4"
                 >
-                  <div>
-                    {s.done && (
-                      <div
-                        style={{
-                          background: getGradient(),
-                        }}
-                      ></div>
-                    )}
-                  </div>
-                </div>{' '}
-                <p
-                  contentEditable={isEdit === i}
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
-                      handleEdit(e, s)
+                  <path
+                    d="M192 149.4V0h-42.6v149.4H0V192h149.4v149.4H192V192h149.4v-42.6z"
+                    fill="#616161"
+                  />
+                </svg>
+              </button>
+            </div>
+            {tasks.length > 0 && (
+              <ul ref={list} className={classes.SubtaskList}>
+                {tasks
+                  .sort((a, b) => a.position - b.position)
+                  .map((s, i) => {
+                    function getGradient() {
+                      if (s.type === 'YEAR') return randomGrad(s.createdAt)
+
+                      if (s.type === 'MONTH')
+                        return randomGrad(allTasks[s.parentId].createdAt)
+
+                      if (s.type === 'DAY') {
+                        const dayParent = allTasks[s.parentId]
+                        const monthParent = allTasks[dayParent.parentId]
+
+                        return randomGrad(monthParent.createdAt)
+                      }
                     }
-                  }}
-                  onBlur={e => {
-                    handleEdit(e, s)
-                  }}
-                >
-                  {s.task}
-                </p>
-                <ContextMenu
-                  isOpen={contextMenu.taskId === s.id}
-                  position={contextMenu.position}
-                  onClose={() => {
-                    setContextMenu({
-                      taskId: null,
-                      position: { x: null, y: null },
-                    })
-                  }}
-                  edit={e => {
-                    e.stopPropagation()
-                    setIsEdit(i)
-                  }}
-                  done={e => {
-                    e.stopPropagation()
-                    dispatch(doneTaskAction({ firebase, id: s.id }))
-                  }}
-                  remove={e => {
-                    e.stopPropagation()
-                    dispatch(removeTaskAction({ todo: s, firebase }))
-                  }}
-                />
-              </li>
-            )
-          })}
-        </ul>
+
+                    return (
+                      <Draggable
+                        draggableId={s.id}
+                        key={`${s.id}-${i}-${s.subtype}`}
+                        index={i}
+                      >
+                        {(provided, snapshot) => (
+                          <li
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            ref={provided.innerRef}
+                            data-isedit={
+                              typeof isEdit === 'number' ? i + s.id : 'null'
+                            }
+                            onDoubleClick={() => {
+                              setIsEdit(i)
+                            }}
+                            className={cx({
+                              [classes.BoxSelected]:
+                                selectedId === s.id ||
+                                selectedTree.includes(s.id),
+                              [classes.BoxUnselected]:
+                                selectedId !== null &&
+                                selectedId !== s.id &&
+                                !selectedTree.includes(s.id),
+                            })}
+                            onContextMenu={e => {
+                              e.preventDefault()
+                              e.stopPropagation()
+
+                              setContextMenu({
+                                taskId: s.id,
+                                position: {
+                                  x: e.clientX,
+                                  y: e.clientY,
+                                },
+                              })
+                            }}
+                          >
+                            <div
+                              className={classes.Mark}
+                              style={{
+                                background: getGradient(),
+                              }}
+                            >
+                              <div>
+                                {s.done && (
+                                  <div
+                                    style={{
+                                      background: getGradient(),
+                                    }}
+                                  ></div>
+                                )}
+                              </div>
+                            </div>{' '}
+                            <p
+                              contentEditable={isEdit === i}
+                              onKeyPress={e => {
+                                if (e.key === 'Enter') {
+                                  handleEdit(e, s)
+                                }
+                              }}
+                              onBlur={e => {
+                                handleEdit(e, s)
+                              }}
+                            >
+                              {s.task}
+                            </p>
+                            <ContextMenu
+                              isOpen={contextMenu.taskId === s.id}
+                              position={contextMenu.position}
+                              onClose={() => {
+                                setContextMenu({
+                                  taskId: null,
+                                  position: { x: null, y: null },
+                                })
+                              }}
+                              edit={e => {
+                                e.stopPropagation()
+                                setIsEdit(i)
+                              }}
+                              done={e => {
+                                e.stopPropagation()
+                                dispatch(doneTaskAction({ firebase, id: s.id }))
+                              }}
+                              remove={e => {
+                                e.stopPropagation()
+                                dispatch(
+                                  removeTaskAction({ todo: s, firebase }),
+                                )
+                              }}
+                            />
+                          </li>
+                        )}
+                      </Draggable>
+                    )
+                  })}
+              </ul>
+            )}
+            <input
+              style={{
+                display: isAdd ? 'initial' : 'none',
+              }}
+              ref={input}
+              type="text"
+              autoCorrect="true"
+              className={classes.SubtaskBoxInput}
+              onKeyPress={e => {
+                if (e.key === 'Enter') {
+                  handleAdd(e)
+                }
+              }}
+              onBlur={handleAdd}
+            />
+          </>
+          {provided.placeholder}
+        </div>
       )}
-      <input
-        style={{
-          display: isAdd ? 'initial' : 'none',
-        }}
-        ref={input}
-        type="text"
-        autoCorrect="true"
-        className={classes.SubtaskBoxInput}
-        onKeyPress={e => {
-          if (e.key === 'Enter') {
-            handleAdd(e)
-          }
-        }}
-        onBlur={handleAdd}
-      />
-    </animated.div>
+    </Droppable>
   )
 }
 
@@ -459,51 +470,123 @@ function TaskBox({ type, id }) {
   const firebase = useContext(FirebaseContext)
 
   if (type === types.DAY) {
-    return [types.MORNING, types.EVENING, types.AFTERNOON].map(i => (
-      <DaySubtask
-        key={i}
-        type={i}
-        selectedTask={selectedTask}
-        allTasks={allTasks}
-        contextMenu={contextMenu}
-        setContextMenu={setContextMenu}
-        selectedTree={selectedTree}
-        add={text => {
-          dispatch(
-            createTaskAction({
-              type: types.DAY,
-              text,
-              subtype: i,
-              firebase,
-              id,
-            }),
+    return (
+      <DragDropContext
+        onDragEnd={({ destination, source, draggableId }) => {
+          dispatch(setSort(false))
+
+          if (!destination) return
+
+          if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
           )
+            return
+
+          const destinationTasks = todos
+            .filter(t => t.subtype === destination.droppableId)
+            .sort((a, b) => a.position - b.position)
+
+          const sorted = arrayMove(
+            destinationTasks,
+            source.index,
+            destination.index,
+          ).filter(Boolean)
+
+          if (destination.droppableId === source.droppableId) {
+            sorted.forEach((t, index) => {
+              dispatch(
+                editTaskAction({
+                  id: t.id,
+                  firebase,
+                  isSort: true,
+                  updatedData: {
+                    position: index,
+                  },
+                }),
+              )
+            })
+          } else {
+            const draggable = allTasks[draggableId]
+            const tasks = todos.filter(
+              t => t.subtype === destination.droppableId,
+            )
+
+            tasks.splice(destination.index, 0, draggable)
+
+            const sortedByPosition = tasks.sort(
+              (a, b) => a.position - b.position,
+            )
+
+            const reorder = arrayMove(
+              sortedByPosition,
+              source.index,
+              destination.index,
+            ).filter(Boolean)
+
+            reorder.forEach((t, index) => {
+              dispatch(
+                editTaskAction({
+                  id: t.id,
+                  firebase,
+                  isSort: true,
+                  updatedData: {
+                    subtype: destination.droppableId,
+                    position: index,
+                  },
+                }),
+              )
+            })
+          }
         }}
-        edit={(input, id) => {
-          dispatch(
-            editTaskAction({
-              updatedData: {
-                task: input,
-              },
-              firebase,
-              id,
-            }),
-          )
+        onDragStart={() => {
+          dispatch(setSort(true))
         }}
-        tasks={todos
-          .map(t => (t.subtype ? t : { ...t, subtype: types.MORNING }))
-          .filter(t => t.subtype === i)}
-      />
-    ))
+      >
+        {[types.MORNING, types.AFTERNOON, types.EVENING].map(i => (
+          <DaySubtask
+            key={i}
+            type={i}
+            selectedTask={selectedTask}
+            allTasks={allTasks}
+            contextMenu={contextMenu}
+            setContextMenu={setContextMenu}
+            selectedTree={selectedTree}
+            add={text => {
+              dispatch(
+                createTaskAction({
+                  type: types.DAY,
+                  text,
+                  subtype: i,
+                  firebase,
+                  id,
+                }),
+              )
+            }}
+            edit={(input, id) => {
+              dispatch(
+                editTaskAction({
+                  updatedData: {
+                    task: input,
+                  },
+                  firebase,
+                  id,
+                }),
+              )
+            }}
+            tasks={todos
+              .map(t => (t.subtype ? t : { ...t, subtype: types.MORNING }))
+              .filter(t => t.subtype === i)}
+          />
+        ))}
+      </DragDropContext>
+    )
   }
 
   return (
     <>
       <Container
         pressDelay={800}
-        transitionDuration={400}
-        disableAutoscroll
-        lockToContainerEdges
         helperClass={classes.isSortable}
         axis={'xy'}
         onSortStart={() => {
