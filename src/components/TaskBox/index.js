@@ -237,6 +237,7 @@ function DaySubtask({
   selectedTree,
 }) {
   const selectedId = useSelector(state => state.UI.selectedId)
+  const sort = useSelector(state => state.UI.sort)
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
   const [isEdit, setIsEdit] = useState(null)
@@ -275,6 +276,18 @@ function DaySubtask({
       edit(e.target.textContent, id)
     }
     setIsEdit(null)
+  }
+
+  let buttonPressTimer
+
+  function handleButtonPress() {
+    buttonPressTimer = setTimeout(() => {
+      dispatch(setSort(true))
+    }, 1000)
+  }
+
+  function handleButtonRelease() {
+    clearTimeout(buttonPressTimer)
   }
 
   return (
@@ -331,6 +344,7 @@ function DaySubtask({
                         draggableId={s.id}
                         key={`${s.id}-${i}-${s.subtype}`}
                         index={i}
+                        isDragDisabled={!sort}
                       >
                         {(provided, snapshot) => (
                           <li
@@ -340,6 +354,11 @@ function DaySubtask({
                             data-isedit={
                               typeof isEdit === 'number' ? i + s.id : 'null'
                             }
+                            onTouchStart={handleButtonPress}
+                            onTouchEnd={handleButtonRelease}
+                            onMouseDown={handleButtonPress}
+                            onMouseUp={handleButtonRelease}
+                            onMouseLeave={handleButtonRelease}
                             onDoubleClick={() => {
                               setIsEdit(i)
                             }}
@@ -351,6 +370,7 @@ function DaySubtask({
                                 selectedId !== null &&
                                 selectedId !== s.id &&
                                 !selectedTree.includes(s.id),
+                              [classes.BoxSorted]: !sort,
                             })}
                             onContextMenu={e => {
                               e.preventDefault()
@@ -472,6 +492,9 @@ function TaskBox({ type, id }) {
   if (type === types.DAY) {
     return (
       <DragDropContext
+        onDragStart={() => {
+          dispatch(setSort(true))
+        }}
         onDragEnd={({ destination, source, draggableId }) => {
           dispatch(setSort(false))
 
@@ -539,9 +562,6 @@ function TaskBox({ type, id }) {
             })
           }
         }}
-        onDragStart={() => {
-          dispatch(setSort(true))
-        }}
       >
         {[types.MORNING, types.AFTERNOON, types.EVENING].map(i => (
           <DaySubtask
@@ -586,7 +606,7 @@ function TaskBox({ type, id }) {
   return (
     <>
       <Container
-        pressDelay={800}
+        pressDelay={1000}
         helperClass={classes.isSortable}
         axis={'xy'}
         onSortStart={() => {
