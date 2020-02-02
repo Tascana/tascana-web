@@ -13,6 +13,7 @@ const INITIAL_STATE = {
   selectedId: null,
   swipeableLine: '',
   selectedTree: [],
+  sort: false,
 }
 
 const UISlice = createSlice({
@@ -81,8 +82,14 @@ const UISlice = createSlice({
       ...state,
       selectedTree: action.payload,
     }),
+    setSort: (state, action) => ({
+      ...state,
+      sort: action.payload,
+    }),
   },
 })
+
+export const setSort = UISlice.actions.setSort
 
 export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
   const {

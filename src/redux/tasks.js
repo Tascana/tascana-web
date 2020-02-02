@@ -10,10 +10,20 @@ const tasksSlice = createSlice({
   name: 'tasks',
   initialState: INITIAL_STATE,
   reducers: {
-    setTasks: (state, action) => ({
-      ...state,
-      ...action.payload,
-    }),
+    setTasks: (state, { payload: tasks }) => {
+      Object.keys(tasks).forEach((id, index) => {
+        tasks[id].id = id
+
+        if (typeof tasks[id].position !== 'number') {
+          tasks[id].position = index
+        }
+      })
+
+      return {
+        ...state,
+        ...tasks,
+      }
+    },
     createTask: (state, action) => ({
       ...state,
       [action.payload.id]: action.payload.task,
@@ -101,10 +111,12 @@ export const createTaskAction = ({
   } catch (e) {}
 }
 
-export const editTaskAction = ({ id, firebase, newText }) => async (
-  dispatch,
-  getState,
-) => {
+export const editTaskAction = ({
+  id,
+  firebase,
+  updatedData,
+  isSort = false,
+}) => async (dispatch, getState) => {
   try {
     const { tasks, session } = getState()
     const userId = session.authUser.uid
@@ -113,7 +125,7 @@ export const editTaskAction = ({ id, firebase, newText }) => async (
 
     const editedTask = {
       ...taskForEdit,
-      task: newText,
+      ...updatedData,
       updatedAt: Date.now(),
     }
 
@@ -124,7 +136,7 @@ export const editTaskAction = ({ id, firebase, newText }) => async (
         task: editedTask,
       }),
     )
-    dispatch(uiSlice.actions.select(null))
+    if (!isSort) dispatch(uiSlice.actions.select(null))
   } catch (e) {}
 }
 

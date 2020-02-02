@@ -39,6 +39,8 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   const bind = useDrag(
     ({ down, first, last, movement: [x, y], direction: [dx], cancel }) => {
+      if (UI.sort) return
+
       if (first) {
         dragging.current = true
       }
@@ -57,29 +59,29 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
       if (down && Math.abs(x) > window.innerWidth / 3) {
         cancel()
-        set(i => ({
-          immediate: true,
-          x: springs[i].x.value + offset * (dx > 0 ? -1 : 1),
-          scale: down ? 1.02 : 1,
-          height:
-            down && Math.abs(x) > 50
-              ? Math.max(...extractHeight(animatedContainer, x))
-              : animatedContainer.current.children[1 + (dx > 0 ? -1 : 1)]
-                  .children[0].scrollHeight + 40,
-        }))
-        dispatch(ui.actions.set({ tasktype: type, id: dx > 0 ? -1 : 1 }))
+        // set(i => ({
+        //   immediate: true,
+        //   x: springs[i].x.value + offset * (dx > 0 ? -1 : 1),
+        //   // scale: down ? 1.02 : 1,
+        //   height:
+        //     down && Math.abs(x) > 50
+        //       ? Math.max(...extractHeight(animatedContainer, x))
+        //       : animatedContainer.current.children[1 + (dx > 0 ? -1 : 1)]
+        //           .children[0].scrollHeight + 40,
+        // }))
+        // dispatch(ui.actions.set({ tasktype: type, id: dx > 0 ? -1 : 1 }))
         return
       }
-      set(i => ({
-        x: down ? x + offset * (i - 1) : 0 + offset * (i - 1),
-        scale: down ? 1.02 : 1,
-        display: i < 1 - 1 || i > 1 + 1 ? 'none' : 'block',
-        height:
-          down && Math.abs(x) > 50
-            ? Math.max(...extractHeight(animatedContainer, x))
-            : animatedContainer.current.children[1].children[0].scrollHeight +
-              40,
-      }))
+      // set(i => ({
+      //   x: down ? x + offset * (i - 1) : 0 + offset * (i - 1),
+      //   // scale: down ? 1.02 : 1,
+      //   display: i < 1 - 1 || i > 1 + 1 ? 'none' : 'block',
+      //   height:
+      //     down && Math.abs(x) > 50
+      //       ? Math.max(...extractHeight(animatedContainer, x))
+      //       : animatedContainer.current.children[1].children[0].scrollHeight +
+      //         40,
+      // }))
     },
     { event: { passive: true, capture: false } },
   )

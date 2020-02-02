@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSpring, animated } from 'react-spring'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import cx from 'classnames'
+import arrayMove from 'array-move'
 import { FirebaseContext } from '../Firebase'
 import ProgressBar from './progress-bar'
 import ContextMenu from './context-menu'
@@ -17,7 +19,13 @@ import {
   doneTaskAction,
 } from '../../redux/tasks'
 
-import { selectTreeAction } from '../../redux/UI'
+import { selectTreeAction, setSort } from '../../redux/UI'
+
+const Container = SortableContainer(({ children }) => {
+  return <div>{children}</div>
+})
+
+const Element = SortableElement(({ children }) => children)
 
 function TextMode({
   todo,
@@ -29,6 +37,7 @@ function TextMode({
   done,
   remove,
   selectedTree,
+  isSort,
 }) {
   const textField = useRef(null)
   const bg = useRef(null)
@@ -78,6 +87,7 @@ function TextMode({
       <div
         onDoubleClick={setEdit}
         onClick={() => {
+          console.log(123123)
           dispatch(selectTreeAction({ todo }))
         }}
         onContextMenu={e => {
@@ -102,6 +112,7 @@ function TextMode({
             selectedId !== null &&
             selectedId !== todo.id &&
             !selectedTree.includes(todo.id),
+          [classes.BoxSorted]: isSort,
         })}
         style={{ background: getGradient() }}
         ref={bg}
@@ -436,6 +447,7 @@ function TaskBox({ type, id }) {
   })
 
   const todos = useSelector(state => getTodos(state, type, id))
+  const isSort = useSelector(state => state.UI.sort)
   const allTasks = useSelector(state => state.tasks)
   const selectedId = useSelector(state => state.UI.selectedId)
   const selectedTree = useSelector(state => state.UI.selectedTree)
@@ -470,7 +482,9 @@ function TaskBox({ type, id }) {
         edit={(input, id) => {
           dispatch(
             editTaskAction({
-              newText: input,
+              updatedData: {
+                task: input,
+              },
               firebase,
               id,
             }),
@@ -485,32 +499,65 @@ function TaskBox({ type, id }) {
 
   return (
     <>
-      {todos.map((item, i) => (
-        <TextMode
-          contextMenu={contextMenu}
-          setContextMenu={setContextMenu}
-          key={`task-${i}`}
-          todo={item}
-          i={i}
-          selectedTree={selectedTree}
-          edited={(input, id) => {
+      <Container
+        pressDelay={800}
+        transitionDuration={400}
+        disableAutoscroll
+        lockToContainerEdges
+        helperClass={classes.isSortable}
+        axis={'xy'}
+        onSortStart={() => {
+          dispatch(setSort(true))
+        }}
+        onSortEnd={({ oldIndex, newIndex }) => {
+          arrayMove(todos, oldIndex, newIndex).forEach((t, index) => {
             dispatch(
               editTaskAction({
-                newText: input,
                 firebase,
-                id,
+                id: t.id,
+                isSort: true,
+                updatedData: {
+                  position: index,
+                },
               }),
             )
-          }}
-          remove={() => {
-            dispatch(removeTaskAction({ todo: item, firebase }))
-          }}
-          done={() => {
-            dispatch(doneTaskAction({ firebase, id: item.id }))
-          }}
-          todos={allTasks}
-        />
-      ))}
+          })
+          dispatch(setSort(false))
+        }}
+      >
+        {todos
+          .sort((a, b) => a.position - b.position)
+          .map((item, index) => (
+            <Element key={item.id} index={index}>
+              <TextMode
+                isSort={isSort}
+                contextMenu={contextMenu}
+                setContextMenu={setContextMenu}
+                todo={item}
+                i={index}
+                selectedTree={selectedTree}
+                edited={(input, id) => {
+                  dispatch(
+                    editTaskAction({
+                      updatedData: {
+                        task: input,
+                      },
+                      firebase,
+                      id,
+                    }),
+                  )
+                }}
+                remove={() => {
+                  dispatch(removeTaskAction({ todo: item, firebase }))
+                }}
+                done={() => {
+                  dispatch(doneTaskAction({ firebase, id: item.id }))
+                }}
+                todos={allTasks}
+              />
+            </Element>
+          ))}
+      </Container>
       <AddMode
         selectedId={selectedId}
         selectedTask={selectedTask}
