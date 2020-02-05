@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'SF Pro Text';
-  src: url('./assets/fonts/sf.woff') format('woff');
+  src: url('./assets/fonts/sf-medium.woff') format('woff');
   font-style: normal;
   font-weight: normal;
 }
@@ -19,6 +19,13 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('./assets/fonts/sf-heavy.woff') format('woff');
+  font-style: normal;
+  font-weight: 900;
+}
+
 *,
 *::after,
 *::before {
@@ -29,10 +36,11 @@
 
 body {
   overflow-x: hidden;
-  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
   scroll-behavior: smooth;
+  color: #151515;
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -43,6 +51,11 @@ button {
   background-color: transparent;
   border: none;
   outline: none;
+}
+
+h1,
+h2 {
+  font-weight: bold;
 }
 
 @media (prefers-reduced-motion: reduce) {
