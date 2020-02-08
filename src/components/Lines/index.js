@@ -1,8 +1,12 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { translateDay, translateMonth } from './util'
+import React, { useEffect, useState, forwardRef } from 'react'
+import { connect, useDispatch } from 'react-redux'
+import DatePicker from 'react-datepicker'
+import { format } from 'date-fns'
+import { translateMonth, translateDay } from './util'
 import { HorizontalUI } from './HorizontalUI'
-
+import ui from '../../redux/UI'
+import styles from './styles.module.scss'
+import 'react-datepicker/dist/react-datepicker.css'
 import '../app.css'
 
 const mapStateToPropsHorzUI = (state, ownProps) => {
@@ -95,13 +99,54 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
   }
 }
 
-export default function Lines() {
-  const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
+const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
+
+const DatePickerTrigger = forwardRef(({ onClick }, ref) => (
+  <button className={styles.DatePickerTrigger} onClick={onClick} ref={ref}>
+    {format(new Date(), 'dd/MM/yyyy')}
+  </button>
+))
+
+function Lines() {
+  const today = new Date()
+  const dispatch = useDispatch()
+
+  const [startDate, setStartDate] = useState(today)
+
+  useEffect(() => {
+    const date = new Date(startDate)
+
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+
+    dispatch(
+      ui.actions.changeDate({
+        year,
+        month,
+        day,
+      }),
+    )
+  }, [startDate])
+
   return (
-    <>
+    <main className={styles.Wrapper}>
+      <div className={styles.Header}>
+        <h2>Today</h2>
+        <div>
+          <DatePicker
+            selected={startDate}
+            onChange={date => setStartDate(date)}
+            customInput={<DatePickerTrigger />}
+            dateFormat="dd/MM/yyyy"
+          />
+        </div>
+      </div>
       <CHorzUI type={'YEAR'} />
       <CHorzUI type={'MONTH'} />
       <CHorzUI type={'DAY'} />
-    </>
+    </main>
   )
 }
+
+export default Lines

@@ -11,19 +11,20 @@ const DEFAULT = ''
 const ADD = 'add'
 const EDIT = 'edit'
 
-function DayTaskBox({ subtype, tasks = [] }) {
+const year = new Date().getFullYear()
+const month = new Date().getMonth() + 1
+const day = new Date().getDate()
+
+function DayTaskBox({ subtype, tasks = [], setTasks, parentId, disabled }) {
   const [mode, setMode] = useState(DEFAULT)
   const [editedTaskId, setEditedTaskId] = useState(null)
-  const [stateTasks, setStateTasks] = useState(
-    tasks.filter(task => task.subtype === subtype),
-  )
   const [value, setValue] = useState('')
   const textarea = useRef(null)
 
   useEffect(() => {
     if (mode !== DEFAULT) {
       const taskTextLength = editedTaskId
-        ? stateTasks.find(t => t.id === editedTaskId).task.length
+        ? tasks.find(t => t.id === editedTaskId).task.length
         : value.length
 
       textarea.current.focus()
@@ -32,14 +33,22 @@ function DayTaskBox({ subtype, tasks = [] }) {
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function addTask() {
-    setStateTasks([
-      ...stateTasks,
+    console.log(tasks)
+    setTasks([
+      ...tasks,
       {
         task: value,
         done: false,
         type: types.DAY,
-        subtype: types.MORNING,
+        subtype,
         id: nanoid(10),
+        year,
+        month,
+        day,
+        parentId,
+        userId: '',
+        createdAt: Date.now(),
+        updatedAt: -1,
       },
     ])
     setValue('')
@@ -47,12 +56,13 @@ function DayTaskBox({ subtype, tasks = [] }) {
   }
 
   function editTask(id, editedTaskText, type) {
-    setStateTasks(
-      stateTasks.map(task => {
+    setTasks(
+      tasks.map(task => {
         if (task.id === id) {
           return {
             ...task,
             task: editedTaskText,
+            updatedAt: Date.now(),
           }
         }
         return task
@@ -66,18 +76,21 @@ function DayTaskBox({ subtype, tasks = [] }) {
   }
 
   function toggleDone(id) {
-    setStateTasks(
-      stateTasks.map(task => {
+    setTasks(
+      tasks.map(task => {
         if (task.id === id) {
           return {
             ...task,
             done: !task.done,
+            updatedAt: Date.now(),
           }
         }
         return task
       }),
     )
   }
+
+  const filteredTasks = tasks.filter(i => i.subtype === subtype)
 
   function renderMark(done) {
     return (
@@ -117,6 +130,7 @@ function DayTaskBox({ subtype, tasks = [] }) {
         <h4>{subtype.toLowerCase()}</h4>
         <button
           type="button"
+          disabled={disabled}
           onClick={() => {
             setMode(ADD)
           }}
@@ -129,9 +143,9 @@ function DayTaskBox({ subtype, tasks = [] }) {
           </svg>
         </button>
       </div>
-      {tasks.length > 0 && (
+      {filteredTasks.length > 0 && (
         <ul className={styles.TaskList}>
-          {stateTasks.map(({ id, task, done }) => (
+          {filteredTasks.map(({ id, task, done }) => (
             <li
               key={id}
               role="button"

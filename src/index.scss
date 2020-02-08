@@ -1,4 +1,11 @@
 @font-face {
+  font-family: 'SF Pro Display';
+  src: url('./assets/fonts/sf-d-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
   font-family: 'SF Pro Text';
   src: url('./assets/fonts/sf-medium.woff') format('woff');
   font-style: normal;
@@ -44,6 +51,7 @@ body {
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent
 }
 
 button {
