@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react'
-import TaskBox from '../TaskBox'
-import { useDrag } from 'react-use-gesture'
-import { useSprings, animated } from 'react-spring'
-import { connect } from 'react-redux'
-import { format } from 'date-fns'
+import 'react-datepicker/dist/react-datepicker.css'
 import '../app.css'
 
+import React, { useEffect, useState, forwardRef } from 'react'
+import { connect, useDispatch } from 'react-redux'
+import { useDrag } from 'react-use-gesture'
+import { useSprings, animated } from 'react-spring'
+import DatePicker from 'react-datepicker'
+import { format } from 'date-fns'
+import TaskBox from '../TaskBox'
+
 import ui from '../../redux/UI'
-import classes from './styles.module.scss'
+import styles from './styles.module.scss'
 
 /* eslint-disable default-case, eqeqeq, react-hooks/exhaustive-deps */
 
@@ -28,7 +31,8 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   const offset = window.innerWidth
 
-  const [springs, set] = useSprings(items.length, i => ({ // Set up function for react-spring
+  const [springs, set] = useSprings(items.length, i => ({
+    // Set up function for react-spring
     from: {
       x: offset * (i - 1),
       scale: 1,
@@ -38,7 +42,8 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
   }))
 
   const bind = useDrag(
-    ({ down, first, last, movement: [x, y], direction: [dx], cancel }) => { // Set up function for react-use-gestures
+    ({ down, first, last, movement: [x, y], direction: [dx], cancel }) => {
+      // Set up function for react-use-gestures
       if (UI.sort) return
 
       if (first) {
@@ -57,9 +62,11 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
         animatedContainer.current.setAttribute('class', 'noselect') // adds 'noselect' on drag begin
       }
 
-      if (down && Math.abs(x) > window.innerWidth / 3) { // 1. when mouse offset is more than 1/3rd of the window
+      if (down && Math.abs(x) > window.innerWidth / 3) {
+        // 1. when mouse offset is more than 1/3rd of the window
         cancel() // 2. cancel the gesture
-        set(i => ({ // 3. immediately change the current block to either one on the left, or one on the right
+        set(i => ({
+          // 3. immediately change the current block to either one on the left, or one on the right
           immediate: true,
           x: springs[i].x.value + offset * (dx > 0 ? -1 : 1), // x position takes the current translation of the block and offsets it to the right or left
           height:
@@ -71,7 +78,8 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
         dispatch(ui.actions.set({ tasktype: type, id: dx > 0 ? -1 : 1 })) // 4. tell Redux to update all task blocks. See also line 287
         return // 8. after return useDrag will be called once more
       }
-      set(i => ({ // 8. this animates row by mouse offset or moves it back to zero
+      set(i => ({
+        // 8. this animates row by mouse offset or moves it back to zero
         x: down ? x + offset * (i - 1) : 0 + offset * (i - 1),
         display: i < 1 - 1 || i > 1 + 1 ? 'none' : 'block',
         height:
@@ -95,18 +103,22 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
     }, 1)
   }, [num]) // updates row height
 
-  useEffect(() => { // 5. This function watches Redux to update all task blocks
+  useEffect(() => {
+    // 5. This function watches Redux to update all task blocks
     setItems(items0) // 5a. Update all blocks with info from Redux (could be a bug)
     console.log(type, ' ', dragging.current)
     animatedContainer.current.setAttribute('class', 'noselect') // add 'noselect' if it was removed
-    
+
     // 6. on line 150
     // 7. on line 107
     // 8. on line 72-74
-    
-    function pos(dx) { // 7. this is called from jump year/month/day. This function handles animation of the dependent blocks
+
+    function pos(dx) {
+      // 7. this is called from jump year/month/day. This function handles animation of the dependent blocks
       items[dx > 0 ? 2 : 0] = items[1] // sets left or right block of the dependent row to the previous date
-      switch (type) { // this sets the central block of the dependent row to the new date. 'type' is prop
+      switch (
+        type // this sets the central block of the dependent row to the new date. 'type' is prop
+      ) {
         case 'YEAR':
           items[1] = { id: { year: UI.year }, name: UI.year } // NB: UI prop is already updated, but the actual task block is not changed until setItems is called
           break
@@ -126,19 +138,22 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
           break
       }
       setItems([...items]) // update UI with the above changes
-      set(i => ({ // immediately offset the dependent row to the right or left
+      set(i => ({
+        // immediately offset the dependent row to the right or left
         immediate: true,
         x: springs[i].x.value + offset * (dx > 0 ? -1 : 1),
       }))
       setTimeout(
-        dx => { // first timeout animates the dependent row back to 0 offset (i.e. reveals the new date)
+        dx => {
+          // first timeout animates the dependent row back to 0 offset (i.e. reveals the new date)
           set(i => ({
             x: 0 + offset * (i - 1),
             height:
               animatedContainer.current.children[1].children[0].scrollHeight +
               40,
           }))
-          setTimeout(() => { // second timeout updates previous and next dates to sequential
+          setTimeout(() => {
+            // second timeout updates previous and next dates to sequential
             setItems(items0)
           }, 500)
         },
@@ -146,11 +161,11 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
         dx,
       )
     }
-    
+
     // 6. Check if current row has changed AND that it is NOT dragged. Then update, if required
-    
+
     // Jump year
-    if (UI.year !== UI.prevyear && !dragging.current) { 
+    if (UI.year !== UI.prevyear && !dragging.current) {
       console.log(type, ' jump year ', UI.year)
       const dx = UI.prevyear - UI.year
       pos(dx)
@@ -158,6 +173,17 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
     }
 
     // Jump month or day
+    if (
+      UI.month !== UI.prevmonth &&
+      !dragging.current &&
+      (type === 'MONTH' || type === 'DAY')
+    ) {
+      console.log(type, ' jump month  ', UI.month)
+      const dx = UI.prevmonth - UI.month
+      pos(dx)
+      return
+    }
+
     if (
       UI.month !== UI.prevmonth &&
       !dragging.current &&
@@ -177,12 +203,7 @@ function HorzUI({ type, children, num, dispatch, items0, UI }) {
 
   return (
     <React.Fragment>
-      <animated.div
-        className={classes.wrapper}
-        {...bind()}
-        ref={animatedContainer}
-        style={style()}
-      >
+      <animated.div {...bind()} ref={animatedContainer} style={style()}>
         {springs.map(({ x, scale, display, height }, i) => (
           <animated.div
             key={i}
@@ -286,7 +307,8 @@ function translateDay(date: Date) {
   return format(date, 'EEEE, d')
 }
 
-const mapStateToPropsHorzUI = (state, ownProps) => { // Here, prev/current/next sets of tasks are generated for a given date. Called on load and after Redux dispatch
+const mapStateToPropsHorzUI = (state, ownProps) => {
+  // Here, prev/current/next sets of tasks are generated for a given date. Called on load and after Redux dispatch
   switch (ownProps.type) {
     case 'YEAR':
       return {
@@ -373,13 +395,54 @@ const mapStateToPropsHorzUI = (state, ownProps) => { // Here, prev/current/next 
   }
 }
 
-export default function Lines() {
-  const CHorzUI = connect(mapStateToPropsHorzUI)(HorzUI)
+const CHorzUI = connect(mapStateToPropsHorzUI)(HorzUI)
+
+const DatePickerTrigger = forwardRef(({ onClick }, ref) => (
+  <button className={styles.DatePickerTrigger} onClick={onClick} ref={ref}>
+    {format(new Date(), 'dd/MM/yyyy')}
+  </button>
+))
+
+function Lines() {
+  const today = new Date()
+  const dispatch = useDispatch()
+
+  const [startDate, setStartDate] = useState(today)
+
+  useEffect(() => {
+    const date = new Date(startDate)
+
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+
+    dispatch(
+      ui.actions.changeDate({
+        year,
+        month,
+        day,
+      }),
+    )
+  }, [startDate])
+
   return (
-    <React.Fragment>
+    <main className={styles.Wrapper}>
+      <div className={styles.Header}>
+        <h2>Today</h2>
+        <div>
+          <DatePicker
+            selected={startDate}
+            onChange={date => setStartDate(date)}
+            customInput={<DatePickerTrigger />}
+            dateFormat="dd/MM/yyyy"
+          />
+        </div>
+      </div>
       <CHorzUI type={'YEAR'} />
       <CHorzUI type={'MONTH'} />
       <CHorzUI type={'DAY'} />
-    </React.Fragment>
+    </main>
   )
 }
+
+export default Lines

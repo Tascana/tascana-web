@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
+import cx from 'classnames'
 import styles from './styles.module.scss'
 
-function AddingTaskBox() {
+function AddingTaskBox({ onAdd, disabled }) {
   const [isEditMode, setEditMode] = useState(false)
   const [value, setValue] = useState('')
   const textarea = useRef(null)
@@ -22,7 +23,9 @@ function AddingTaskBox() {
       onKeyPress={e => {
         if (e.key === 'Enter') setEditMode(true)
       }}
-      className={styles.AddingTaskBox}
+      className={cx(styles.AddingTaskBox, {
+        [styles.isDisabled]: disabled,
+      })}
       onClick={e => {
         setEditMode(true)
       }}
@@ -38,10 +41,15 @@ function AddingTaskBox() {
           }}
           onKeyPress={e => {
             e.stopPropagation()
-            if (e.key === 'Enter') setEditMode(false)
+            if (e.key === 'Enter') {
+              setEditMode(false)
+              onAdd(value)
+              setValue('')
+            }
           }}
           onBlur={() => {
             setEditMode(false)
+            onAdd(value)
             setValue('')
           }}
         />

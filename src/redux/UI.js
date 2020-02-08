@@ -20,6 +20,11 @@ const UISlice = createSlice({
   name: 'UI',
   initialState: INITIAL_STATE,
   reducers: {
+    changeDate: (state, action) => ({
+      ...state,
+      ...action.payload,
+    }),
+
     set: (state, action) => {
       switch (action.payload.tasktype) {
         case 'YEAR':

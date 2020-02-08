@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { separateClicks } from './separateClicks'
 import styles from './styles.module.scss'
 
-function TaskBox({ defaultValue = '' }) {
+function TaskBox({ defaultValue = '', onEdit }) {
   const [isEditMode, setEditMode] = useState(false)
   const [value, setValue] = useState(defaultValue)
   const textarea = useRef(null)
@@ -47,10 +47,14 @@ function TaskBox({ defaultValue = '' }) {
           }}
           onKeyPress={e => {
             e.stopPropagation()
-            if (e.key === 'Enter') setEditMode(false)
+            if (e.key === 'Enter') {
+              setEditMode(false)
+              onEdit(value)
+            }
           }}
           onBlur={() => {
             setEditMode(false)
+            onEdit(value)
           }}
         />
       ) : (
