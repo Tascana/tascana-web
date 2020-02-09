@@ -6,17 +6,21 @@ import { useLineSwipe } from './useLineSwipe'
 import classes from './styles.module.scss'
 
 import '../app.css'
+import { DirectionChangeContainer } from './directionChangeContainer'
 
 export const HorizontalUI = props => {
   const animatedContainer = React.useRef(null)
-  const { springs, bind, style, items } = useLineSwipe({
+  const { springs, bind, style, items, changeDirection } = useLineSwipe({
     ...props,
     animatedContainer,
   })
-  console.log(items)
 
   return (
     <>
+      <DirectionChangeContainer
+        onChangeDirection={changeDirection}
+        style={style()}
+      />
       <animated.div
         className={classes.wrapper}
         {...bind()}

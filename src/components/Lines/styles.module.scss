@@ -33,3 +33,16 @@
   border: 1px solid #979797;
   border-radius: 18px;
 }
+
+.DirectionChangeContainer {
+  position: absolute;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: inherit;
+
+  div {
+    height: 100%;
+    width: 50%;
+  }
+}

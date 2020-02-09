@@ -178,5 +178,9 @@ export function useLineSwipe({
     return { height: h.height, width: '630px', margin: 'auto' }
   }
 
-  return { springs, bind, style, items }
+  function changeDirection(id) {
+    dispatch(ui.actions.set({ tasktype: type, id }))
+  }
+
+  return { springs, bind, style, items, changeDirection }
 }
