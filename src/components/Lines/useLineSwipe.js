@@ -7,6 +7,7 @@ import '../app.css'
 
 import ui from '../../redux/UI'
 
+/* eslint-disable react-hooks/exhaustive-deps */
 export function useLineSwipe({
   type,
   num,

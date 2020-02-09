@@ -51,7 +51,7 @@ body {
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-tap-highlight-color: transparent
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -92,4 +92,9 @@ ul {
 
 .noselect:focus() {
   user-select: initial;
+}
+
+.react-datepicker__month-container {
+  font-family: 'SF Pro Text', sans-serif;
+  letter-spacing: -0.43px;
 }

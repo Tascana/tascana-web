@@ -13,7 +13,6 @@ export const HorizontalUI = props => {
     ...props,
     animatedContainer,
   })
-  console.log(items)
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState, useRef } from 'react'
+import React, { useEffect, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import nanoid from 'nanoid'
 import { format } from 'date-fns'
@@ -6,144 +6,16 @@ import TaskBox from './TaskBox'
 import AddingTaskBox from './AddingTaskBox'
 import DayTaskBox from './DayTaskBox'
 import { FirebaseContext } from '../Firebase'
-import styles from './styles.module.scss'
-
 import * as types from '../../constants/task-types'
-
-const demoYearTaskId = nanoid(10)
-const demoUserId = nanoid(12)
-const demoCreatedAt = Date.now()
-
-const year = new Date().getFullYear()
-const month = new Date().getMonth() + 1
-const day = new Date().getDate()
-
-const demoMonth1stTask = nanoid(10)
-const demoMonth2ndTask = nanoid(10)
-
-const yearTasks = [
-  {
-    isDemo: true,
-    task: 'Become a senior manager',
-    done: false,
-    progress: 0,
-    type: types.YEAR,
-    subtype: null,
-    id: demoYearTaskId,
-    year,
-    month: -1,
-    day: -1,
-    parentId: null,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-]
-
-const monthTasks = [
-  {
-    isDemo: true,
-    task: 'Finish MD work',
-    done: false,
-    progress: 0,
-    type: types.MONTH,
-    subtype: null,
-    id: demoMonth1stTask,
-    year,
-    month,
-    day: -1,
-    parentId: demoYearTaskId,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-  {
-    isDemo: true,
-    task: 'Publish project report',
-    done: false,
-    progress: 0,
-    type: 'MONTH',
-    subtype: null,
-    id: demoMonth2ndTask,
-    year,
-    month,
-    day: -1,
-    parentId: demoYearTaskId,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-]
-
-const dayTasks = [
-  {
-    isDemo: true,
-    task: 'Finish printing parts',
-    done: false,
-    type: types.DAY,
-    subtype: types.MORNING,
-    id: nanoid(10),
-    year,
-    month,
-    day,
-    parentId: demoMonth1stTask,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-  {
-    isDemo: true,
-    task: 'Start the design research',
-    done: false,
-    type: types.DAY,
-    subtype: types.MORNING,
-    id: nanoid(10),
-    year,
-    month,
-    day,
-    parentId: demoMonth1stTask,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-  {
-    isDemo: true,
-    task: 'Collect references',
-    done: true,
-    type: types.DAY,
-    subtype: types.MORNING,
-    id: nanoid(10),
-    year,
-    month,
-    day,
-    parentId: demoMonth1stTask,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-  {
-    isDemo: true,
-    task: 'Paint the parts',
-    done: false,
-    type: types.DAY,
-    subtype: types.MORNING,
-    id: nanoid(10),
-    year,
-    month,
-    day,
-    parentId: demoMonth1stTask,
-    userId: demoUserId,
-    createdAt: demoCreatedAt,
-    updatedAt: -1,
-  },
-]
+import { yearTasks, monthTasks, dayTasks, year, month } from './demoData'
+import styles from './styles.module.scss'
 
 function Landing() {
   const [error, setError] = useState(null)
   const [yearTasksState, setYearTasksState] = useState(yearTasks)
   const [monthTasksState, setMonthTasksState] = useState(monthTasks)
   const [dayTasksState, setDayTasksState] = useState(dayTasks)
-  const firstSection = useRef(null)
+
   const firebase = useContext(FirebaseContext)
   const history = useHistory()
 
@@ -174,17 +46,19 @@ function Landing() {
     }
   }
 
+  function handleSignIn(socialAuthUser) {
+    createTasksFromLanding(socialAuthUser.user.uid)
+
+    return firebase.user(socialAuthUser.user.uid).set({
+      username: socialAuthUser.user.displayName,
+      email: socialAuthUser.user.email,
+    })
+  }
+
   function signInWithGoogle() {
     firebase
       .signInWithGoogle()
-      .then(socialAuthUser => {
-        createTasksFromLanding(socialAuthUser.user.uid)
-
-        return firebase.user(socialAuthUser.user.uid).set({
-          username: socialAuthUser.user.displayName,
-          email: socialAuthUser.user.email,
-        })
-      })
+      .then(handleSignIn)
       .then(user => {
         setError(null)
         history.push('/')
@@ -197,14 +71,7 @@ function Landing() {
   function signInWithFb() {
     firebase
       .signInWithFacebook()
-      .then(socialAuthUser => {
-        createTasksFromLanding(socialAuthUser.user.uid)
-
-        return firebase.user(socialAuthUser.user.uid).set({
-          username: socialAuthUser.additionalUserInfo.profile.name,
-          email: socialAuthUser.additionalUserInfo.profile.email,
-        })
-      })
+      .then(handleSignIn)
       .then(() => {
         setError(null)
         history.push('/')
@@ -242,7 +109,7 @@ function Landing() {
         </header>
         <div className={styles.HeroImage} />
       </section>
-      <section className={styles.Section} ref={firstSection}>
+      <section className={styles.Section}>
         <div className={styles.DescriptionBlock}>
           <h2>
             Focus on&nbsp;<nobr>long-term</nobr> impact

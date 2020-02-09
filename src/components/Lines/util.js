@@ -7,14 +7,14 @@ import {
   differenceInCalendarMonths,
 } from 'date-fns'
 
-export function translateDay(date) {
+export function translateDay(date, dateFormat = 'EEEE, d') {
   const now = new Date()
 
   if (isSameDay(now, date)) return 'Today'
   if (isYesterday(date)) return 'Yesterday'
   if (isTomorrow(date)) return 'Tomorrow'
 
-  return format(date, 'EEEE, d')
+  return format(date, dateFormat)
 }
 
 export function translateMonth(date) {
