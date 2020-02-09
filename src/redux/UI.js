@@ -9,6 +9,7 @@ const INITIAL_STATE = {
   prevyear: now.getFullYear(),
   prevmonth: now.getMonth() + 1,
   prevday: now.getDate(),
+  isEditing: false,
   isSelected: false,
   selectedId: null,
   swipeableLine: '',
@@ -78,6 +79,10 @@ const UISlice = createSlice({
           return state
       }
     },
+    setEditTask: (state, action) => ({
+      ...state,
+      isEditing: action.payload,
+    }),
     select: (state, action) => ({
       ...state,
       isSelected: true,

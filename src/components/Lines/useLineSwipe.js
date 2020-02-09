@@ -179,9 +179,10 @@ export function useLineSwipe({
     return { height: h.height, width: '630px', margin: 'auto' }
   }
 
-  function changeDirection(id) {
-    dispatch(ui.actions.set({ tasktype: type, id }))
+  function changeDirectionOnClick(id) {
+    console.log(UI.isEditing)
+    if (!UI.isEditing) dispatch(ui.actions.set({ tasktype: type, id }))
   }
 
-  return { springs, bind, style, items, changeDirection }
+  return { springs, bind, style, items, changeDirectionOnClick }
 }

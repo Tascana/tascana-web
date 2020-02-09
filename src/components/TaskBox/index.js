@@ -19,7 +19,7 @@ import {
   doneTaskAction,
 } from '../../redux/tasks'
 
-import { selectTreeAction, setSort } from '../../redux/UI'
+import ui, { selectTreeAction, setSort } from '../../redux/UI'
 
 const Container = SortableContainer(({ children }) => {
   return <div>{children}</div>
@@ -78,6 +78,7 @@ function TextMode({
 
   function setEdit(e) {
     e.stopPropagation()
+    dispatch(ui.actions.setEditTask(true))
     textField.current.contentEditable = true
     textField.current.focus()
   }
@@ -87,7 +88,6 @@ function TextMode({
       <div
         onDoubleClick={setEdit}
         onClick={() => {
-          console.log(123123)
           dispatch(selectTreeAction({ todo }))
         }}
         onContextMenu={e => {
@@ -119,9 +119,10 @@ function TextMode({
       >
         <div style={{ padding: '15px' }}>
           <div
-            onBlur={item => {
-              edited(item.target.innerHTML, todo.id)
-              item.target.contentEditable = false
+            onBlur={e => {
+              setTimeout(() => dispatch(ui.actions.setEditTask(false)), 150) // temporary workaround for react's strange event propagation
+              edited(e.target.innerHTML, todo.id)
+              e.target.contentEditable = false
             }}
             className={classes.TextBoxContents}
             contentEditable={false}

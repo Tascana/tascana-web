@@ -10,7 +10,7 @@ import { DirectionChangeContainer } from './directionChangeContainer'
 
 export const HorizontalUI = props => {
   const animatedContainer = React.useRef(null)
-  const { springs, bind, style, items, changeDirection } = useLineSwipe({
+  const { springs, bind, style, items, changeDirectionOnClick } = useLineSwipe({
     ...props,
     animatedContainer,
   })
@@ -18,7 +18,7 @@ export const HorizontalUI = props => {
   return (
     <>
       <DirectionChangeContainer
-        onChangeDirection={changeDirection}
+        onChangeDirection={changeDirectionOnClick}
         style={style()}
       />
       <animated.div
