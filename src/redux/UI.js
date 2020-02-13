@@ -15,6 +15,14 @@ const INITIAL_STATE = {
   swipeableLine: '',
   selectedTree: [],
   sort: false,
+  contextMenu: {
+    taskId: null,
+    position: {
+      x: null,
+      y: null,
+    },
+    handlers: {},
+  },
 }
 
 const UISlice = createSlice({
@@ -96,6 +104,13 @@ const UISlice = createSlice({
       ...state,
       sort: action.payload,
     }),
+    toggleContextMenu: (state, action) => ({
+      ...state,
+      contextMenu: {
+        ...state.contextMenu,
+        ...action.payload,
+      },
+    }),
   },
 })
 
@@ -107,32 +122,10 @@ export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
     UI: { selectedId },
   } = getState()
 
-  function getTree(id) {
-    let parent = []
-
-    function getParent(parentId) {
-      if (parentId && tasks[parentId]) {
-        parent.push(tasks[parentId])
-        return getParent(tasks[parentId].parentId)
-      }
-      return parent.map(p => p.id)
-    }
-
-    function getChildren(todoId) {
-      const todosArr = Object.values(tasks)
-
-      const child = todosArr.filter(i => i.parentId === todoId)
-
-      const allChild = [
-        ...child,
-        ...todosArr.filter(i => child.map(i => i.id).includes(i.parentId)),
-      ]
-
-      return allChild.map(c => c.id)
-    }
-
-    return [...getParent(todo.parentId), ...getChildren(todo.id)]
-  }
+  const selectedTask = tasks.find(t => t.id === todo.id)
+  const tree = selectedTask
+    ? [...selectedTask.parents, ...selectedTask.children].map(t => t.id)
+    : []
 
   if (selectedId !== null) {
     if (selectedId === todo.id) {
@@ -140,11 +133,11 @@ export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
       dispatch(UISlice.actions.selectTree([]))
     } else {
       dispatch(UISlice.actions.select(todo.id))
-      dispatch(UISlice.actions.selectTree(getTree()))
+      dispatch(UISlice.actions.selectTree(tree))
     }
   } else {
     dispatch(UISlice.actions.select(todo.id))
-    dispatch(UISlice.actions.selectTree(getTree()))
+    dispatch(UISlice.actions.selectTree(tree))
   }
 }
 

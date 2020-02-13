@@ -1,16 +1,6 @@
 .TaskBox {
   position: relative;
-  display: inline-block;
-  width: 200px;
-  height: 200px;
   margin: 10px 10px 0px 0px;
-  vertical-align: top;
-  background: rgb(26, 36, 168);
-  background: linear-gradient(
-    0deg,
-    rgb(172, 172, 172) 0%,
-    rgb(214, 214, 214) 100%
-  );
   border-radius: 10px;
 
   &.BoxSorted {
@@ -49,8 +39,7 @@
 }
 
 .AddBox {
-  display: inline-table;
-  background: lightgrey;
+  margin: 10px 10px 0px 0px;
 }
 
 .AddBoxContents {

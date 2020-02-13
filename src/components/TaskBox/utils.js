@@ -7,7 +7,7 @@ export const getTodosByType = (
   month = -1,
   day = -1,
 ) => {
-  const todos = Object.entries(store.tasks).map(i => ({ ...i[1], id: i[0] }))
+  const todos = store.tasks
   switch (type) {
     case 'YEAR':
       return todos.filter(todo => todo.type === type && todo.year === year)

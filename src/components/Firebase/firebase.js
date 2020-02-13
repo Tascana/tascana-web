@@ -74,6 +74,8 @@ class Firebase {
 
   deleteTask = (uid, id) => this.db.ref(`todos/${uid}/${id}`).remove()
 
+  setTasks = (tasks, uid) => this.db.ref(`todos/${uid}`).set(tasks)
+
   onTasksListener = () =>
     this.tasks().on('value', snapshot => {
       console.log(snapshot.val())

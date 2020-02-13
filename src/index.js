@@ -1,4 +1,5 @@
 import 'normalize.css'
+import 'react-tippy/dist/tippy.css'
 import './index.scss'
 import React from 'react'
 import ReactDOM from 'react-dom'

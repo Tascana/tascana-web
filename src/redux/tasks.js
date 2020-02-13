@@ -2,27 +2,85 @@ import { createSlice } from '@reduxjs/toolkit'
 import omit from 'lodash/omit'
 import nanoid from 'nanoid'
 import { DAY, MONTH, YEAR } from '../constants/task-types'
+import { randomGrad } from '../components/TaskBox/utils'
 import uiSlice from './UI'
 
-const INITIAL_STATE = {}
+const INITIAL_STATE = []
+
+function getTree(tasks, task) {
+  const tasksArray = Object.values(tasks)
+
+  let parents = []
+  let children = []
+
+  if (!task) {
+    return {
+      parents,
+      children,
+    }
+  }
+
+  function getParents(parentId) {
+    if (!parentId) return parents
+    parents.push(tasks[parentId])
+    return getParents(tasks[parentId].parentId)
+  }
+
+  function getChildren(ids) {
+    const childs = tasksArray.filter(task => ids.includes(task.parentId))
+
+    if (!childs.length) return children
+    children.push(...childs)
+    return getChildren(childs.map(c => c.id))
+  }
+
+  return {
+    parents: getParents(task.parentId),
+    children: getChildren([task.id]),
+  }
+}
 
 const tasksSlice = createSlice({
   name: 'tasks',
   initialState: INITIAL_STATE,
   reducers: {
     setTasks: (state, { payload: tasks }) => {
-      Object.keys(tasks).forEach((id, index) => {
-        tasks[id].id = id
+      const tasksArray = Array.isArray(tasks) ? tasks : Object.values(tasks)
+      const computedTasksArray = tasksArray.map((task, index, arr) => {
+        const unassignedGradient = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
 
-        if (typeof tasks[id].position !== 'number') {
-          tasks[id].position = index
+        const { parents, children } = getTree(tasks, task)
+
+        function getGradient() {
+          if (task.type === YEAR) return randomGrad(task.createdAt)
+
+          const yearLevelParent = parents.find(p => p.type === YEAR)
+          const monthLevelParent = parents.find(p => p.type === MONTH)
+
+          if (yearLevelParent) return randomGrad(yearLevelParent.createdAt)
+          if (monthLevelParent) return randomGrad(monthLevelParent.createdAt)
+
+          return unassignedGradient
+        }
+
+        function getProgress() {
+          return children.filter(c => c.done).length
+            ? (children.filter(c => c.done).length / children.length) * 100
+            : 0
+        }
+
+        return {
+          ...task,
+          parents,
+          children,
+          done: getProgress() === 100 ? true : task.done,
+          backgroundGradient: getGradient(),
+          position: typeof task.position !== 'number' ? index : task.position,
+          progress: getProgress(),
         }
       })
 
-      return {
-        ...state,
-        ...tasks,
-      }
+      return computedTasksArray.sort((a, b) => a.position - b.position)
     },
     createTask: (state, action) => ({
       ...state,
@@ -39,7 +97,27 @@ const tasksSlice = createSlice({
   },
 })
 
-const { editTask, createTask, deleteTask } = tasksSlice.actions
+export const sortTasksAction = ({ reorderedTasks, firebase, type }) => async (
+  dispatch,
+  getState,
+) => {
+  try {
+    const { tasks: allTasks, session } = getState()
+    const userId = session.authUser.uid
+    let objectTasks = {}
+
+    const filteredTasks = allTasks.filter(t => t.type !== type)
+    const sortedTasks = [...filteredTasks, ...reorderedTasks]
+
+    sortedTasks.forEach(t => {
+      objectTasks[t.id] = t
+    })
+
+    firebase.setTasks(objectTasks, userId)
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 export const createTaskAction = ({
   type,
@@ -52,7 +130,7 @@ export const createTaskAction = ({
     const { UI, tasks, session } = getState()
     const userId = session.authUser.uid
     const { selectedId } = UI
-    const selectedTask = tasks[selectedId]
+    const selectedTask = tasks.find(t => t.id === selectedId)
 
     const getParentId = () => {
       if (
@@ -65,22 +143,12 @@ export const createTaskAction = ({
       return null
     }
 
-    const parent = getParentId() ? tasks[getParentId()] : null
+    function getPosition() {
+      let filteredTasks = tasks.filter(t => t.type === type)
 
-    if (parent && parent.done) {
-      const updatedParent = {
-        ...parent,
-        done: false,
-        updatedAt: Date.now(),
-      }
-      firebase.editTask(updatedParent, userId, parent.id)
+      if (subtype) filteredTasks = tasks.filter(t => t.subtype === subtype)
 
-      dispatch(
-        editTask({
-          id: parent.id,
-          task: updatedParent,
-        }),
-      )
+      return filteredTasks.length
     }
 
     const newTaskId = nanoid(12)
@@ -95,20 +163,17 @@ export const createTaskAction = ({
       month: id.month || -1,
       day: id.day || -1,
       parentId: getParentId(),
+      position: getPosition(),
       userId,
       createdAt: Date.now(),
       updatedAt: -1,
     }
 
     firebase.createTask(newTask, userId, newTaskId)
-    dispatch(
-      createTask({
-        id: newTaskId,
-        task: newTask,
-      }),
-    )
     dispatch(uiSlice.actions.select(null))
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 export const editTaskAction = ({
@@ -121,7 +186,7 @@ export const editTaskAction = ({
     const { tasks, session } = getState()
     const userId = session.authUser.uid
 
-    const taskForEdit = tasks[id]
+    const taskForEdit = tasks.find(t => t.id === id)
 
     const editedTask = {
       ...taskForEdit,
@@ -130,45 +195,26 @@ export const editTaskAction = ({
     }
 
     firebase.editTask(editedTask, userId, taskForEdit.id)
-    dispatch(
-      editTask({
-        id: taskForEdit.id,
-        task: editedTask,
-      }),
-    )
     if (!isSort) dispatch(uiSlice.actions.select(null))
-  } catch (e) {}
+  } catch (e) {
+    console.error(e)
+  }
 }
 
-export const removeTaskAction = ({ firebase, todo }) => async (
+export const removeTaskAction = ({ firebase, id }) => async (
   dispatch,
   getState,
 ) => {
   try {
     const { session, tasks } = getState()
     const userId = session.authUser.uid
+    const task = tasks.find(t => t.id === id)
 
-    function remove(taskId) {
-      firebase.deleteTask(userId, taskId)
-      dispatch(deleteTask(taskId))
-      dispatch(uiSlice.actions.select(null))
-    }
+    firebase.deleteTask(userId, id)
 
-    remove(todo.id)
-    const todosArr = Object.values(tasks)
-
-    const child = todosArr.filter(i => i.parentId === todo.id)
-
-    const allChild = [
-      ...child,
-      ...todosArr.filter(i => child.map(i => i.id).includes(i.parentId)),
-    ]
-
-    if (allChild.length) {
-      allChild.forEach(c => {
-        remove(c.id)
-      })
-    }
+    task.children.forEach(c => {
+      firebase.deleteTask(userId, c.id)
+    })
   } catch (e) {}
 }
 
@@ -179,9 +225,7 @@ export const doneTaskAction = ({ id, firebase }) => async (
   try {
     const { session, tasks } = getState()
     const userId = session.authUser.uid
-    const completedTask = tasks[id]
-
-    const childrenTasks = Object.values(tasks).filter(i => i.parentId === id)
+    const completedTask = tasks.find(t => t.id === id)
 
     const completed = {
       ...completedTask,
@@ -190,31 +234,11 @@ export const doneTaskAction = ({ id, firebase }) => async (
     }
 
     firebase.editTask(completed, userId, completedTask.id)
-    dispatch(
-      editTask({
-        id: completedTask.id,
-        task: completed,
-      }),
-    )
-
-    childrenTasks.forEach(c => {
-      const updatedChildren = {
-        ...c,
-        done: !completedTask.done,
-        updatedAt: Date.now(),
-      }
-
-      firebase.editTask(updatedChildren, userId, c.id)
-      dispatch(
-        editTask({
-          id: c.id,
-          task: updatedChildren,
-        }),
-      )
-    })
 
     dispatch(uiSlice.actions.select(null))
-  } catch (e) {}
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 export default tasksSlice

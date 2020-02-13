@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import Lines from '../components/Lines'
 import Header from '../components/Header'
 import { FirebaseContext } from '../components/Firebase'
+import ContextMenu from '../components/TaskBoxes/ContextMenu'
 import useAuthorization from '../hooks/use-authorization'
 import tasks from '../redux/tasks'
 
@@ -14,7 +15,7 @@ function IndexPage() {
 
   useEffect(() => {
     if (authUser) {
-      firebase.tasks(authUser.uid).once('value', snapshot => {
+      firebase.tasks(authUser.uid).on('value', snapshot => {
         if (!snapshot.val()) return
 
         dispatch(tasks.actions.setTasks(snapshot.val()))
@@ -28,6 +29,7 @@ function IndexPage() {
     <>
       <Header />
       <Lines />
+      <ContextMenu />
     </>
   )
 }

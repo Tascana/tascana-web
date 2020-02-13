@@ -5,11 +5,10 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import cx from 'classnames'
 import arrayMove from 'array-move'
 import { FirebaseContext } from '../Firebase'
-import ProgressBar from './progress-bar'
 import ContextMenu from './context-menu'
 import classes from './styles.module.scss'
-import { randomGrad, getTodos } from './utils'
-import checkMark from '../../assets/icons/checkmark.png'
+import styles from './styles.module.scss'
+import { randomGrad } from './utils'
 import * as types from '../../constants/task-types'
 
 import {
@@ -17,7 +16,14 @@ import {
   editTaskAction,
   removeTaskAction,
   doneTaskAction,
+  sortTasksAction,
 } from '../../redux/tasks'
+
+import {
+  AddingTaskBox,
+  TaskBox as TaskBoxComponent,
+  DayTaskBox,
+} from '../TaskBoxes'
 
 import ui, { selectTreeAction, setSort } from '../../redux/UI'
 
@@ -26,205 +32,6 @@ const Container = SortableContainer(({ children }) => {
 })
 
 const Element = SortableElement(({ children }) => children)
-
-function TextMode({
-  todo,
-  edited,
-  i,
-  todos,
-  contextMenu,
-  setContextMenu,
-  done,
-  remove,
-  selectedTree,
-  isSort,
-}) {
-  const textField = useRef(null)
-  const bg = useRef(null)
-  const dispatch = useDispatch()
-  const selectedId = useSelector(state => state.UI.selectedId)
-
-  const getProgress = () => {
-    const { id } = todo
-
-    const child = Object.values(todos).filter(i => i.parentId === id)
-
-    const doneChild = child.filter(i => i.done)
-
-    const progress = (doneChild.length / child.length) * 100
-
-    if (progress === 100) {
-      done(id)
-      return
-    }
-
-    if (Number.isNaN(progress)) return 0
-
-    return progress
-  }
-
-  function getGradient() {
-    if (todo.type === 'YEAR') return randomGrad(todo.createdAt)
-
-    if (todo.type === 'MONTH') return randomGrad(todos[todo.parentId].createdAt)
-
-    if (todo.type === 'DAY') {
-      const dayParent = todos[todo.parentId]
-      const monthParent = todos[dayParent.parentId]
-
-      return randomGrad(monthParent.createdAt)
-    }
-  }
-
-  function setEdit(e) {
-    e.stopPropagation()
-    dispatch(ui.actions.setEditTask(true))
-    textField.current.contentEditable = true
-    textField.current.focus()
-  }
-
-  return (
-    <>
-      <div
-        onDoubleClick={setEdit}
-        onClick={() => {
-          dispatch(selectTreeAction({ todo }))
-        }}
-        onContextMenu={e => {
-          e.preventDefault()
-          e.stopPropagation()
-
-          setContextMenu({
-            taskId: todo.id,
-            position: {
-              x: e.clientX,
-              y: e.clientY,
-            },
-          })
-        }}
-        onMouseDown={e => {
-          if (e.detail > 1) e.preventDefault()
-        }}
-        className={cx(classes.TaskBox, {
-          [classes.BoxSelected]:
-            selectedId === todo.id || selectedTree.includes(todo.id),
-          [classes.BoxUnselected]:
-            selectedId !== null &&
-            selectedId !== todo.id &&
-            !selectedTree.includes(todo.id),
-          [classes.BoxSorted]: isSort,
-        })}
-        style={{ background: getGradient() }}
-        ref={bg}
-      >
-        <div style={{ padding: '15px' }}>
-          <div
-            onBlur={e => {
-              setTimeout(() => dispatch(ui.actions.setEditTask(false)), 150) // temporary workaround for react's strange event propagation
-              edited(e.target.innerHTML, todo.id)
-              e.target.contentEditable = false
-            }}
-            className={classes.TextBoxContents}
-            contentEditable={false}
-            spellCheck={false}
-            ref={textField}
-            dangerouslySetInnerHTML={{ __html: todo.task }}
-          ></div>
-        </div>
-
-        {todo.done ? (
-          <div className={classes.Done}>
-            <img src={checkMark} alt="" />
-          </div>
-        ) : null}
-
-        {!todo.done &&
-        todo.type !== 'DAY' &&
-        getProgress() > 0 &&
-        getProgress() < 100 ? (
-          <ProgressBar progress={getProgress()} />
-        ) : null}
-        <ContextMenu
-          isOpen={contextMenu.taskId === todo.id}
-          position={contextMenu.position}
-          onClose={() => {
-            setContextMenu({
-              taskId: null,
-              position: { x: null, y: null },
-            })
-          }}
-          edit={setEdit}
-          hasDone={todo.type === types.DAY || todo.type === types.MONTH}
-          done={e => {
-            e.stopPropagation()
-            done()
-          }}
-          remove={e => {
-            e.stopPropagation()
-            remove()
-          }}
-        />
-      </div>
-    </>
-  )
-}
-
-function AddMode({ added, type, selectedTask, selectedId }) {
-  let disable = false
-
-  if (selectedId === null && type !== 'YEAR') disable = true
-  if (selectedTask && selectedTask.type === 'YEAR' && type === 'DAY')
-    disable = true
-  if (selectedTask && selectedTask.type === 'MONTH' && type === 'YEAR')
-    disable = true
-  if (selectedTask && selectedTask.type === type) disable = true
-  if (selectedTask && selectedTask.type === 'DAY') disable = true
-
-  return (
-    <div
-      className={cx(classes.TaskBox, classes.AddBox, {
-        [classes.TaskBoxDisable]: disable,
-      })}
-    >
-      <div
-        style={{
-          padding: '15px',
-          display: 'table-cell',
-          textAlign: 'center',
-          verticalAlign: 'middle',
-        }}
-      >
-        <div
-          className={classes.AddBoxContents}
-          onClick={e => {
-            e.target.className = classes.TextBoxContents
-            e.target.contentEditable = true
-            e.target.innerHTML = ''
-            e.currentTarget.parentElement.parentElement.className =
-              classes.TaskBox
-            e.currentTarget.parentElement.style = 'padding: 15px'
-            e.currentTarget.focus()
-          }}
-          onBlur={e => {
-            if (e.target.innerHTML !== '') added(e.target.innerHTML)
-            e.target.className = classes.AddBoxContents
-            e.target.contentEditable = false
-            e.target.innerHTML = 'Add task'
-            e.currentTarget.parentElement.parentElement.className = cx(
-              classes.TaskBox,
-              classes.AddBox,
-            )
-            e.currentTarget.parentElement.style =
-              'padding: 15px; display:table-cell; text-align:center; vertical-align:middle;'
-            e.currentTarget.focus()
-          }}
-        >
-          Add task
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function DaySubtask({
   type,
@@ -470,23 +277,10 @@ function DaySubtask({
 }
 
 function TaskBox({ type, id }) {
-  const [contextMenu, setContextMenu] = useState({
-    taskId: null,
-    position: {
-      x: null,
-      y: null,
-    },
-  })
-
-  const todos = useSelector(state => getTodos(state, type, id))
   const isSort = useSelector(state => state.UI.sort)
   const allTasks = useSelector(state => state.tasks)
   const selectedId = useSelector(state => state.UI.selectedId)
   const selectedTree = useSelector(state => state.UI.selectedTree)
-  const selectedTask = useSelector(
-    state => state.tasks[selectedId],
-    () => !!selectedId,
-  )
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
 
@@ -507,7 +301,7 @@ function TaskBox({ type, id }) {
           )
             return
 
-          const destinationTasks = todos
+          const destinationTasks = allTasks
             .filter(t => t.subtype === destination.droppableId)
             .sort((a, b) => a.position - b.position)
 
@@ -532,7 +326,7 @@ function TaskBox({ type, id }) {
             })
           } else {
             const draggable = allTasks[draggableId]
-            const tasks = todos.filter(
+            const tasks = allTasks.filter(
               t => t.subtype === destination.droppableId,
             )
 
@@ -564,40 +358,40 @@ function TaskBox({ type, id }) {
           }
         }}
       >
-        {[types.MORNING, types.AFTERNOON, types.EVENING].map(i => (
-          <DaySubtask
-            key={i}
-            type={i}
-            selectedTask={selectedTask}
-            allTasks={allTasks}
-            contextMenu={contextMenu}
-            setContextMenu={setContextMenu}
-            selectedTree={selectedTree}
-            add={text => {
+        {[types.MORNING, types.AFTERNOON, types.EVENING].map(subtype => (
+          <DayTaskBox
+            className={styles.DayTaskBox}
+            key={subtype}
+            subtype={subtype}
+            tasks={allTasks}
+            onAdd={text => {
               dispatch(
                 createTaskAction({
                   type: types.DAY,
                   text,
-                  subtype: i,
+                  subtype,
                   firebase,
                   id,
                 }),
               )
             }}
-            edit={(input, id) => {
+            onEdit={(text, id) => {
               dispatch(
                 editTaskAction({
                   updatedData: {
-                    task: input,
+                    task: text,
                   },
                   firebase,
                   id,
                 }),
               )
             }}
-            tasks={todos
-              .map(t => (t.subtype ? t : { ...t, subtype: types.MORNING }))
-              .filter(t => t.subtype === i)}
+            onDone={id => {
+              dispatch(doneTaskAction({ id, firebase }))
+            }}
+            onRemove={id => {
+              dispatch(removeTaskAction({ id, firebase }))
+            }}
           />
         ))}
       </DragDropContext>
@@ -614,59 +408,87 @@ function TaskBox({ type, id }) {
           dispatch(setSort(true))
         }}
         onSortEnd={({ oldIndex, newIndex }) => {
-          arrayMove(todos, oldIndex, newIndex).forEach((t, index) => {
-            dispatch(
-              editTaskAction({
-                firebase,
-                id: t.id,
-                isSort: true,
-                updatedData: {
-                  position: index,
-                },
-              }),
-            )
-          })
+          const arr = allTasks.filter(t => t.type === type)
+
+          const reorder = (list, startIndex, endIndex) => {
+            const result = Array.from(list)
+            const [removed] = result.splice(startIndex, 1)
+            result.splice(endIndex, 0, removed)
+
+            return result
+          }
+
+          const reorderedTasks = reorder(arr, oldIndex, newIndex)
+
+          dispatch(
+            sortTasksAction({
+              reorderedTasks: reorderedTasks.map((t, index) => ({
+                ...t,
+                position: index,
+              })),
+              type,
+              firebase,
+            }),
+          )
+
           dispatch(setSort(false))
         }}
       >
-        {todos
-          .sort((a, b) => a.position - b.position)
+        {allTasks
+          .filter(t => t.type === type)
           .map((item, index) => (
             <Element key={item.id} index={index}>
-              <TextMode
-                isSort={isSort}
-                contextMenu={contextMenu}
-                setContextMenu={setContextMenu}
-                todo={item}
-                i={index}
-                selectedTree={selectedTree}
-                edited={(input, id) => {
+              <TaskBoxComponent
+                className={cx(classes.TaskBox, {
+                  [classes.BoxSelected]:
+                    selectedId === item.id || selectedTree.includes(item.id),
+                  [classes.BoxUnselected]:
+                    selectedId !== null &&
+                    selectedId !== item.id &&
+                    !selectedTree.includes(item.id),
+                  [classes.BoxSorted]: isSort,
+                })}
+                task={item}
+                onSelect={() => {
+                  if (item.type !== types.YEAR && !item.parentId) return
+
+                  dispatch(selectTreeAction({ todo: item }))
+                }}
+                onLink={parentId => {
                   dispatch(
                     editTaskAction({
                       updatedData: {
-                        task: input,
+                        parentId,
                       },
                       firebase,
-                      id,
+                      id: item.id,
                     }),
                   )
                 }}
-                remove={() => {
-                  dispatch(removeTaskAction({ todo: item, firebase }))
+                onDone={id => {
+                  dispatch(doneTaskAction({ id, firebase }))
                 }}
-                done={() => {
-                  dispatch(doneTaskAction({ firebase, id: item.id }))
+                onRemove={id => {
+                  dispatch(removeTaskAction({ firebase, id }))
                 }}
-                todos={allTasks}
+                onEdit={text => {
+                  dispatch(
+                    editTaskAction({
+                      updatedData: {
+                        task: text,
+                      },
+                      firebase,
+                      id: item.id,
+                    }),
+                  )
+                }}
               />
             </Element>
           ))}
       </Container>
-      <AddMode
-        selectedId={selectedId}
-        selectedTask={selectedTask}
-        type={type}
-        added={text => {
+      <AddingTaskBox
+        className={styles.AddBox}
+        onAdd={text => {
           dispatch(
             createTaskAction({
               type,
