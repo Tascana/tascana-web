@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import omit from 'lodash/omit'
 import nanoid from 'nanoid'
-import { DAY, MONTH, YEAR } from '../constants/task-types'
-import { randomGrad } from '../components/TaskBox/utils'
+import { MONTH, YEAR } from '../constants/task-types'
+import { randomGrad } from '../components/Tasks/utils'
 import uiSlice from './UI'
 
 const INITIAL_STATE = []
@@ -129,19 +129,8 @@ export const createTaskAction = ({
   try {
     const { UI, tasks, session } = getState()
     const userId = session.authUser.uid
-    const { selectedId } = UI
-    const selectedTask = tasks.find(t => t.id === selectedId)
-
-    const getParentId = () => {
-      if (
-        selectedTask &&
-        ((selectedTask.type === YEAR && type === MONTH) ||
-          (selectedTask.type === MONTH && type === DAY))
-      ) {
-        return selectedId
-      }
-      return null
-    }
+    const { selectedTree } = UI
+    const [parent] = selectedTree
 
     function getPosition() {
       let filteredTasks = tasks.filter(t => t.type === type)
@@ -162,7 +151,7 @@ export const createTaskAction = ({
       year: id.year,
       month: id.month || -1,
       day: id.day || -1,
-      parentId: getParentId(),
+      parentId: parent || null,
       position: getPosition(),
       userId,
       createdAt: Date.now(),
@@ -170,7 +159,7 @@ export const createTaskAction = ({
     }
 
     firebase.createTask(newTask, userId, newTaskId)
-    dispatch(uiSlice.actions.select(null))
+    dispatch(uiSlice.actions.selectTree([]))
   } catch (e) {
     console.error(e)
   }

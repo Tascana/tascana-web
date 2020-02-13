@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import styles from './styles.module.scss'
-
+import cx from 'classnames'
 import ui from '../../redux/UI'
 
+import styles from './styles.module.scss'
+
 function ContextMenuComponent() {
+  const dispatch = useDispatch()
   const { taskId, position, handlers } = useSelector(
     state => state.UI.contextMenu,
   )
-  const dispatch = useDispatch()
 
   const onClose = () => {
     dispatch(
@@ -55,7 +56,11 @@ function ContextMenuComponent() {
     >
       {handlers.onEdit && (
         <>
-          <button type="button" onClick={handlers.onEdit}>
+          <button
+            type="button"
+            onClick={handlers.onEdit}
+            className={styles.Button}
+          >
             Edit
           </button>
           <div className={styles.Separator} />
@@ -63,7 +68,11 @@ function ContextMenuComponent() {
       )}
       {handlers.onDone && (
         <>
-          <button type="button" onClick={handlers.onDone}>
+          <button
+            type="button"
+            onClick={handlers.onDone}
+            className={styles.Button}
+          >
             Done
           </button>
           <div className={styles.Separator} />
@@ -71,7 +80,7 @@ function ContextMenuComponent() {
       )}
       {handlers.onRemove && (
         <button
-          className={styles.Delete}
+          className={cx(styles.Button, styles.isRemoveButton)}
           type="button"
           onClick={handlers.onRemove}
         >

@@ -1,0 +1,108 @@
+.LinesHeader {
+  display: flex;
+  align-items: center;
+
+  h1 {
+    margin-right: 12px;
+    font-size: 30px;
+    line-height: 41px;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #b1b1b1;
+    border-radius: 50%;
+
+    > svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    &:disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  }
+}
+
+.TaskBox {
+  position: relative;
+  margin: 10px 10px 0px 0px;
+  border-radius: 10px;
+
+  &.BoxSorted {
+    opacity: 0.5;
+  }
+
+  &.isSortable {
+    opacity: 1;
+    transition: none !important;
+  }
+}
+
+.TaskBoxDisable {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.BoxSelected {
+  opacity: 1;
+}
+
+.BoxUnselected {
+  opacity: 0.3;
+}
+
+.AddBox {
+  margin: 10px 10px 0px 0px;
+}
+
+.AddBoxContents {
+  display: block;
+  width: 100%;
+  padding-right: 5px;
+  font-size: 14pt;
+  font-weight: bold;
+  color: black;
+}
+
+.TextBoxContents {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 14pt;
+  font-weight: bold;
+  color: white;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  outline: none;
+}
+
+.TextBoxInner {
+  display: table-cell;
+  padding: 15px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.TextBoxInnerIsEditable {
+  padding: 15px;
+}
+
+.Done {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #eaeaea;
+  border-radius: 50%;
+  opacity: 0.9;
+}

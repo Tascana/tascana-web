@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ProgressBar from './ProgressBar'
+import { FirebaseContext } from '../Firebase'
 import { separateClicks } from './separateClicks'
 import { useOnClickOutside } from './useOnClickOutside'
-import ui from '../../redux/UI'
+import ui, { selectTreeAction } from '../../redux/UI'
+import {
+  editTaskAction,
+  doneTaskAction,
+  removeTaskAction,
+} from '../../redux/tasks'
 import { YEAR } from '../../constants/task-types'
+
 import styles from './styles.module.scss'
 
 import link from '../../assets/icons/link.svg'
@@ -13,17 +20,7 @@ import smallAdd from '../../assets/icons/small-add.svg'
 import check from '../../assets/icons/check.svg'
 import checkDone from '../../assets/icons/done.svg'
 
-function TaskBox({
-  task,
-  onEdit,
-  onSelect,
-  className = '',
-  style = {},
-  onLink,
-  onDone,
-  onRemove,
-  ...rest
-}) {
+function TaskBox({ task, className = '', style = {}, ...rest }) {
   const [isEditMode, setEditMode] = useState(false)
   const [isLinkMode, setLinkMode] = useState(false)
   const [value, setValue] = useState(task.task)
@@ -31,6 +28,8 @@ function TaskBox({
   const textarea = useRef(null)
   const taskBox = useRef(null)
   const dispatch = useDispatch()
+  const firebase = useContext(FirebaseContext)
+
   const yearTasks = useSelector(state =>
     state.tasks.filter(t => t.type === YEAR),
   )
@@ -49,16 +48,47 @@ function TaskBox({
   }, [isEditMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function onClick(e) {
-    onSelect()
+    if (task.type !== YEAR && !task.parentId) return
+    dispatch(selectTreeAction({ todo: task }))
   }
 
   function onDoubleClick(e) {
     setEditMode(true)
   }
 
-  function edit() {
+  function onEdit() {
     setEditMode(false)
-    if (value) onEdit(value)
+    if (value) {
+      dispatch(
+        editTaskAction({
+          updatedData: {
+            task: value,
+          },
+          firebase,
+          id: task.id,
+        }),
+      )
+    }
+  }
+
+  function onDone() {
+    dispatch(doneTaskAction({ id: task.id, firebase }))
+  }
+
+  function onRemove() {
+    dispatch(removeTaskAction({ id: task.id, firebase }))
+  }
+
+  function onLink() {
+    dispatch(
+      editTaskAction({
+        updatedData: {
+          parentId,
+        },
+        firebase,
+        id: task.id,
+      }),
+    )
   }
 
   function renderActions(task) {
@@ -83,7 +113,7 @@ function TaskBox({
             onClick={e => {
               e.stopPropagation()
 
-              onDone(task.id)
+              onDone()
             }}
             className={cx(styles.ActionButton, styles.DoneButton, {
               [styles.Done]: task.done,
@@ -122,7 +152,7 @@ function TaskBox({
             type="button"
             onClick={e => {
               e.stopPropagation()
-              onLink(parentId)
+              onLink()
               setLinkMode(false)
             }}
           >
@@ -156,8 +186,8 @@ function TaskBox({
               },
               handlers: {
                 onEdit: () => setEditMode(true),
-                onDone: () => onDone(task.id),
-                onRemove: () => onRemove(task.id),
+                onDone,
+                onRemove,
               },
             }),
           )
@@ -186,10 +216,10 @@ function TaskBox({
             }}
             onKeyPress={e => {
               e.stopPropagation()
-              if (e.key === 'Enter') edit()
+              if (e.key === 'Enter') onEdit()
             }}
             onBlur={() => {
-              edit()
+              onEdit()
             }}
           />
         ) : (

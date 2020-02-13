@@ -1,5 +1,5 @@
 import React from 'react'
-import TaskBox from '../TaskBox'
+import Tasks from '../Tasks'
 import { animated } from 'react-spring'
 import { useLineSwipe } from './useLineSwipe'
 
@@ -40,10 +40,7 @@ export const HorizontalUI = props => {
               height,
             }}
           >
-            <div>
-              <h1>{items[i].name}</h1>
-              <TaskBox type={props.type} id={items[i].id} />
-            </div>
+            <Tasks type={props.type} id={items[i].id} title={items[i].name} />
           </animated.div>
         ))}
       </animated.div>

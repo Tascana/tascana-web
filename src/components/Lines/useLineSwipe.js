@@ -155,7 +155,6 @@ export function useLineSwipe({
 
     // Jump year
     if (UI.year !== UI.prevyear && !dragging.current) {
-      console.log(type, ' jump year ', UI.year)
       const dx = UI.prevyear - UI.year
       pos(dx)
       return
@@ -167,7 +166,6 @@ export function useLineSwipe({
       !dragging.current &&
       (type === 'MONTH' || type === 'DAY')
     ) {
-      console.log(type, ' jump month  ', UI.month)
       const dx = UI.prevmonth - UI.month
       pos(dx)
       return

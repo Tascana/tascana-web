@@ -7,6 +7,7 @@
   background-image: linear-gradient(to bottom, #e2e2e2, #bbb);
   border-radius: 12px;
   outline: none;
+  transition: 0.2s ease-in-out;
 
   .TaskText {
     overflow: hidden;
@@ -21,7 +22,6 @@
     font-weight: bold;
     line-height: 24px;
     color: #fff;
-    letter-spacing: -0.53px;
   }
 
   textarea {
@@ -87,7 +87,9 @@
 }
 
 .AddingTaskBox {
-  display: flex;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 200px;
@@ -110,7 +112,6 @@
     font-weight: bold;
     line-height: 24px;
     color: #000;
-    letter-spacing: -0.53px;
     resize: none;
     background-color: transparent;
     border: none;
@@ -136,110 +137,6 @@
   }
 }
 
-.DayTaskBox {
-  padding: 6px 10px;
-  margin-bottom: 36px;
-  border-radius: 12px;
-
-  .Header {
-    display: flex;
-
-    h4 {
-      margin-right: 12px;
-      font-size: 21px;
-      font-weight: bold;
-      line-height: 22px;
-      text-transform: capitalize;
-    }
-
-    button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 25px;
-      height: 25px;
-      border: 1px solid #b1b1b1;
-      border-radius: 50%;
-
-      > svg {
-        width: 11px;
-        height: 11px;
-      }
-
-      &:disabled {
-        pointer-events: none;
-        opacity: 0.5;
-      }
-    }
-  }
-
-  .TaskList {
-    margin-top: 8px;
-
-    li {
-      position: relative;
-      display: flex;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      font-size: 18px;
-      line-height: 22px;
-      cursor: pointer;
-      user-select: none;
-      border-bottom: 1px solid #f5f5f5;
-
-      &:last-child {
-        padding-bottom: 0;
-        border-bottom: none;
-      }
-
-      &.isDone {
-        text-decoration: line-through;
-      }
-
-      svg,
-      .Mark {
-        position: relative;
-        top: 4px;
-        min-width: 13px;
-        margin-right: 6px;
-      }
-
-      .Mark {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 13px;
-        min-width: 13px;
-        height: 13px;
-        min-height: 13px;
-        margin-right: 6px;
-        cursor: pointer;
-        border: 1px solid #cdcdcd;
-        border-radius: 50%;
-
-        &.Done {
-          background-image: linear-gradient(to bottom, #47f0e7, #00e795 75%);
-          border: none;
-        }
-      }
-    }
-  }
-
-  .DayTaskField {
-    margin-top: 8px;
-    font-size: 18px;
-    line-height: 22px;
-    resize: none;
-    background-color: transparent;
-    border: none;
-    outline: none;
-
-    &.isEdit {
-      margin-top: 0;
-    }
-  }
-}
-
 .ProgressBar {
   position: absolute;
   bottom: 0;
@@ -250,51 +147,5 @@
     fill: #fff;
     stroke: none;
     clip-path: url(#clipPath);
-  }
-}
-
-.ContextMenu {
-  position: fixed;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  width: 134px;
-  padding: 10px 0;
-  overflow: hidden;
-  background-color: #f8f8f8;
-  border-radius: 19px;
-
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 7px 0;
-    font-family: 'SF Pro Text', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 21px;
-    color: #000;
-    text-align: center;
-    transition: 0.2s ease;
-
-    &:hover {
-      background-color: #e6e6e6;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .Delete {
-    color: #ea5151;
-  }
-
-  .Separator {
-    width: 100%;
-    height: 1px;
-    border-bottom: 1px solid #808080;
-    opacity: 0.15;
   }
 }

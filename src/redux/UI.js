@@ -118,27 +118,21 @@ export const setSort = UISlice.actions.setSort
 
 export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
   const {
-    tasks,
-    UI: { selectedId },
+    UI: { selectedTree },
   } = getState()
 
-  const selectedTask = tasks.find(t => t.id === todo.id)
-  const tree = selectedTask
-    ? [...selectedTask.parents, ...selectedTask.children].map(t => t.id)
-    : []
-
-  if (selectedId !== null) {
-    if (selectedId === todo.id) {
-      dispatch(UISlice.actions.select(null))
-      dispatch(UISlice.actions.selectTree([]))
-    } else {
-      dispatch(UISlice.actions.select(todo.id))
-      dispatch(UISlice.actions.selectTree(tree))
-    }
-  } else {
-    dispatch(UISlice.actions.select(todo.id))
-    dispatch(UISlice.actions.selectTree(tree))
+  if (selectedTree.length && selectedTree.includes(todo.id)) {
+    dispatch(UISlice.actions.selectTree([]))
+    return
   }
+
+  const tree = [
+    todo.id,
+    ...todo.parents.map(t => t.id),
+    ...todo.children.map(t => t.id),
+  ]
+
+  dispatch(UISlice.actions.selectTree(tree))
 }
 
 export default UISlice

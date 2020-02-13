@@ -1,11 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import { useDispatch } from 'react-redux'
 import cx from 'classnames'
+import { FirebaseContext } from '../Firebase'
+import { createTaskAction } from '../../redux/tasks'
+
 import styles from './styles.module.scss'
 
-function AddingTaskBox({ onAdd, disabled, className = '', ...rest }) {
-  const [isEditMode, setEditMode] = useState(false)
+function AddingTaskBox({ type, id, className = '', offAddMode, ...rest }) {
+  const [isEditMode, setEditMode] = useState(true)
   const [value, setValue] = useState('')
   const textarea = useRef(null)
+  const dispatch = useDispatch()
+  const firebase = useContext(FirebaseContext)
+
+  function onAdd(value) {
+    dispatch(
+      createTaskAction({
+        type,
+        text: value,
+        firebase,
+        id,
+      }),
+    )
+  }
 
   useEffect(() => {
     if (isEditMode) {
@@ -17,9 +34,9 @@ function AddingTaskBox({ onAdd, disabled, className = '', ...rest }) {
   }, [isEditMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function add() {
-    setEditMode(false)
     if (value) onAdd(value)
     setValue('')
+    offAddMode()
   }
 
   return (
@@ -29,9 +46,7 @@ function AddingTaskBox({ onAdd, disabled, className = '', ...rest }) {
       onKeyPress={e => {
         if (e.key === 'Enter') setEditMode(true)
       }}
-      className={cx(styles.AddingTaskBox, className, {
-        [styles.isDisabled]: disabled,
-      })}
+      className={cx(styles.AddingTaskBox, className)}
       onClick={e => {
         setEditMode(true)
       }}

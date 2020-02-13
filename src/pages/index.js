@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import Lines from '../components/Lines'
 import Header from '../components/Header'
 import { FirebaseContext } from '../components/Firebase'
-import ContextMenu from '../components/TaskBoxes/ContextMenu'
+import ContextMenu from '../components/ContextMenu'
 import useAuthorization from '../hooks/use-authorization'
 import tasks from '../redux/tasks'
 

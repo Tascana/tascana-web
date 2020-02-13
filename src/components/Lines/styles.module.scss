@@ -4,6 +4,7 @@
   padding: 0 16px;
   margin: 0 auto;
   overflow: hidden;
+  user-select: initial;
 }
 
 .Header {
@@ -17,18 +18,16 @@
     font-weight: bold;
     line-height: normal;
     color: #151515;
-    letter-spacing: -0.91px;
   }
 }
 
 .DatePickerTrigger {
   height: 36px;
   padding: 8px 16px;
-  font-family: 'SF Pro Display', sans-serif;
+  font-family: 'Helvetica Now', sans-serif;
   font-size: 18px;
   font-weight: bold;
   color: #000;
-  letter-spacing: 0.2px;
   background-color: #fff;
   border: 1px solid #979797;
   border-radius: 18px;
@@ -42,7 +41,7 @@
   height: inherit;
 
   div {
-    height: 100%;
     width: 50%;
+    height: 100%;
   }
 }
