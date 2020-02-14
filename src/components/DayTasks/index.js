@@ -7,7 +7,7 @@ import TaskMark from './TaskMark'
 import Textarea from './Textarea'
 import { FirebaseContext } from '../Firebase'
 import { createTaskAction } from '../../redux/tasks'
-import { DAY, MONTH } from '../../constants/task-types'
+import { DAY } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
 

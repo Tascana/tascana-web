@@ -92,18 +92,12 @@ function Landing() {
             <button
               type="button"
               onClick={() => {
-                signInWithGoogle()
+                document.getElementById('signin').scrollIntoView({
+                  behavior: 'smooth',
+                })
               }}
             >
-              Sign in with Google
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                signInWithFb()
-              }}
-            >
-              Sign in with Facebook
+              Sign in
             </button>
           </div>
         </header>
@@ -318,10 +312,11 @@ function Landing() {
           </div>
         </div>
       </section>
-      <section className={styles.SignIn}>
+      <section className={styles.SignIn} id="signin">
         <h2>Sign in</h2>
         <div className={styles.SignInButtons}>
           <button
+            className={styles.Google}
             type="button"
             onClick={() => {
               signInWithGoogle()
@@ -330,6 +325,7 @@ function Landing() {
             with Google
           </button>
           <button
+            className={styles.Facebook}
             type="button"
             onClick={() => {
               signInWithFb()

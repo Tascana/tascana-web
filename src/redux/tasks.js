@@ -97,16 +97,21 @@ const tasksSlice = createSlice({
   },
 })
 
-export const sortTasksAction = ({ reorderedTasks, firebase, type }) => async (
-  dispatch,
-  getState,
-) => {
+export const sortTasksAction = ({
+  reorderedTasks,
+  firebase,
+  type,
+  subtype,
+}) => async (dispatch, getState) => {
   try {
     const { tasks: allTasks, session } = getState()
     const userId = session.authUser.uid
     let objectTasks = {}
 
-    const filteredTasks = allTasks.filter(t => t.type !== type)
+    let filteredTasks = allTasks.filter(t => t.type !== type)
+
+    if (subtype) filteredTasks = allTasks.filter(t => t.subtype !== subtype)
+
     const sortedTasks = [...filteredTasks, ...reorderedTasks]
 
     sortedTasks.forEach(t => {

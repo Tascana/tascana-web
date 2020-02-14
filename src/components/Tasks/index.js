@@ -10,12 +10,13 @@ import { FirebaseContext } from '../Firebase'
 import { editTaskAction, sortTasksAction } from '../../redux/tasks'
 import { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
+import { reorder } from './utils'
 
 import styles from './styles.module.scss'
 
 // TODO: Use react-sortable-hoc while actual issue in react-beautiful-dnd
 const DroppableTasksArea = SortableContainer(({ children }) => {
-  return <div>{children}</div>
+  return <div className={styles.TasksWrapper}>{children}</div>
 })
 const DraggableTaskBox = SortableElement(({ children }) => children)
 
@@ -31,12 +32,13 @@ function Tasks({ type, id, title }) {
   if (type === types.DAY) {
     return (
       <div>
-        <h1 className={styles.Title}>{title}</h1>
+        <h1 className={styles.DayTasksTitle}>{title}</h1>
         <DragDropContext
           onDragStart={() => {
             dispatch(setSort(true))
           }}
           onDragEnd={({ destination, source, draggableId }) => {
+            // TODO: Need refactor
             dispatch(setSort(false))
 
             if (!destination) return
@@ -47,31 +49,30 @@ function Tasks({ type, id, title }) {
             )
               return
 
-            const destinationTasks = allTasks
-              .filter(t => t.subtype === destination.droppableId)
-              .sort((a, b) => a.position - b.position)
+            const destinationTasks = allTasks.filter(
+              t => t.subtype === destination.droppableId,
+            )
 
-            const sorted = arrayMove(
+            const sorted = reorder(
               destinationTasks,
               source.index,
               destination.index,
-            ).filter(Boolean)
+            )
 
             if (destination.droppableId === source.droppableId) {
-              sorted.forEach((t, index) => {
-                dispatch(
-                  editTaskAction({
-                    id: t.id,
-                    firebase,
-                    isSort: true,
-                    updatedData: {
-                      position: index,
-                    },
-                  }),
-                )
-              })
+              dispatch(
+                sortTasksAction({
+                  reorderedTasks: sorted.map((t, index) => ({
+                    ...t,
+                    position: index,
+                  })),
+                  type,
+                  subtype: destination.droppableId,
+                  firebase,
+                }),
+              )
             } else {
-              const draggable = allTasks[draggableId]
+              const draggable = allTasks.find(t => t.id === draggableId)
               const tasks = allTasks.filter(
                 t => t.subtype === destination.droppableId,
               )
@@ -146,14 +147,6 @@ function Tasks({ type, id, title }) {
         }}
         onSortEnd={({ oldIndex, newIndex }) => {
           const arr = allTasks.filter(t => t.type === type)
-
-          const reorder = (list, startIndex, endIndex) => {
-            const result = Array.from(list)
-            const [removed] = result.splice(startIndex, 1)
-            result.splice(endIndex, 0, removed)
-
-            return result
-          }
 
           const reorderedTasks = reorder(arr, oldIndex, newIndex)
 

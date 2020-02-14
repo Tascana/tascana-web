@@ -33,11 +33,13 @@
       font-size: 18px;
       line-height: 22px;
       background-color: #fff;
-      border: 1px solid #686868;
+      border: 1px solid #000;
       border-radius: 12px;
+      transition: 0.2s ease;
 
-      &:first-of-type {
-        margin-bottom: 13px;
+      &:hover {
+        color: #fff;
+        background-color: #000;
       }
     }
   }
@@ -348,8 +350,23 @@
       height: 60px;
       font-size: 24px;
       line-height: 0.92;
-      border: 1px solid #686868;
+      border: 1px solid #000;
       border-radius: 12px;
+      transition: 0.2s ease;
+
+      &:hover {
+        color: #fff;
+
+        &.Facebook {
+          background-color: #3b5998;
+          border-color: #3b5998;
+        }
+
+        &.Google {
+          background-color: #dd4b39;
+          border-color: #dd4b39;
+        }
+      }
 
       &:first-of-type {
         margin-right: 13px;
