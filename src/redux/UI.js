@@ -15,6 +15,11 @@ const INITIAL_STATE = {
   selectedId: null,
   swipeableLine: '',
   selectedTree: [],
+  addMode: {
+    on: false,
+    child: null,
+    type: null,
+  },
   sort: false,
   contextMenu: {
     taskId: null,
@@ -114,6 +119,10 @@ const UISlice = createSlice({
         ...state.contextMenu,
         ...action.payload,
       },
+    }),
+    toggleAddMode: (state, action) => ({
+      ...state,
+      addMode: action.payload,
     }),
   },
 })

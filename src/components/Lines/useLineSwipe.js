@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { useDrag } from 'react-use-gesture'
 import { useSprings } from 'react-spring'
 import { translateDay, translateMonth, extractHeight } from './util'
@@ -20,6 +21,7 @@ export function useLineSwipe({
   const [items, setItems] = React.useState(items0) // Load blocks from Redux into state
   const dragging = React.useRef(false) // Defines which row is being dragged
   const offset = window.innerWidth
+  const addMode = useSelector(state => state.UI.addMode)
 
   const [springs, set] = useSprings(items.length, i => ({
     // Set up function for react-spring
@@ -91,7 +93,7 @@ export function useLineSwipe({
         }
       })
     }, 1)
-  }, [num]) // updates row height
+  }, [num, addMode.type]) // updates row height
 
   useEffect(() => {
     // 5. This function watches Redux to update all task blocks

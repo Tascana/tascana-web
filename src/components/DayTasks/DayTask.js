@@ -70,7 +70,6 @@ function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
             e.stopPropagation()
 
             separateClicks(e, {
-              onClick: onDone,
               onDoubleClick: () => {
                 setEditMode(true)
               },
@@ -101,7 +100,12 @@ function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
             [styles.isDone]: done,
           })}
         >
-          <TaskMark id={id} done={done} gradient={backgroundGradient} />{' '}
+          <TaskMark
+            onClick={onDone}
+            id={id}
+            done={done}
+            gradient={backgroundGradient}
+          />{' '}
           {isInEditMode ? (
             <Textarea
               ref={editTextareaRef}

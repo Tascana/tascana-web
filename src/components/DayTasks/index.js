@@ -8,6 +8,7 @@ import Textarea from './Textarea'
 import { FirebaseContext } from '../Firebase'
 import { createTaskAction } from '../../redux/tasks'
 import { DAY } from '../../constants/task-types'
+import { getTodos } from '../Tasks/utils'
 
 import styles from './styles.module.scss'
 
@@ -17,7 +18,7 @@ function DayTasks({ subtype, id, className, ...rest }) {
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
   const tasks = useSelector(state =>
-    state.tasks.filter(t => t.subtype === subtype),
+    getTodos(state, DAY, id).filter(t => t.subtype === subtype),
   )
   const parentGradient = useSelector(({ UI, tasks }) => {
     const [parent] = UI.selectedTree

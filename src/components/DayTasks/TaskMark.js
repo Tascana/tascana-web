@@ -3,7 +3,7 @@ import gradientParser from 'gradient-parser'
 
 import styles from './styles.module.scss'
 
-function TaskMark({ id, done, gradient }) {
+function TaskMark({ id, done, gradient, onClick }) {
   const [{ colorStops }] = gradientParser.parse(gradient)
 
   const [first, last] = colorStops.map(color => {
@@ -14,6 +14,8 @@ function TaskMark({ id, done, gradient }) {
 
   return (
     <svg
+      role="button"
+      onClick={onClick}
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"

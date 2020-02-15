@@ -35,7 +35,10 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
   )
 
   useOnClickOutside(taskBox, () => {
-    if (isLinkMode) setLinkMode(false)
+    if (isLinkMode) {
+      onLink()
+      setLinkMode(false)
+    }
   })
 
   useEffect(() => {
@@ -164,7 +167,13 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
             type="button"
             onClick={e => {
               e.stopPropagation()
-              onLink()
+              dispatch(
+                ui.actions.toggleAddMode({
+                  on: true,
+                  children: task.id,
+                  type: YEAR,
+                }),
+              )
               setLinkMode(false)
             }}
           >

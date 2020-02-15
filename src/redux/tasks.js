@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import omit from 'lodash/omit'
 import nanoid from 'nanoid'
-import { MONTH, YEAR } from '../constants/task-types'
+import { YEAR, MONTH } from '../constants/task-types'
 import { randomGrad } from '../components/Tasks/utils'
 import uiSlice from './UI'
 
@@ -46,41 +46,49 @@ const tasksSlice = createSlice({
   reducers: {
     setTasks: (state, { payload: tasks }) => {
       const tasksArray = Array.isArray(tasks) ? tasks : Object.values(tasks)
-      const computedTasksArray = tasksArray.map((task, index, arr) => {
-        const unassignedGradient = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+      const computedTasksArray = tasksArray
+        .sort((a, b) => a.position - b.position)
+        .map((task, index, arr) => {
+          const unassignedGradient = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
 
-        const { parents, children } = getTree(tasks, task)
+          const { parents, children } = getTree(tasks, task)
 
-        function getGradient() {
-          if (task.type === YEAR) return randomGrad(task.createdAt)
+          function getGradient() {
+            if (task.type === YEAR) {
+              return randomGrad(index)
+            }
 
-          const yearLevelParent = parents.find(p => p.type === YEAR)
-          const monthLevelParent = parents.find(p => p.type === MONTH)
+            const yearLevelParent = parents.find(p => p.type === YEAR)
+            const monthLevelParent = parents.find(p => p.type === MONTH)
 
-          if (yearLevelParent) return randomGrad(yearLevelParent.createdAt)
-          if (monthLevelParent) return randomGrad(monthLevelParent.createdAt)
+            if (yearLevelParent)
+              return randomGrad(arr.findIndex(t => t.id === yearLevelParent.id))
+            if (monthLevelParent)
+              return randomGrad(
+                arr.findIndex(t => t.id === monthLevelParent.id),
+              )
 
-          return unassignedGradient
-        }
+            return unassignedGradient
+          }
 
-        function getProgress() {
-          return children.filter(c => c.done).length
-            ? (children.filter(c => c.done).length / children.length) * 100
-            : 0
-        }
+          function getProgress() {
+            return children.filter(c => c.done).length
+              ? (children.filter(c => c.done).length / children.length) * 100
+              : 0
+          }
 
-        return {
-          ...task,
-          parents,
-          children,
-          done: getProgress() === 100 ? true : task.done,
-          backgroundGradient: getGradient(),
-          position: typeof task.position !== 'number' ? index : task.position,
-          progress: getProgress(),
-        }
-      })
+          return {
+            ...task,
+            parents,
+            children,
+            done: getProgress() === 100 ? true : task.done,
+            backgroundGradient: task.backgroundGradient || getGradient(),
+            position: typeof task.position !== 'number' ? index : task.position,
+            progress: getProgress(),
+          }
+        })
 
-      return computedTasksArray.sort((a, b) => a.position - b.position)
+      return computedTasksArray
     },
     createTask: (state, action) => ({
       ...state,
@@ -145,6 +153,16 @@ export const createTaskAction = ({
       return filteredTasks.length
     }
 
+    const position = getPosition()
+
+    function getGradient() {
+      if (parent) {
+        return tasks.find(t => t.id === parent).backgroundGradient
+      }
+
+      return randomGrad(position)
+    }
+
     const newTaskId = nanoid(12)
     const newTask = {
       task: text,
@@ -156,14 +174,28 @@ export const createTaskAction = ({
       year: id.year,
       month: id.month || -1,
       day: id.day || -1,
-      parentId: parent || null,
-      position: getPosition(),
+      parentId: type !== YEAR && parent ? parent : null,
+      position,
+      backgroundGradient: getGradient(),
       userId,
       createdAt: Date.now(),
       updatedAt: -1,
     }
 
     firebase.createTask(newTask, userId, newTaskId)
+
+    if (UI.addMode.children) {
+      dispatch(
+        editTaskAction({
+          updatedData: {
+            parentId: newTaskId,
+          },
+          firebase,
+          id: UI.addMode.children,
+        }),
+      )
+    }
+
     dispatch(uiSlice.actions.selectTree([]))
   } catch (e) {
     console.error(e)
@@ -204,11 +236,11 @@ export const removeTaskAction = ({ firebase, id }) => async (
     const userId = session.authUser.uid
     const task = tasks.find(t => t.id === id)
 
-    firebase.deleteTask(userId, id)
-
     task.children.forEach(c => {
       firebase.deleteTask(userId, c.id)
     })
+
+    firebase.deleteTask(userId, id)
   } catch (e) {}
 }
 
