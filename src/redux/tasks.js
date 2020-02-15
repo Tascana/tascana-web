@@ -52,19 +52,24 @@ const tasksSlice = createSlice({
         const { parents, children } = getTree(tasks, task)
 
         function getGradient() {
+          const sortedTasks = arr
+            .slice()
+            .sort((a, b) => a.position - b.position)
+
           if (task.type === YEAR)
-            return randomGrad(
-              arr
-                .slice()
-                .sort((a, b) => a.position - b.position)
-                .findIndex(t => t.id === task.id),
-            )
+            return randomGrad(sortedTasks.findIndex(t => t.id === task.id))
 
           const yearLevelParent = parents.find(p => p.type === YEAR)
           const monthLevelParent = parents.find(p => p.type === MONTH)
 
-          if (yearLevelParent) return randomGrad(yearLevelParent.createdAt)
-          if (monthLevelParent) return randomGrad(monthLevelParent.createdAt)
+          if (yearLevelParent)
+            return randomGrad(
+              sortedTasks.findIndex(t => t.id === yearLevelParent.id),
+            )
+          if (monthLevelParent)
+            return randomGrad(
+              sortedTasks.findIndex(t => t.id === monthLevelParent.id),
+            )
 
           return unassignedGradient
         }
