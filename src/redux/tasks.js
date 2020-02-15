@@ -52,7 +52,13 @@ const tasksSlice = createSlice({
         const { parents, children } = getTree(tasks, task)
 
         function getGradient() {
-          if (task.type === YEAR) return randomGrad(task.createdAt)
+          if (task.type === YEAR)
+            return randomGrad(
+              arr
+                .slice()
+                .sort((a, b) => a.position - b.position)
+                .findIndex(t => t.id === task.id),
+            )
 
           const yearLevelParent = parents.find(p => p.type === YEAR)
           const monthLevelParent = parents.find(p => p.type === MONTH)
@@ -163,21 +169,21 @@ export const createTaskAction = ({
       updatedAt: -1,
     }
 
-    firebase.createTask(newTask, userId, newTaskId).then(() => {
-      if (UI.addMode.children) {
-        dispatch(
-          editTaskAction({
-            updatedData: {
-              parentId: newTaskId,
-            },
-            firebase,
-            id: UI.addMode.children,
-          }),
-        )
+    firebase.createTask(newTask, userId, newTaskId)
 
-        dispatch(uiSlice.actions.selectTree([]))
-      }
-    })
+    if (UI.addMode.children) {
+      dispatch(
+        editTaskAction({
+          updatedData: {
+            parentId: newTaskId,
+          },
+          firebase,
+          id: UI.addMode.children,
+        }),
+      )
+    }
+
+    dispatch(uiSlice.actions.selectTree([]))
   } catch (e) {
     console.error(e)
   }
