@@ -11,7 +11,7 @@ import { FirebaseContext } from '../Firebase'
 import { editTaskAction, sortTasksAction } from '../../redux/tasks'
 import ui, { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
-import { reorder } from './utils'
+import { reorder, getTodos } from './utils'
 
 import styles from './styles.module.scss'
 
@@ -23,7 +23,7 @@ const DraggableTaskBox = SortableElement(({ children }) => children)
 
 function Tasks({ type, id, title, current }) {
   const isSort = useSelector(state => state.UI.sort)
-  const allTasks = useSelector(state => state.tasks)
+  const allTasks = useSelector(state => getTodos(state, type, id))
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()

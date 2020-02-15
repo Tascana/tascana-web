@@ -37,6 +37,19 @@ export const getTodosByType = (
   }
 }
 
+export function getTodos(state, type, id) {
+  switch (type) {
+    case 'YEAR':
+      return getTodosByType(state, type, id.year)
+    case 'MONTH':
+      return getTodosByType(state, type, id.year, id.month)
+    case 'DAY':
+      return getTodosByType(state, type, id.year, id.month, id.day)
+    default:
+      break
+  }
+}
+
 export function randomGrad(i) {
   const deg = Math.round(20 * i + 210 - 30 / Math.trunc((i + 18) / 18)) % 360
   const deg2 =
