@@ -14,43 +14,45 @@ function Header() {
 
   return (
     <header className={classes.header}>
-      <div className={classes.left}>
-        <div className={classes.logo}>T</div>
-      </div>
-      {user ? (
-        <div
-          ref={ref}
-          className={classes.right}
-          onClick={() => {
-            if (isOpenSettings) toggleSettings(false)
-            else toggleSettings(true)
-          }}
-        >
-          <p className={classes.username}>{user.username}</p>
-          <div
-            className={classes.avatar}
-            style={{
-              backgroundImage: `url(${user.providerData.photoURL})`,
-            }}
-          />
-          {isOpenSettings ? (
-            <div className={classes.settings}>
-              <button type="button">Settings</button>
-              <div className={classes.separator} />
-              <button type="button">About</button>
-              <div className={classes.separator} />
-              <button
-                type="button"
-                onClick={() => {
-                  firebase.signOut()
-                }}
-              >
-                Log Out
-              </button>
-            </div>
-          ) : null}
+      <div className={classes.content}>
+        <div className={classes.left}>
+          <div className={classes.logo}>T</div>
         </div>
-      ) : null}
+        {user ? (
+          <div
+            ref={ref}
+            className={classes.right}
+            onClick={() => {
+              if (isOpenSettings) toggleSettings(false)
+              else toggleSettings(true)
+            }}
+          >
+            <p className={classes.username}>{user.username}</p>
+            <div
+              className={classes.avatar}
+              style={{
+                backgroundImage: `url(${user.providerData.photoURL})`,
+              }}
+            />
+            {isOpenSettings ? (
+              <div className={classes.settings}>
+                <button type="button">Settings</button>
+                <div className={classes.separator} />
+                <button type="button">About</button>
+                <div className={classes.separator} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    firebase.signOut()
+                  }}
+                >
+                  Log Out
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </header>
   )
 }

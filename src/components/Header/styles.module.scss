@@ -1,11 +1,18 @@
 .header {
+  position: fixed;
+  left: 16px;
+  z-index: 2;
+  width: calc(100% - 32px);
+  padding-top: 15px;
+  background-color: #fff;
+}
+
+.content {
   display: flex;
   justify-content: space-between;
-  max-width: 1240px;
   height: 64px;
   padding: 0 16px;
-  margin: 15px auto 22px;
-  background-color: rgba(234, 234, 234, 0.33);
+  background-color:#f8f8f8;
   border-radius: 19px;
 }
 
