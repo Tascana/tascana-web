@@ -23,7 +23,8 @@ const DraggableTaskBox = SortableElement(({ children }) => children)
 
 function Tasks({ type, id, title, current }) {
   const isSort = useSelector(state => state.UI.sort)
-  const allTasks = useSelector(state => getTodos(state, type, id))
+  const allTasks = useSelector(state => state.tasks)
+  const currentTasks = useSelector(state => getTodos(state, type, id))
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
@@ -170,21 +171,19 @@ function Tasks({ type, id, title, current }) {
           dispatch(setSort(false))
         }}
       >
-        {allTasks
-          .filter(t => t.type === type)
-          .map((item, index) => (
-            <DraggableTaskBox key={item.id} index={index}>
-              <TaskBoxComponent
-                className={cx(styles.TaskBox, {
-                  [styles.BoxSelected]: selectedTree.includes(item.id),
-                  [styles.BoxUnselected]:
-                    selectedTree.length > 0 && !selectedTree.includes(item.id),
-                  [styles.BoxSorted]: isSort,
-                })}
-                task={item}
-              />
-            </DraggableTaskBox>
-          ))}
+        {currentTasks.map((item, index) => (
+          <DraggableTaskBox key={item.id} index={index}>
+            <TaskBoxComponent
+              className={cx(styles.TaskBox, {
+                [styles.BoxSelected]: selectedTree.includes(item.id),
+                [styles.BoxUnselected]:
+                  selectedTree.length > 0 && !selectedTree.includes(item.id),
+                [styles.BoxSorted]: isSort,
+              })}
+              task={item}
+            />
+          </DraggableTaskBox>
+        ))}
         {addMode.on && addMode.type === type && isEqual(current, id) && (
           <AddingTaskBox
             id={id}
