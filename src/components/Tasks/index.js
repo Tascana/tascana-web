@@ -80,9 +80,9 @@ function Tasks({ type, id, title, current }) {
 
               tasks.splice(destination.index, 0, draggable)
 
-              const sortedByPosition = tasks.sort(
-                (a, b) => a.position - b.position,
-              )
+              const sortedByPosition = tasks
+                .slice()
+                .sort((a, b) => a.position - b.position)
 
               const reorder = arrayMove(
                 sortedByPosition,
