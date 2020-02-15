@@ -8,11 +8,11 @@ export function separateClicks(e, { onClick, onDoubleClick }) {
   if (clickCount === 1) {
     singleClickTimer = setTimeout(function() {
       clickCount = 0
-      onClick(e)
+      if (typeof onClick === 'function') onClick(e)
     }, 170)
   } else if (clickCount === 2) {
     clearTimeout(singleClickTimer)
     clickCount = 0
-    onDoubleClick(e)
+    if (typeof onDoubleClick === 'function') onDoubleClick(e)
   }
 }
