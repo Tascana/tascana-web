@@ -21,8 +21,8 @@ import check from '../../assets/icons/check.svg'
 import checkDone from '../../assets/icons/done.svg'
 
 function TaskBox({ task, className = '', style = {}, ...rest }) {
-  const [isEditMode, setEditMode] = useState(false)
-  const [isLinkMode, setLinkMode] = useState(false)
+  const [isEditMode, setEditMode_] = useState(false)
+  const [isLinkMode, setLinkMode_] = useState(false)
   const [value, setValue] = useState(task.task)
   const [parentId, selectParentId] = useState(null)
   const textarea = useRef(null)
@@ -46,6 +46,18 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
       textarea.current.setSelectionRange(taskTextLength, taskTextLength)
     }
   }, [isEditMode]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function setEditMode(val) {
+    setEditMode_(val)
+
+    setTimeout(() => dispatch(ui.actions.setEditTask(val)), 10)
+  }
+
+  function setLinkMode(val) {
+    setLinkMode_(val)
+
+    setTimeout(() => dispatch(ui.actions.setLinkingTask(val)), 10)
+  }
 
   function onClick(e) {
     if (task.type !== YEAR && !task.parentId) return

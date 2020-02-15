@@ -16,6 +16,7 @@ export function useLineSwipe({
   UI,
   animatedContainer,
 }) {
+  console.log(12, UI)
   const [items, setItems] = React.useState(items0) // Load blocks from Redux into state
   const dragging = React.useRef(false) // Defines which row is being dragged
   const offset = window.innerWidth
@@ -178,8 +179,10 @@ export function useLineSwipe({
   }
 
   function changeDirectionOnClick(id) {
-    console.log(UI.isEditing)
-    if (!UI.isEditing) dispatch(ui.actions.set({ tasktype: type, id }))
+    const isSelected = UI.selectedTree.length > 0
+    const { isEditing, isLinking } = UI
+    if (!isEditing && !isSelected && !isLinking)
+      dispatch(ui.actions.set({ tasktype: type, id }))
   }
 
   return { springs, bind, style, items, changeDirectionOnClick }

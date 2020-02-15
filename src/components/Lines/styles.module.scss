@@ -25,11 +25,12 @@
   position: absolute;
   left: 0;
   display: flex;
+  justify-content: space-between;
   width: 100%;
   height: inherit;
 
   div {
-    width: 50%;
+    width: 10%;
     height: 100%;
   }
 }

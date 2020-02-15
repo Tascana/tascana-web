@@ -10,6 +10,7 @@ const INITIAL_STATE = {
   prevmonth: now.getMonth() + 1,
   prevday: now.getDate(),
   isEditing: false,
+  isLinking: false,
   isSelected: false,
   selectedId: null,
   swipeableLine: '',
@@ -33,7 +34,6 @@ const UISlice = createSlice({
       ...state,
       ...action.payload,
     }),
-
     set: (state, action) => {
       switch (action.payload.tasktype) {
         case 'YEAR':
@@ -90,6 +90,10 @@ const UISlice = createSlice({
     setEditTask: (state, action) => ({
       ...state,
       isEditing: action.payload,
+    }),
+    setLinkingTask: (state, action) => ({
+      ...state,
+      isLinking: action.payload,
     }),
     select: (state, action) => ({
       ...state,
