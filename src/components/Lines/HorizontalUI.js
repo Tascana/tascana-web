@@ -40,7 +40,12 @@ export const HorizontalUI = props => {
               height,
             }}
           >
-            <Tasks type={props.type} id={items[i].id} title={items[i].name} />
+            <Tasks
+              type={props.type}
+              id={items[i].id}
+              current={items[1].id}
+              title={items[i].name}
+            />
           </animated.div>
         ))}
       </animated.div>

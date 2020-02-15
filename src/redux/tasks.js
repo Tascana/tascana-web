@@ -163,8 +163,21 @@ export const createTaskAction = ({
       updatedAt: -1,
     }
 
-    firebase.createTask(newTask, userId, newTaskId)
-    dispatch(uiSlice.actions.selectTree([]))
+    firebase.createTask(newTask, userId, newTaskId).then(() => {
+      if (UI.addMode.children) {
+        dispatch(
+          editTaskAction({
+            updatedData: {
+              parentId: newTaskId,
+            },
+            firebase,
+            id: UI.addMode.children,
+          }),
+        )
+
+        dispatch(uiSlice.actions.selectTree([]))
+      }
+    })
   } catch (e) {
     console.error(e)
   }
@@ -204,11 +217,11 @@ export const removeTaskAction = ({ firebase, id }) => async (
     const userId = session.authUser.uid
     const task = tasks.find(t => t.id === id)
 
-    firebase.deleteTask(userId, id)
-
     task.children.forEach(c => {
       firebase.deleteTask(userId, c.id)
     })
+
+    firebase.deleteTask(userId, id)
   } catch (e) {}
 }
 

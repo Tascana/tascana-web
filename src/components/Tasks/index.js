@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import isEqual from 'lodash/isEqual'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { DragDropContext } from 'react-beautiful-dnd'
 import cx from 'classnames'
@@ -8,7 +9,7 @@ import { AddingTaskBox, TaskBox as TaskBoxComponent } from '../TaskBoxes'
 import DayTasks from '../DayTasks'
 import { FirebaseContext } from '../Firebase'
 import { editTaskAction, sortTasksAction } from '../../redux/tasks'
-import { setSort } from '../../redux/UI'
+import ui, { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
 import { reorder } from './utils'
 
@@ -20,12 +21,11 @@ const DroppableTasksArea = SortableContainer(({ children }) => {
 })
 const DraggableTaskBox = SortableElement(({ children }) => children)
 
-function Tasks({ type, id, title }) {
-  const [isInAddMode, setAddMode] = useState(false)
-
+function Tasks({ type, id, title, current }) {
   const isSort = useSelector(state => state.UI.sort)
   const allTasks = useSelector(state => state.tasks)
   const selectedTree = useSelector(state => state.UI.selectedTree)
+  const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
 
@@ -127,7 +127,13 @@ function Tasks({ type, id, title }) {
           onClick={e => {
             e.stopPropagation()
 
-            setAddMode(true)
+            dispatch(
+              ui.actions.toggleAddMode({
+                on: true,
+                children: null,
+                type,
+              }),
+            )
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 341.4 341.4">
@@ -179,13 +185,19 @@ function Tasks({ type, id, title }) {
               />
             </DraggableTaskBox>
           ))}
-        {isInAddMode && (
+        {addMode.on && addMode.type === type && isEqual(current, id) && (
           <AddingTaskBox
             id={id}
             type={type}
             className={styles.AddBox}
             offAddMode={() => {
-              setAddMode(false)
+              dispatch(
+                ui.actions.toggleAddMode({
+                  on: false,
+                  children: null,
+                  type: null,
+                }),
+              )
             }}
           />
         )}
