@@ -1,10 +1,7 @@
-import React, { useEffect, useState, forwardRef } from 'react'
-import { connect, useDispatch, useSelector } from 'react-redux'
-import DatePicker from 'react-datepicker'
-import { format } from 'date-fns'
+import React from 'react'
+import { connect, useSelector } from 'react-redux'
 import { translateMonth, translateDay } from './util'
 import { HorizontalUI } from './HorizontalUI'
-import ui from '../../redux/UI'
 import styles from './styles.module.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import '../app.css'
@@ -101,66 +98,14 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
 
 const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
 
-const DatePickerTrigger = forwardRef(({ onClick, value }, ref) => {
-  const uiState = useSelector(state => state.UI)
-  const date = new Date(uiState.year, uiState.month - 1, uiState.day)
-
-  return (
-    <button className={styles.DatePickerTrigger} onClick={onClick} ref={ref}>
-      {format(date, 'dd/MM/yyyy')}
-    </button>
-  )
-})
-
 function Lines() {
-  const today = new Date()
-  const dispatch = useDispatch()
-
-  const [startDate, setStartDate] = useState(today)
-  const [isChanged, setIsChanged] = useState(false)
-
   const uiState = useSelector(state => state.UI)
   const date = new Date(uiState.year, uiState.month - 1, uiState.day)
-
-  useEffect(() => {
-    if (!isChanged) return
-
-    const date = new Date(startDate)
-
-    const day = date.getDate()
-    const month = date.getMonth() + 1
-    const year = date.getFullYear()
-
-    function getPrevMonth() {
-      if (month === 1) return 12
-      return month - 1
-    }
-
-    dispatch(
-      ui.actions.changeDate({
-        year,
-        month,
-        prevmonth: getPrevMonth(),
-        day,
-      }),
-    )
-  }, [startDate, isChanged]) // eslint-disable-line
 
   return (
     <main className={styles.Wrapper}>
       <div className={styles.Header}>
         <h2>{translateDay(date, 'MMMM d, yyyy')}</h2>
-        <div>
-          <DatePicker
-            selected={startDate}
-            onChange={date => {
-              setStartDate(date)
-              if (!isChanged) setIsChanged(true)
-            }}
-            customInput={<DatePickerTrigger />}
-            dateFormat="dd/MM/yyyy"
-          />
-        </div>
       </div>
       <CHorzUI type={'YEAR'} />
       <CHorzUI type={'MONTH'} />

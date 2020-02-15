@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import useOnClickOutside from 'use-onclickoutside'
 import { FirebaseContext } from '../Firebase'
 import classes from './styles.module.scss'
+import Datepicker from '../Datepicker'
 
 function Header() {
   const [isOpenSettings, toggleSettings] = useState(false)
@@ -15,7 +16,7 @@ function Header() {
   return (
     <header className={classes.header}>
       <div className={classes.left}>
-        <div className={classes.logo}>T</div>
+        <Datepicker />
       </div>
       {user ? (
         <div
