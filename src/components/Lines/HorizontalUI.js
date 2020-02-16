@@ -1,15 +1,18 @@
-import React from 'react'
-import Tasks from '../Tasks'
+import React, { useEffect, useRef } from 'react'
 import { animated } from 'react-spring'
+import { useInView } from 'react-intersection-observer'
+import { useShortcuts } from 'react-shortcuts-hook'
 import { useLineSwipe } from './useLineSwipe'
-
+import Tasks from '../Tasks'
 import classes from './styles.module.scss'
 
 import '../app.css'
 import { DirectionChangeContainer } from './directionChangeContainer'
 
 export const HorizontalUI = props => {
-  const animatedContainer = React.useRef(null)
+  const animatedContainer = useRef(null)
+  const [visibilityRef, inView] = useInView()
+
   const {
     springs,
     bind,
@@ -22,8 +25,20 @@ export const HorizontalUI = props => {
     animatedContainer,
   })
 
+  useEffect(() => {
+    props.onScroll(props.type, inView)
+  }, [inView])
+
+  function swipeLine(dir) {
+    if (props.swipeableLine === props.type) changeDirectionOnClick(dir)
+  }
+
+  useShortcuts(['ArrowLeft'], () => swipeLine(-1), [props.swipeableLine])
+
+  useShortcuts(['ArrowRight'], () => swipeLine(1), [props.swipeableLine])
+
   return (
-    <>
+    <div ref={visibilityRef}>
       <DirectionChangeContainer
         onChangeDirection={changeDirectionOnClick}
         style={style()}
@@ -57,6 +72,6 @@ export const HorizontalUI = props => {
           </animated.div>
         ))}
       </animated.div>
-    </>
+    </div>
   )
 }
