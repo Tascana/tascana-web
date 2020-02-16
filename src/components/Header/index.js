@@ -20,7 +20,9 @@ function Header() {
           <div className={classes.logo}>T</div>
         </div>
         <div className={classes.center}>
-          <Datepicker />
+          <div>
+            <Datepicker />
+          </div>
         </div>
         {user ? (
           <div

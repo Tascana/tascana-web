@@ -54,6 +54,17 @@ function ContextMenuComponent() {
         display: !!taskId ? 'initial' : 'none',
       }}
     >
+      {handlers.onCollapse && (
+        <>
+          <button
+            type="button"
+            onClick={handlers.onCollapse}
+            className={styles.Button}
+          >
+            Collapse
+          </button>
+        </>
+      )}
       {handlers.onEdit && (
         <>
           <button

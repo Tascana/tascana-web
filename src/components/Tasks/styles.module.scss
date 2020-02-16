@@ -3,21 +3,18 @@
   flex-wrap: wrap;
 }
 
-.DayTasksTitle {
-  margin-bottom: 14px;
-}
-
 .LinesHeader {
   display: flex;
   align-items: center;
 
   h1 {
-    margin-right: 12px;
+    padding-left: 4px;
     font-size: 30px;
     line-height: 41px;
+    user-select: none;
   }
 
-  button {
+  button:not([data-circled='true']) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,7 +22,7 @@
     height: 25px;
     border: 1px solid #b1b1b1;
     border-radius: 50%;
-    margin-right: 5px;
+    margin-left: 12px;
 
     > svg {
       width: 11px;
@@ -36,6 +33,30 @@
       pointer-events: none;
       opacity: 0.5;
     }
+  }
+}
+
+.DayHeader {
+  display: flex;
+  margin-bottom: 14px;
+  margin-left: -4px;
+
+  h1 {
+    padding: 4px;
+    user-select: none; 
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.HoverableLinesHeader {
+  width: fit-content;
+
+  &:hover {
+    border-radius: 8px;
+    background-color: rgba(216, 216, 216, 0.4);
   }
 }
 
@@ -118,5 +139,5 @@
 }
 
 .Line {
-  transition: height .2 ease-in-out;
+  transition: height 0.2 ease-in-out;
 }

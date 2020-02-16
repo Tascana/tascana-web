@@ -99,14 +99,8 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
 const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
 
 function Lines() {
-  const uiState = useSelector(state => state.UI)
-  const date = new Date(uiState.year, uiState.month - 1, uiState.day)
-
   return (
     <main className={styles.Wrapper}>
-      <div className={styles.Header}>
-        <h2>{translateDay(date, 'MMMM d, yyyy')}</h2>
-      </div>
       <CHorzUI type={'YEAR'} />
       <CHorzUI type={'MONTH'} />
       <CHorzUI type={'DAY'} />
