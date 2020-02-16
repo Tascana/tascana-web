@@ -17,7 +17,6 @@ export function useLineSwipe({
   UI,
   animatedContainer,
 }) {
-  console.log(12, UI)
   const [items, setItems] = React.useState(items0) // Load blocks from Redux into state
   const dragging = React.useRef(false) // Defines which row is being dragged
   const offset = window.innerWidth
@@ -84,16 +83,20 @@ export function useLineSwipe({
     { event: { passive: true, capture: false } },
   )
 
-  useEffect(() => {
+  function recalculateRowHeight() {
     setTimeout(() => {
-      set(i => {
+      set(() => {
         return {
           height:
             animatedContainer.current.children[1].children[0].scrollHeight + 40,
         }
       })
     }, 1)
-  }, [num, addMode.type]) // updates row height
+  }
+
+  useEffect(() => {
+    recalculateRowHeight()
+  }, [num, addMode.type])
 
   useEffect(() => {
     // 5. This function watches Redux to update all task blocks
@@ -187,5 +190,12 @@ export function useLineSwipe({
       dispatch(ui.actions.set({ tasktype: type, id }))
   }
 
-  return { springs, bind, style, items, changeDirectionOnClick }
+  return {
+    springs,
+    bind,
+    style,
+    items,
+    changeDirectionOnClick,
+    recalculateRowHeight,
+  }
 }

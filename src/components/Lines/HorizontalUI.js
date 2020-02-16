@@ -10,7 +10,14 @@ import { DirectionChangeContainer } from './directionChangeContainer'
 
 export const HorizontalUI = props => {
   const animatedContainer = React.useRef(null)
-  const { springs, bind, style, items, changeDirectionOnClick } = useLineSwipe({
+  const {
+    springs,
+    bind,
+    style,
+    items,
+    changeDirectionOnClick,
+    recalculateRowHeight,
+  } = useLineSwipe({
     ...props,
     animatedContainer,
   })
@@ -45,6 +52,7 @@ export const HorizontalUI = props => {
               id={items[i].id}
               current={items[1].id}
               title={items[i].name}
+              onRowHide={recalculateRowHeight}
             />
           </animated.div>
         ))}

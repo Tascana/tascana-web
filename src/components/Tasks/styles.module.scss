@@ -25,6 +25,7 @@
     height: 25px;
     border: 1px solid #b1b1b1;
     border-radius: 50%;
+    margin-right: 5px;
 
     > svg {
       width: 11px;
@@ -114,4 +115,8 @@
   background-color: #eaeaea;
   border-radius: 50%;
   opacity: 0.9;
+}
+
+.Line {
+  transition: height .2 ease-in-out;
 }

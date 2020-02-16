@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import isEqual from 'lodash/isEqual'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import { useTransition, animated } from 'react-spring'
 import { DragDropContext } from 'react-beautiful-dnd'
 import cx from 'classnames'
 import arrayMove from 'array-move'
@@ -21,7 +22,8 @@ const DroppableTasksArea = SortableContainer(({ children }) => {
 })
 const DraggableTaskBox = SortableElement(({ children }) => children)
 
-function Tasks({ type, id, title, current }) {
+function Tasks({ type, id, title, current, onRowHide }) {
+  const [hidden, setHidden] = useState(false)
   const isSort = useSelector(state => state.UI.sort)
   const allTasks = useSelector(state => state.tasks)
   const currentTasks = useSelector(state => getTodos(state, type, id))
@@ -29,6 +31,16 @@ function Tasks({ type, id, title, current }) {
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
   const firebase = useContext(FirebaseContext)
+  const transitions = useTransition(!hidden, null, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+    config: {
+      duration: 100,
+    },
+    onStart: onRowHide,
+    onRest: onRowHide,
+  })
 
   if (type === types.DAY) {
     return (
@@ -144,63 +156,88 @@ function Tasks({ type, id, title, current }) {
             />
           </svg>
         </button>
+        <button
+          type="button"
+          onClick={() => {
+            setHidden(!hidden)
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            transform={`rotate(${hidden ? '-90' : '0'})`}
+          >
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+            <path d="M0 0h24v24H0V0z" fill="none" />
+          </svg>
+        </button>
       </div>
-      <DroppableTasksArea
-        pressDelay={1000}
-        helperClass={styles.isSortable}
-        axis={'xy'}
-        onSortStart={() => {
-          dispatch(setSort(true))
-        }}
-        onSortEnd={({ oldIndex, newIndex }) => {
-          const arr = allTasks.filter(t => t.type === type)
+      {transitions.map(
+        ({ item, key, props }) =>
+          item && (
+            <animated.div style={props}>
+              <DroppableTasksArea
+                pressDelay={1000}
+                helperClass={styles.isSortable}
+                axis={'xy'}
+                onSortStart={() => {
+                  dispatch(setSort(true))
+                }}
+                onSortEnd={({ oldIndex, newIndex }) => {
+                  const arr = allTasks.filter(t => t.type === type)
 
-          const reorderedTasks = reorder(arr, oldIndex, newIndex)
+                  const reorderedTasks = reorder(arr, oldIndex, newIndex)
 
-          dispatch(
-            sortTasksAction({
-              reorderedTasks: reorderedTasks.map((t, index) => ({
-                ...t,
-                position: index,
-              })),
-              type,
-              firebase,
-            }),
-          )
+                  dispatch(
+                    sortTasksAction({
+                      reorderedTasks: reorderedTasks.map((t, index) => ({
+                        ...t,
+                        position: index,
+                      })),
+                      type,
+                      firebase,
+                    }),
+                  )
 
-          dispatch(setSort(false))
-        }}
-      >
-        {currentTasks.map((item, index) => (
-          <DraggableTaskBox key={item.id} index={index}>
-            <TaskBoxComponent
-              className={cx(styles.TaskBox, {
-                [styles.BoxSelected]: selectedTree.includes(item.id),
-                [styles.BoxUnselected]:
-                  selectedTree.length > 0 && !selectedTree.includes(item.id),
-                [styles.BoxSorted]: isSort,
-              })}
-              task={item}
-            />
-          </DraggableTaskBox>
-        ))}
-        {addMode.on && addMode.type === type && isEqual(current, id) && (
-          <AddingTaskBox
-            id={id}
-            type={type}
-            className={styles.AddBox}
-            offAddMode={() => {
-              dispatch(
-                ui.actions.toggleAddMode({
-                  on: false,
-                  children: null,
-                  type: null,
-                }),
-              )
-            }}
-          />
-        )}
-      </DroppableTasksArea>
+                  dispatch(setSort(false))
+                }}
+              >
+                {currentTasks.map((item, index) => (
+                  <DraggableTaskBox key={item.id} index={index}>
+                    <TaskBoxComponent
+                      className={cx(styles.TaskBox, {
+                        [styles.BoxSelected]: selectedTree.includes(item.id),
+                        [styles.BoxUnselected]:
+                          selectedTree.length > 0 &&
+                          !selectedTree.includes(item.id),
+                        [styles.BoxSorted]: isSort,
+                      })}
+                      task={item}
+                    />
+                  </DraggableTaskBox>
+                ))}
+                {addMode.on && addMode.type === type && isEqual(current, id) && (
+                  <AddingTaskBox
+                    id={id}
+                    type={type}
+                    className={styles.AddBox}
+                    offAddMode={() => {
+                      dispatch(
+                        ui.actions.toggleAddMode({
+                          on: false,
+                          children: null,
+                          type: null,
+                        }),
+                      )
+                    }}
+                  />
+                )}
+              </DroppableTasksArea>
+            </animated.div>
+          ),
+      )}
     </div>
   )
 }
