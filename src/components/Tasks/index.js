@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import isEqual from 'lodash/isEqual'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
