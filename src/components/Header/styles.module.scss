@@ -1,10 +1,15 @@
 .header {
   position: fixed;
-  left: 16px;
+  left: calc((100% - 1080px) / 2);
   z-index: 2;
   width: calc(100% - 32px);
+  max-width: 1080px;
   padding-top: 15px;
   background-color: #fff;
+
+  @media (max-width: 1144px) {
+    left: 16px;
+  }
 }
 
 .content {
@@ -32,9 +37,9 @@
 }
 
 .center {
-  width: 530px;
   display: flex;
   align-items: center;
+  width: 530px;
 }
 
 .right {
@@ -55,7 +60,9 @@
 
 .avatar {
   width: 41px;
+  min-width: 41px;
   height: 41px;
+  min-height: 41px;
   background-position: center;
   background-size: cover;
   border: 3px solid #808080;

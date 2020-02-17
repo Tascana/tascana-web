@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import isEqual from 'lodash/isEqual'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
@@ -8,13 +8,14 @@ import cx from 'classnames'
 import arrayMove from 'array-move'
 import { AddingTaskBox, TaskBox as TaskBoxComponent } from '../TaskBoxes'
 import DayTasks from '../DayTasks'
-import { FirebaseContext } from '../Firebase'
-import { editTaskAction, sortTasksAction } from '../../redux/tasks'
+import { editTask, sortTask } from '../../redux/tasks'
 import ui, { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
-import { reorder, getTodos } from './utils'
+import { reorder } from './utils'
 
 import styles from './styles.module.scss'
+
+import { getTasksBy } from '../../redux/utils'
 
 // TODO: Use react-sortable-hoc while actual issue in react-beautiful-dnd
 const DroppableTasksArea = SortableContainer(({ children }) => {
@@ -22,15 +23,16 @@ const DroppableTasksArea = SortableContainer(({ children }) => {
 })
 const DraggableTaskBox = SortableElement(({ children }) => children)
 
-function Tasks({ type, id, title, current, onRowHide }) {
+function Tasks({ type, id, date, title, current, onRowHide }) {
   const [hidden, setHidden] = useState(false)
   const isSort = useSelector(state => state.UI.sort)
   const allTasks = useSelector(state => state.tasks)
-  const currentTasks = useSelector(state => getTodos(state, type, id))
+  let currentTasks = useSelector(state =>
+    getTasksBy(state.tasks)({ type, ...date }),
+  )
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
-  const firebase = useContext(FirebaseContext)
   const transitions = useTransition(!hidden, null, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -62,33 +64,34 @@ function Tasks({ type, id, title, current, onRowHide }) {
             )
               return
 
-            const destinationTasks = allTasks.filter(
-              t => t.subtype === destination.droppableId,
-            )
+            const droppableTasks = getTasksBy(allTasks)({
+              type: types.DAY,
+              subtype: destination.droppableId,
+              ...date,
+            })
 
             const sorted = reorder(
-              destinationTasks,
+              droppableTasks,
               source.index,
               destination.index,
             )
 
             if (destination.droppableId === source.droppableId) {
               dispatch(
-                sortTasksAction({
-                  reorderedTasks: sorted.map((t, index) => ({
+                sortTask(
+                  sorted.map((t, index) => ({
                     ...t,
                     position: index,
                   })),
-                  type,
-                  subtype: destination.droppableId,
-                  firebase,
-                }),
+                ),
               )
             } else {
               const draggable = allTasks.find(t => t.id === draggableId)
-              const tasks = allTasks.filter(
-                t => t.subtype === destination.droppableId,
-              )
+              const tasks = getTasksBy(allTasks)({
+                type: types.DAY,
+                subtype: destination.droppableId,
+                ...date,
+              })
 
               tasks.splice(destination.index, 0, draggable)
 
@@ -104,11 +107,9 @@ function Tasks({ type, id, title, current, onRowHide }) {
 
               reorder.forEach((t, index) => {
                 dispatch(
-                  editTaskAction({
+                  editTask({
                     id: t.id,
-                    firebase,
-                    isSort: true,
-                    updatedData: {
+                    updatedFields: {
                       subtype: destination.droppableId,
                       position: index,
                     },
@@ -122,7 +123,7 @@ function Tasks({ type, id, title, current, onRowHide }) {
             <DayTasks
               key={subtype}
               subtype={subtype}
-              id={id}
+              date={date}
               className={styles.DayTaskBox}
             />
           ))}
@@ -143,7 +144,7 @@ function Tasks({ type, id, title, current, onRowHide }) {
             dispatch(
               ui.actions.toggleAddMode({
                 on: true,
-                children: null,
+                child: null,
                 type,
               }),
             )
@@ -186,19 +187,19 @@ function Tasks({ type, id, title, current, onRowHide }) {
                   dispatch(setSort(true))
                 }}
                 onSortEnd={({ oldIndex, newIndex }) => {
-                  const arr = allTasks.filter(t => t.type === type)
-
-                  const reorderedTasks = reorder(arr, oldIndex, newIndex)
+                  const reorderedTasks = reorder(
+                    currentTasks,
+                    oldIndex,
+                    newIndex,
+                  )
 
                   dispatch(
-                    sortTasksAction({
-                      reorderedTasks: reorderedTasks.map((t, index) => ({
+                    sortTask(
+                      reorderedTasks.map((t, index) => ({
                         ...t,
                         position: index,
                       })),
-                      type,
-                      firebase,
-                    }),
+                    ),
                   )
 
                   dispatch(setSort(false))
@@ -207,6 +208,7 @@ function Tasks({ type, id, title, current, onRowHide }) {
                 {currentTasks.map((item, index) => (
                   <DraggableTaskBox key={item.id} index={index}>
                     <TaskBoxComponent
+                      date={date}
                       className={cx(styles.TaskBox, {
                         [styles.BoxSelected]: selectedTree.includes(item.id),
                         [styles.BoxUnselected]:
@@ -220,14 +222,14 @@ function Tasks({ type, id, title, current, onRowHide }) {
                 ))}
                 {addMode.on && addMode.type === type && isEqual(current, id) && (
                   <AddingTaskBox
-                    id={id}
+                    date={date}
                     type={type}
                     className={styles.AddBox}
                     offAddMode={() => {
                       dispatch(
                         ui.actions.toggleAddMode({
                           on: false,
-                          children: null,
+                          child: null,
                           type: null,
                         }),
                       )

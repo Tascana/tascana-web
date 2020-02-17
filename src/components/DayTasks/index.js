@@ -1,29 +1,28 @@
-import React, { useState, useRef, useEffect, useContext } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Droppable } from 'react-beautiful-dnd'
 import cx from 'classnames'
 import DayTask from './DayTask'
 import TaskMark from './TaskMark'
 import Textarea from './Textarea'
-import { FirebaseContext } from '../Firebase'
-import { createTaskAction } from '../../redux/tasks'
 import { DAY } from '../../constants/task-types'
-import { getTodos } from '../Tasks/utils'
+
+import { createTask } from '../../redux/tasks'
+import { getTasksBy } from '../../redux/utils'
 
 import styles from './styles.module.scss'
 
-function DayTasks({ subtype, id, className, ...rest }) {
+function DayTasks({ subtype, date, className, ...rest }) {
   const [isInAddMode, setAddMode] = useState(false)
   const addTextareaRef = useRef(null)
   const dispatch = useDispatch()
-  const firebase = useContext(FirebaseContext)
   const tasks = useSelector(state =>
-    getTodos(state, DAY, id).filter(t => t.subtype === subtype),
+    getTasksBy(state.tasks)({ type: DAY, subtype, ...date }),
   )
   const parentGradient = useSelector(({ UI, tasks }) => {
     const [parent] = UI.selectedTree
 
-    if (parent) return tasks.find(t => t.id === parent).backgroundGradient
+    if (parent) return tasks.find(t => t.id === parent).background
 
     return 'linear-gradient(to bottom, #e2e2e2, #bbb)'
   })
@@ -36,15 +35,7 @@ function DayTasks({ subtype, id, className, ...rest }) {
 
   function addTask(value) {
     if (value) {
-      dispatch(
-        createTaskAction({
-          type: DAY,
-          text: value,
-          subtype,
-          firebase,
-          id,
-        }),
-      )
+      dispatch(createTask({ type: DAY, subtype, text: value, ...date }))
     }
     setAddMode(false)
   }

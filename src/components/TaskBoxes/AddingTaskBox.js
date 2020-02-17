@@ -1,31 +1,30 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { useState, useEffect, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useTransition, animated } from 'react-spring'
 import cx from 'classnames'
-import { FirebaseContext } from '../Firebase'
-import { createTaskAction } from '../../redux/tasks'
+import { createTask } from '../../redux/tasks'
 
 import styles from './styles.module.scss'
+import { MONTH } from '../../constants/task-types'
 
-function AddingTaskBox({ type, id, className = '', offAddMode, ...rest }) {
+function AddingTaskBox({ type, date, className = '', offAddMode, ...rest }) {
   const [isVisible] = useState(true)
   const [value, setValue] = useState('')
   const textarea = useRef(null)
   const dispatch = useDispatch()
-  const firebase = useContext(FirebaseContext)
+  const addModeType = useSelector(state => state.UI.addMode.type)
 
   const transitions = useTransition(isVisible, null, {
-    from: { transform: 'scale(0)' },
+    from: { transform: 'scale(1)' },
     enter: { transform: 'scale(1)' },
   })
 
   function onAdd(value) {
     dispatch(
-      createTaskAction({
+      createTask({
         type,
         text: value,
-        firebase,
-        id,
+        ...date,
       }),
     )
   }
@@ -51,7 +50,11 @@ function AddingTaskBox({ type, id, className = '', offAddMode, ...rest }) {
           style={props}
           role="button"
           tabIndex="0"
-          className={cx(styles.AddingTaskBox, className)}
+          className={cx(
+            styles.AddingTaskBox,
+            { [styles.isMonth]: addModeType === MONTH },
+            className,
+          )}
           {...rest}
         >
           <textarea

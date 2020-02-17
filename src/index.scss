@@ -59,11 +59,23 @@ ul {
 }
 
 #root {
-  position: absolute;
-  width: 100%;
+  width: 630px;
   padding-bottom: 80px;
+  margin: 0 auto;
   overflow-x: hidden;
   user-select: none;
+
+  @media (min-width: 1080px) {
+    width: 840px;
+  }
+
+  @media (max-width: 630px) {
+    width: 420px;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
+  }
 }
 
 .noselect {

@@ -1,25 +1,22 @@
-import React, { useRef, useContext, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import cx from 'classnames'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Draggable } from 'react-beautiful-dnd'
 import TaskMark from './TaskMark'
 import Textarea from './Textarea'
-import { FirebaseContext } from '../Firebase'
 import { separateClicks } from './separateClicks'
 import ui from '../../redux/UI'
-import {
-  editTaskAction,
-  doneTaskAction,
-  removeTaskAction,
-} from '../../redux/tasks'
+import { completeTask, deleteTask, editTask } from '../../redux/tasks'
 
 import styles from './styles.module.scss'
+import tasksStyles from '../Tasks/styles.module.scss'
 
-function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
+function DayTask({ id, progress, background, text: textTask, index }) {
   const [isInEditMode, setEditMode] = useState(false)
   const dispatch = useDispatch()
   const editTextareaRef = useRef(null)
-  const firebase = useContext(FirebaseContext)
+  const selectedTree = useSelector(state => state.UI.selectedTree)
+  const isSort = useSelector(state => state.UI.sort)
 
   useEffect(() => {
     if (isInEditMode) {
@@ -32,11 +29,11 @@ function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
   }, [isInEditMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function onDone() {
-    dispatch(doneTaskAction({ id, firebase }))
+    dispatch(completeTask(id))
   }
 
   function onRemove() {
-    dispatch(removeTaskAction({ id, firebase }))
+    dispatch(deleteTask(id))
   }
 
   function onEdit(value) {
@@ -47,12 +44,11 @@ function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
     }
 
     dispatch(
-      editTaskAction({
-        updatedData: {
-          task: value,
-        },
-        firebase,
+      editTask({
         id,
+        updatedFields: {
+          text: value,
+        },
       }),
     )
     setEditMode(false)
@@ -97,14 +93,18 @@ function DayTask({ id, done, backgroundGradient, task: textTask, index }) {
             )
           }}
           className={cx({
-            [styles.isDone]: done,
+            [styles.isDone]: progress === 100,
+            [tasksStyles.BoxSelected]: selectedTree.includes(id),
+            [tasksStyles.BoxUnselected]:
+              selectedTree.length > 0 && !selectedTree.includes(id),
+            [tasksStyles.BoxSorted]: isSort,
           })}
         >
           <TaskMark
             onClick={onDone}
             id={id}
-            done={done}
-            gradient={backgroundGradient}
+            done={progress === 100}
+            gradient={background}
           />{' '}
           {isInEditMode ? (
             <Textarea

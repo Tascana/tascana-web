@@ -37,10 +37,8 @@ export const HorizontalUI = props => {
         {springs.map(({ x, scale, display, height }, i) => (
           <animated.div
             key={i}
+            className={classes.Line}
             style={{
-              position: 'absolute',
-              float: 'left',
-              width: '630px',
               x,
               scale,
               display,
@@ -53,6 +51,7 @@ export const HorizontalUI = props => {
               current={items[1].id}
               title={items[i].name}
               onRowHide={recalculateRowHeight}
+              date={items[i].id}
             />
           </animated.div>
         ))}

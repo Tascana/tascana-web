@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import { FirebaseContext } from '../components/Firebase'
 import ContextMenu from '../components/ContextMenu'
 import useAuthorization from '../hooks/use-authorization'
-import tasks from '../redux/tasks'
+import { tasksSlice } from '../redux/tasks'
 
 function IndexPage() {
   const firebase = useContext(FirebaseContext)
@@ -14,11 +14,11 @@ function IndexPage() {
   const authUser = useAuthorization()
 
   useEffect(() => {
+    dispatch(tasksSlice.actions.loadTasks({}))
     if (authUser) {
-      firebase.tasks(authUser.uid).on('value', snapshot => {
+      firebase.tasks(authUser.uid).once('value', snapshot => {
         if (!snapshot.val()) return
-
-        dispatch(tasks.actions.setTasks(snapshot.val()))
+        dispatch(tasksSlice.actions.loadTasks(snapshot.val()))
       })
     }
   }, [authUser]) // eslint-disable-line

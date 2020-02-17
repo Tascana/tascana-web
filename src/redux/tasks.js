@@ -1,270 +1,343 @@
 import { createSlice } from '@reduxjs/toolkit'
-import omit from 'lodash/omit'
 import nanoid from 'nanoid'
-import { YEAR, MONTH } from '../constants/task-types'
+import isEqual from 'lodash/isEqual'
+import differenceBy from 'lodash/differenceBy'
+import findLastIndex from 'lodash/findLastIndex'
 import { randomGrad } from '../components/Tasks/utils'
-import uiSlice from './UI'
+import { YEAR } from '../constants/task-types'
+import { selectTreeAction } from './UI'
+import { getTasksBy, getTaskById, getTree } from './utils'
+import { firebase } from '../index'
 
-const INITIAL_STATE = []
-
-function getTree(tasks, task) {
-  const tasksArray = Object.values(tasks)
-
-  let parents = []
-  let children = []
-
-  if (!task) {
-    return {
-      parents,
-      children,
-    }
-  }
-
-  function getParents(parentId) {
-    if (!parentId) return parents
-    parents.push(tasks[parentId])
-    return getParents(tasks[parentId].parentId)
-  }
-
-  function getChildren(ids) {
-    const childs = tasksArray.filter(task => ids.includes(task.parentId))
-
-    if (!childs.length) return children
-    children.push(...childs)
-    return getChildren(childs.map(c => c.id))
-  }
-
-  return {
-    parents: getParents(task.parentId),
-    children: getChildren([task.id]),
-  }
-}
-
-const tasksSlice = createSlice({
+export const tasksSlice = createSlice({
   name: 'tasks',
-  initialState: INITIAL_STATE,
+  initialState: [],
   reducers: {
-    setTasks: (state, { payload: tasks }) => {
-      const tasksArray = Array.isArray(tasks) ? tasks : Object.values(tasks)
-      const computedTasksArray = tasksArray
+    loadTasks: (state, action) => {
+      const loadedTasks = Object.values(action.payload).slice()
+
+      const sortedLoadedTasks = loadedTasks
         .sort((a, b) => a.position - b.position)
-        .map((task, index, arr) => {
-          const unassignedGradient = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+        .map(t => {
+          let task = { ...t }
+          if (!Array.isArray(t.children)) task.children = []
+          if (!Array.isArray(t.parents)) task.parents = []
 
-          const { parents, children } = getTree(tasks, task)
-
-          function getGradient() {
-            if (task.type === YEAR) {
-              return randomGrad(index)
-            }
-
-            const yearLevelParent = parents.find(p => p.type === YEAR)
-            const monthLevelParent = parents.find(p => p.type === MONTH)
-
-            if (yearLevelParent)
-              return randomGrad(arr.findIndex(t => t.id === yearLevelParent.id))
-            if (monthLevelParent)
-              return randomGrad(
-                arr.findIndex(t => t.id === monthLevelParent.id),
-              )
-
-            return unassignedGradient
-          }
-
-          function getProgress() {
-            return children.filter(c => c.done).length
-              ? (children.filter(c => c.done).length / children.length) * 100
-              : 0
-          }
-
+          return task
+        })
+      return sortedLoadedTasks
+    },
+    createTask: (state, action) => [...state, action.payload],
+    updateTask: (state, action) =>
+      state.map(task => {
+        if (task.id === action.payload.id) {
           return {
             ...task,
-            parents,
-            children,
-            done: getProgress() === 100 ? true : task.done,
-            backgroundGradient: task.backgroundGradient || getGradient(),
-            position: typeof task.position !== 'number' ? index : task.position,
-            progress: getProgress(),
+            ...action.payload.updatedFields,
           }
-        })
+        }
 
-      return computedTasksArray
-    },
-    createTask: (state, action) => ({
-      ...state,
-      [action.payload.id]: action.payload.task,
-    }),
-    editTask: (state, action) => ({
-      ...state,
-      [action.payload.id]: {
-        ...state[action.payload.id],
-        ...action.payload.task,
-      },
-    }),
-    deleteTask: (state, action) => omit(state, action.payload),
+        return task
+      }),
+    deleteTask: (state, action) =>
+      state.filter(task => task.id !== action.payload),
   },
 })
 
-export const sortTasksAction = ({
-  reorderedTasks,
-  firebase,
-  type,
-  subtype,
-}) => async (dispatch, getState) => {
-  try {
-    const { tasks: allTasks, session } = getState()
-    const userId = session.authUser.uid
-    let objectTasks = {}
+const recalculateProgress = () => (dispatch, getState) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+    UI: { day, month, year },
+  } = getState()
 
-    let filteredTasks = allTasks.filter(t => t.type !== type)
+  getTasksBy(tasks)({ day, month, year }).forEach((task, index, arr) => {
+    if (!task.children.length) return
 
-    if (subtype) filteredTasks = allTasks.filter(t => t.subtype !== subtype)
+    const completedChildren = task.children
+      .map(id => getTaskById(arr, id))
+      .filter(t => t.progress === 100)
 
-    const sortedTasks = [...filteredTasks, ...reorderedTasks]
+    const progress = completedChildren.length
+      ? (completedChildren.length / task.children.length) * 100
+      : 0
 
-    sortedTasks.forEach(t => {
-      objectTasks[t.id] = t
-    })
-
-    firebase.setTasks(objectTasks, userId)
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-export const createTaskAction = ({
-  type,
-  subtype = null,
-  text,
-  firebase,
-  id,
-}) => async (dispatch, getState) => {
-  try {
-    const { UI, tasks, session } = getState()
-    const userId = session.authUser.uid
-    const { selectedTree } = UI
-    const [parent] = selectedTree
-
-    function getPosition() {
-      let filteredTasks = tasks.filter(t => t.type === type)
-
-      if (subtype) filteredTasks = tasks.filter(t => t.subtype === subtype)
-
-      return filteredTasks.length
-    }
-
-    const position = getPosition()
-
-    function getGradient() {
-      if (parent) {
-        return tasks.find(t => t.id === parent).backgroundGradient
-      }
-
-      return randomGrad(position)
-    }
-
-    const newTaskId = nanoid(12)
-    const newTask = {
-      task: text,
-      done: false,
-      progress: 0,
-      type,
-      subtype,
-      id: newTaskId,
-      year: id.year,
-      month: id.month || -1,
-      day: id.day || -1,
-      parentId: type !== YEAR && parent ? parent : null,
-      position,
-      backgroundGradient: getGradient(),
-      userId,
-      createdAt: Date.now(),
-      updatedAt: -1,
-    }
-
-    firebase.createTask(newTask, userId, newTaskId)
-
-    if (UI.addMode.children) {
+    if (task.progress !== progress) {
       dispatch(
-        editTaskAction({
-          updatedData: {
-            parentId: newTaskId,
+        tasksSlice.actions.updateTask({
+          id: task.id,
+          updatedFields: {
+            progress,
           },
-          firebase,
-          id: UI.addMode.children,
         }),
       )
-    }
+      firebase.editTask(getTaskById(getState().tasks, task.id), uid, task.id)
 
-    dispatch(uiSlice.actions.selectTree([]))
-  } catch (e) {
-    console.error(e)
-  }
+      dispatch(recalculateProgress())
+    } else {
+      return
+    }
+  })
 }
 
-export const editTaskAction = ({
-  id,
-  firebase,
-  updatedData,
-  isSort = false,
-}) => async (dispatch, getState) => {
-  try {
-    const { tasks, session } = getState()
-    const userId = session.authUser.uid
+const updateTree = () => (dispatch, getState) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+    UI: { day, month, year },
+  } = getState()
 
-    const taskForEdit = tasks.find(t => t.id === id)
-
-    const editedTask = {
-      ...taskForEdit,
-      ...updatedData,
-      updatedAt: Date.now(),
-    }
-
-    firebase.editTask(editedTask, userId, taskForEdit.id)
-    if (!isSort) dispatch(uiSlice.actions.select(null))
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-export const removeTaskAction = ({ firebase, id }) => async (
-  dispatch,
-  getState,
-) => {
-  try {
-    const { session, tasks } = getState()
-    const userId = session.authUser.uid
-    const task = tasks.find(t => t.id === id)
-
-    task.children.forEach(c => {
-      firebase.deleteTask(userId, c.id)
+  getTasksBy(tasks)({ day, month, year }).forEach((task, index, arr) => {
+    const { parents, children } = getTree(arr, {
+      id: task.id,
+      firstParentId: task.firstParentId,
     })
 
-    firebase.deleteTask(userId, id)
-  } catch (e) {}
+    if (!isEqual(parents, task.parents)) {
+      dispatch(
+        tasksSlice.actions.updateTask({
+          id: task.id,
+          updatedFields: {
+            parents,
+          },
+        }),
+      )
+      firebase.editTask(getTaskById(getState().tasks, task.id), uid, task.id)
+    }
+
+    if (!isEqual(children, task.children)) {
+      dispatch(
+        tasksSlice.actions.updateTask({
+          id: task.id,
+          updatedFields: {
+            children,
+          },
+        }),
+      )
+      firebase.editTask(getTaskById(getState().tasks, task.id), uid, task.id)
+    }
+  })
 }
 
-export const doneTaskAction = ({ id, firebase }) => async (
+export const createTask = ({ type, subtype, text, day, month, year }) => async (
   dispatch,
   getState,
 ) => {
-  try {
-    const { session, tasks } = getState()
-    const userId = session.authUser.uid
-    const completedTask = tasks.find(t => t.id === id)
+  const {
+    session,
+    tasks,
+    UI: {
+      selectedTree,
+      addMode: { child: childId },
+    },
+  } = getState()
+  const userId = session.authUser.uid
+  const [parentId] = selectedTree // Has selected parent
 
-    const completed = {
-      ...completedTask,
-      done: !completedTask.done,
-      updatedAt: Date.now(),
-    }
+  const filteredTasks = getTasksBy(tasks)({ type, subtype, day, month, year })
+  const newTaskIndex = findLastIndex(filteredTasks)
 
-    firebase.editTask(completed, userId, completedTask.id)
+  const position = newTaskIndex + 1
 
-    dispatch(uiSlice.actions.select(null))
-  } catch (e) {
-    console.log(e)
+  const id = nanoid()
+  const createdAt = Date.now()
+
+  const parent = getTaskById(tasks, parentId)
+
+  const getBg = () => {
+    if (type === YEAR) return randomGrad(newTaskIndex + 1)
+
+    if (parent && type !== parent.type) return parent.background
+
+    return 'linear-gradient(to bottom, #e2e2e2, #bbb)'
   }
+
+  const background = getBg()
+
+  /* Only year -> month -> day relationship */
+  const isCorrectParent = parent && type !== parent.type
+
+  const newTask = {
+    id,
+    background,
+    progress: 0,
+    parents: [],
+    children: [],
+    year,
+    position,
+    type,
+    text,
+    createdAt,
+    userId,
+  }
+
+  if (isCorrectParent) newTask.firstParentId = parentId
+  if (month) newTask.month = month
+  if (day) newTask.day = day
+  if (subtype) newTask.subtype = subtype
+
+  dispatch(tasksSlice.actions.createTask(newTask))
+  firebase.createTask(newTask, userId, id)
+
+  if (childId) dispatch(linkTasks({ childId, parentId: id }))
+
+  dispatch(updateTree())
+  dispatch(recalculateProgress())
+
+  if (isCorrectParent)
+    dispatch(selectTreeAction({ todo: parent, addedTaskId: id }))
 }
 
-export default tasksSlice
+export const linkTasks = ({ childId, parentId }) => async (
+  dispatch,
+  getState,
+) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+  } = getState()
+
+  const child = getTaskById(tasks, childId)
+  const parent = getTaskById(tasks, parentId)
+
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id: parent.id,
+      updatedFields: {
+        children: parent.children.concat(childId),
+      },
+    }),
+  )
+  firebase.editTask(getTaskById(getState().tasks, parent.id), uid, parent.id)
+
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id: child.id,
+      updatedFields: {
+        parents: child.parents.concat(parentId),
+        firstParentId: parentId,
+        background: parent.background,
+      },
+    }),
+  )
+  firebase.editTask(getTaskById(getState().tasks, child.id), uid, child.id)
+
+  dispatch(recalculateProgress())
+}
+
+export const editTask = payload => async (dispatch, getState) => {
+  const {
+    session: {
+      authUser: { uid },
+    },
+  } = getState()
+
+  dispatch(tasksSlice.actions.updateTask(payload))
+  firebase.editTask(getTaskById(getState().tasks, payload.id), uid, payload.id)
+}
+
+export const completeTask = id => (dispatch, getState) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+  } = getState()
+
+  const task = getTaskById(tasks, id)
+
+  const isComplete = task.progress === 100
+  console.log(task.children)
+
+  if (task.children.length) {
+    task.children.forEach(id => {
+      dispatch(
+        tasksSlice.actions.updateTask({
+          id,
+          updatedFields: {
+            progress: isComplete ? 0 : 100,
+          },
+        }),
+      )
+      firebase.editTask(getTaskById(getState().tasks, id), uid, id)
+    })
+
+    dispatch(recalculateProgress())
+
+    return
+  }
+
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id,
+      updatedFields: {
+        progress: isComplete ? 0 : 100,
+      },
+    }),
+  )
+  firebase.editTask(getTaskById(getState().tasks, id), uid, id)
+
+  dispatch(recalculateProgress())
+}
+
+export const deleteTask = id => (dispatch, getState) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+  } = getState()
+
+  const task = getTaskById(tasks, id)
+
+  if (task.children.length) {
+    task.children
+      .map(id => getTaskById(tasks, id))
+      .forEach(t => {
+        dispatch(
+          tasksSlice.actions.updateTask({
+            id: t.id,
+            updatedFields: {
+              parents: t.parents.filter(t => t.id === id),
+              firstParentId: null,
+              background: 'linear-gradient(to bottom, #e2e2e2, #bbb)',
+            },
+          }),
+        )
+        firebase.editTask(getTaskById(getState().tasks, t.id), uid, t.id)
+      })
+  }
+
+  dispatch(tasksSlice.actions.deleteTask(id))
+  firebase.deleteTask(uid, id)
+
+  dispatch(updateTree())
+  dispatch(recalculateProgress())
+}
+
+export const sortTask = tasks => (dispatch, getState) => {
+  const {
+    tasks,
+    session: {
+      authUser: { uid },
+    },
+  } = getState()
+
+  let objTasks = {}
+
+  const tasksWithoutSorted = differenceBy(tasks, tasks, 'id')
+  const allTasks = [...tasksWithoutSorted, ...tasks]
+
+  allTasks.forEach(t => {
+    objTasks[t.id] = t
+  })
+
+  dispatch(tasksSlice.actions.loadTasks(allTasks))
+  firebase.setTasks(objTasks, uid)
+}

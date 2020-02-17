@@ -39,8 +39,6 @@
     margin-top: 8px;
 
     li {
-      position: relative;
-      display: flex;
       padding-top: 8px;
       padding-bottom: 8px;
       font-size: 18px;
@@ -72,8 +70,6 @@
 }
 
 .TaskMark {
-  position: relative;
-  top: 3px;
   min-width: 13px;
   margin-right: 6px;
 }

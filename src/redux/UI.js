@@ -129,21 +129,24 @@ const UISlice = createSlice({
 
 export const setSort = UISlice.actions.setSort
 
-export const selectTreeAction = ({ todo }) => async (dispatch, getState) => {
+export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
+  dispatch,
+  getState,
+) => {
   const {
     UI: { selectedTree },
   } = getState()
 
-  if (selectedTree.length && selectedTree.includes(todo.id)) {
+  if (selectedTree.length && selectedTree.includes(todo.id) && !addedTaskId) {
     dispatch(UISlice.actions.selectTree([]))
     return
   }
 
-  const tree = [
-    todo.id,
-    ...todo.parents.map(t => t.id),
-    ...todo.children.map(t => t.id),
-  ]
+  console.log(todo)
+
+  const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(
+    Boolean,
+  )
 
   dispatch(UISlice.actions.selectTree(tree))
 }

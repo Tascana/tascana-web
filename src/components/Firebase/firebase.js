@@ -76,7 +76,7 @@ class Firebase {
 
   setTasks = (tasks, uid) => this.db.ref(`todos/${uid}`).set(tasks)
 
-  onTasksListener = () =>
+  otasksListener = () =>
     this.tasks().on('value', snapshot => {
       console.log(snapshot.val())
     })

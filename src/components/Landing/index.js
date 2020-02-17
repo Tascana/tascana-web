@@ -10,6 +10,62 @@ import * as types from '../../constants/task-types'
 import { yearTasks, monthTasks, dayTasks, year, month } from './demoData'
 import styles from './styles.module.scss'
 
+function scroll(element) {
+  let start = null
+  const target = element && element ? element.getBoundingClientRect().top : 0
+  const firstPos = window.pageYOffset || document.documentElement.scrollTop
+  let pos = 0
+
+  ;(function() {
+    var browser = ['ms', 'moz', 'webkit', 'o']
+
+    for (
+      let x = 0, length = browser.length;
+      x < length && !window.requestAnimationFrame;
+      x++
+    ) {
+      window.requestAnimationFrame =
+        window[browser[x] + 'RequestAnimationFrame']
+      window.cancelAnimationFrame =
+        window[browser[x] + 'CancelAnimationFrame'] ||
+        window[browser[x] + 'CancelRequestAnimationFrame']
+    }
+  })()
+
+  function showAnimation(timestamp) {
+    if (!start) {
+      start = timestamp || new Date().getTime()
+    }
+
+    let elapsed = timestamp - start
+    let progress = elapsed / 600
+
+    const outQuad = function(n) {
+      return n * (2 - n)
+    }
+
+    let easeInPercentage = +outQuad(progress).toFixed(2)
+
+    pos =
+      target === 0
+        ? firstPos - firstPos * easeInPercentage
+        : firstPos + target * easeInPercentage
+
+    window.scrollTo(0, pos)
+
+    if (
+      (target !== 0 && pos >= firstPos + target) ||
+      (target === 0 && pos <= 0)
+    ) {
+      cancelAnimationFrame(start)
+      pos = 0
+    } else {
+      window.requestAnimationFrame(showAnimation)
+    }
+  }
+  window.requestAnimationFrame(showAnimation)
+}
+
 function Landing() {
   const [error, setError] = useState(null)
   const [yearTasksState, setYearTasksState] = useState(yearTasks)
@@ -92,9 +148,7 @@ function Landing() {
             <button
               type="button"
               onClick={() => {
-                document.getElementById('signin').scrollIntoView({
-                  behavior: 'smooth',
-                })
+                scroll(document.getElementById('signin'))
               }}
             >
               Sign in

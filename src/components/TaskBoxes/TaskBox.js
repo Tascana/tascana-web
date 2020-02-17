@@ -1,42 +1,44 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ProgressBar from './ProgressBar'
-import { FirebaseContext } from '../Firebase'
 import { separateClicks } from './separateClicks'
 import { useOnClickOutside } from './useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
 import {
-  editTaskAction,
-  doneTaskAction,
-  removeTaskAction,
+  linkTasks,
+  completeTask,
+  deleteTask,
+  editTask,
 } from '../../redux/tasks'
-import { YEAR } from '../../constants/task-types'
+import { getTasksBy } from '../../redux/utils'
+import { YEAR, MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
 
-import link from '../../assets/icons/link.svg'
+import linkGrey from '../../assets/icons/link__grey.svg'
+import linkWhite from '../../assets/icons/link__white.svg'
 import smallAdd from '../../assets/icons/small-add.svg'
-import check from '../../assets/icons/check.svg'
+import checkWhite from '../../assets/icons/check__white.svg'
+import checkGrey from '../../assets/icons/check__grey.svg'
 import checkDone from '../../assets/icons/done.svg'
 
-function TaskBox({ task, className = '', style = {}, ...rest }) {
+function TaskBox({ task, className = '', date, style = {}, ...rest }) {
   const [isEditMode, setEditMode_] = useState(false)
   const [isLinkMode, setLinkMode_] = useState(false)
-  const [value, setValue] = useState(task.task)
+  const [value, setValue] = useState(task.text)
   const [parentId, selectParentId] = useState(null)
   const textarea = useRef(null)
   const taskBox = useRef(null)
   const dispatch = useDispatch()
-  const firebase = useContext(FirebaseContext)
 
   const yearTasks = useSelector(state =>
-    state.tasks.filter(t => t.type === YEAR),
+    getTasksBy(state.tasks)({ type: YEAR, ...date }),
   )
 
   useOnClickOutside(taskBox, () => {
     if (isLinkMode) {
-      onLink()
+      if (parentId) dispatch(linkTasks({ childId: isLinkMode, parentId }))
       setLinkMode(false)
     }
   })
@@ -63,7 +65,7 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
   }
 
   function onClick(e) {
-    if (task.type !== YEAR && !task.parentId) return
+    if (task.type !== YEAR && !task.parents.length) return
     dispatch(selectTreeAction({ todo: task }))
   }
 
@@ -75,67 +77,66 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
     setEditMode(false)
     if (value) {
       dispatch(
-        editTaskAction({
-          updatedData: {
-            task: value,
-          },
-          firebase,
+        editTask({
           id: task.id,
+          updatedFields: {
+            text: value,
+          },
         }),
       )
     }
   }
 
   function onDone() {
-    dispatch(doneTaskAction({ id: task.id, firebase }))
+    dispatch(completeTask(task.id))
   }
 
   function onRemove() {
-    dispatch(removeTaskAction({ id: task.id, firebase }))
-  }
-
-  function onLink() {
-    dispatch(
-      editTaskAction({
-        updatedData: {
-          parentId,
-        },
-        firebase,
-        id: task.id,
-      }),
-    )
+    dispatch(deleteTask(task.id))
   }
 
   function renderActions(task) {
     if (!isLinkMode) {
       return (
         <>
-          {task.type !== YEAR && !task.parentId && (
+          {task.type !== YEAR && !task.firstParentId && (
             <button
               type="button"
               onClick={e => {
                 e.stopPropagation()
 
-                setLinkMode(true)
+                setLinkMode(task.id)
               }}
               className={styles.ActionButton}
             >
-              <img src={link} alt="" />
+              <img src={task.progress === 100 ? linkWhite : linkGrey} alt="" />
             </button>
           )}
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation()
+          {(task.firstParentId || task.type === YEAR) &&
+            !(task.progress === 100 && task.type === MONTH) && (
+              <button
+                type="button"
+                onClick={e => {
+                  e.stopPropagation()
 
-              onDone()
-            }}
-            className={cx(styles.ActionButton, styles.DoneButton, {
-              [styles.Done]: task.done,
-            })}
-          >
-            <img src={task.done ? checkDone : check} alt="" />
-          </button>
+                  onDone()
+                }}
+                className={cx(styles.ActionButton, styles.DoneButton, {
+                  [styles.Done]: task.progress === 100,
+                })}
+              >
+                <img
+                  src={
+                    task.progress === 100
+                      ? checkDone
+                      : task.type === YEAR
+                      ? checkWhite
+                      : checkGrey
+                  }
+                  alt=""
+                />
+              </button>
+            )}
         </>
       )
     }
@@ -156,10 +157,10 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
 
               selectParentId(t.id)
             }}
-            className={cx({
+            className={cx(styles.Parent, {
               [styles.isSelected]: parentId === t.id,
             })}
-            style={{ backgroundImage: t.backgroundGradient }}
+            style={{ backgroundImage: t.background }}
           ></li>
         ))}
         <li>
@@ -170,7 +171,7 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
               dispatch(
                 ui.actions.toggleAddMode({
                   on: true,
-                  children: task.id,
+                  child: task.id,
                   type: YEAR,
                 }),
               )
@@ -193,7 +194,14 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
         onKeyPress={e => {
           if (e.key === 'Enter') setEditMode(true)
         }}
-        className={cx(styles.TaskBox, className)}
+        className={cx(
+          styles.TaskBox,
+          {
+            [styles.isMonth]: task.type === MONTH,
+            [styles.isDone]: task.progress === 100,
+          },
+          className,
+        )}
         onContextMenu={e => {
           e.preventDefault()
           e.stopPropagation()
@@ -221,7 +229,10 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
           separateClicks(e, { onClick, onDoubleClick })
         }}
         style={{
-          backgroundImage: task.backgroundGradient,
+          backgroundImage:
+            isLinkMode && parentId
+              ? yearTasks.find(t => t.id === parentId).background
+              : task.background,
           ...style,
         }}
         {...rest}
@@ -246,9 +257,7 @@ function TaskBox({ task, className = '', style = {}, ...rest }) {
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
-        {!task.done && task.progress > 0 && task.progress < 100 && (
-          <ProgressBar progress={task.progress} />
-        )}
+        <ProgressBar progress={task.progress} />
         <div
           className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
         >

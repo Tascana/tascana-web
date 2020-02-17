@@ -180,7 +180,7 @@ export function useLineSwipe({
 
   function style() {
     var h = springs[0]
-    return { height: h.height, width: '630px', margin: 'auto' }
+    return { height: h.height, margin: 'auto' }
   }
 
   function changeDirectionOnClick(id) {
