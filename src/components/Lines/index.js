@@ -5,7 +5,7 @@ import { HorizontalUI } from './HorizontalUI'
 import styles from './styles.module.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import '../app.css'
-// import { useShortcutSwipe } from './useShortcutSwipe'
+import { useShortcutSwipe } from './useShortcutSwipe'
 
 const mapStateToPropsHorzUI = (state, ownProps) => {
   // Here, prev/current/next sets of tasks are generated for a given date. Called on load and after Redux dispatch
@@ -100,10 +100,7 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
 const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
 
 function Lines() {
-  // const { onScroll, line } = useShortcutSwipe()
-
-  const line = ''
-  const onScroll = () => {}
+  const { onScroll, line } = useShortcutSwipe()
 
   return (
     <main className={styles.Wrapper}>

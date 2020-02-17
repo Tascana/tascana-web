@@ -27,7 +27,8 @@ export const HorizontalUI = props => {
 
   useEffect(() => {
     props.onScroll(props.type, inView)
-  }, [inView, props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]) //
 
   function swipeLine(dir) {
     if (props.swipeableLine === props.type) changeDirectionOnClick(dir)
