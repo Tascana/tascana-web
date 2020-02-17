@@ -14,6 +14,7 @@ import * as types from '../../constants/task-types'
 import { reorder } from './utils'
 
 import styles from './styles.module.scss'
+import { separateClicks } from '../TaskBoxes/separateClicks'
 
 import { getTasksBy } from '../../redux/utils'
 
@@ -47,97 +48,192 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
   if (type === types.DAY) {
     return (
       <div>
-        <h1 className={styles.DayTasksTitle}>{title}</h1>
-        <DragDropContext
-          onDragStart={() => {
-            dispatch(setSort(true))
-          }}
-          onDragEnd={({ destination, source, draggableId }) => {
-            // TODO: Need refactor
-            dispatch(setSort(false))
+        <div
+          className={cx(styles.DayHeader, {
+            [styles.HoverableLinesHeader]: hidden,
+          })}
+          onClick={e => {
+            e.preventDefault()
 
-            if (!destination) return
-
-            if (
-              destination.droppableId === source.droppableId &&
-              destination.index === source.index
-            )
-              return
-
-            const droppableTasks = getTasksBy(allTasks)({
-              type: types.DAY,
-              subtype: destination.droppableId,
-              ...date,
+            separateClicks(e, {
+              onDoubleClick: () => {
+                !hidden && setHidden(true)
+              },
+              onClick: () => {
+                hidden && setHidden(false)
+              },
             })
+          }}
+        >
+          <h1
+            onContextMenu={e => {
+              if (!hidden) {
+                e.preventDefault()
+                e.stopPropagation()
 
-            const sorted = reorder(
-              droppableTasks,
-              source.index,
-              destination.index,
-            )
-
-            if (destination.droppableId === source.droppableId) {
-              dispatch(
-                sortTask(
-                  sorted.map((t, index) => ({
-                    ...t,
-                    position: index,
-                  })),
-                ),
-              )
-            } else {
-              const draggable = allTasks.find(t => t.id === draggableId)
-              const tasks = getTasksBy(allTasks)({
-                type: types.DAY,
-                subtype: destination.droppableId,
-                ...date,
-              })
-
-              tasks.splice(destination.index, 0, draggable)
-
-              const sortedByPosition = tasks
-                .slice()
-                .sort((a, b) => a.position - b.position)
-
-              const reorder = arrayMove(
-                sortedByPosition,
-                source.index,
-                destination.index,
-              ).filter(Boolean)
-
-              reorder.forEach((t, index) => {
                 dispatch(
-                  editTask({
-                    id: t.id,
-                    updatedFields: {
-                      subtype: destination.droppableId,
-                      position: index,
+                  ui.actions.toggleContextMenu({
+                    taskId: 'CONTEXT_MENU_OPENED',
+                    position: {
+                      x: e.clientX,
+                      y: e.clientY,
+                    },
+                    handlers: {
+                      onCollapse: () => setHidden(true),
                     },
                   }),
                 )
-              })
-            }
-          }}
-        >
-          {[types.MORNING, types.AFTERNOON, types.EVENING].map(subtype => (
-            <DayTasks
-              key={subtype}
-              subtype={subtype}
-              date={date}
-              className={styles.DayTaskBox}
-            />
-          ))}
-        </DragDropContext>
+              }
+            }}
+          >
+            {title}
+          </h1>
+          {hidden && (
+            <button type="button" data-circled="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+              >
+                <path d="M10 17l5-5-5-5v10z" />
+                <path d="M0 24V0h24v24H0z" fill="none" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {transitions.map(
+          ({ item, key, props }) =>
+            item && (
+              <animated.div style={props} key={key}>
+                <DragDropContext
+                  onDragStart={() => {
+                    dispatch(setSort(true))
+                  }}
+                  onDragEnd={({ destination, source, draggableId }) => {
+                    // TODO: Need refactor
+                    dispatch(setSort(false))
+
+                    if (!destination) return
+
+                    const droppableTasks = getTasksBy(allTasks)({
+                      type: types.DAY,
+                      subtype: destination.droppableId,
+                      ...date,
+                    })
+
+                    const sorted = reorder(
+                      droppableTasks,
+                      source.index,
+                      destination.index,
+                    )
+
+                    if (destination.droppableId === source.droppableId) {
+                      dispatch(
+                        sortTask(
+                          sorted.map((t, index) => ({
+                            ...t,
+                            position: index,
+                          })),
+                        ),
+                      )
+                    } else {
+                      const draggable = allTasks.find(t => t.id === draggableId)
+                      const tasks = getTasksBy(allTasks)({
+                        type: types.DAY,
+                        subtype: destination.droppableId,
+                        ...date,
+                      })
+
+                      tasks.splice(destination.index, 0, draggable)
+
+                      const sortedByPosition = tasks
+                        .slice()
+                        .sort((a, b) => a.position - b.position)
+
+                      const reorder = arrayMove(
+                        sortedByPosition,
+                        source.index,
+                        destination.index,
+                      ).filter(Boolean)
+
+                      reorder.forEach((t, index) => {
+                        dispatch(
+                          editTask({
+                            id: t.id,
+                            updatedFields: {
+                              subtype: destination.droppableId,
+                              position: index,
+                            },
+                          }),
+                        )
+                      })
+                    }
+                  }}
+                >
+                  {[types.MORNING, types.AFTERNOON, types.EVENING].map(
+                    subtype => (
+                      <DayTasks
+                        key={subtype}
+                        subtype={subtype}
+                        date={date}
+                        className={styles.DayTaskBox}
+                      />
+                    ),
+                  )}
+                </DragDropContext>
+              </animated.div>
+            ),
+        )}
       </div>
     )
   }
 
   return (
     <div>
-      <div className={styles.LinesHeader}>
-        <h1>{title}</h1>
+      <div
+        className={cx(styles.LinesHeader, {
+          [styles.HoverableLinesHeader]: hidden,
+        })}
+        onClick={e => {
+          e.preventDefault()
+
+          separateClicks(e, {
+            onDoubleClick: () => {
+              !hidden && setHidden(true)
+            },
+            onClick: () => {
+              hidden && setHidden(false)
+            },
+          })
+        }}
+      >
+        <h1
+          onContextMenu={e => {
+            if (!hidden) {
+              e.preventDefault()
+              e.stopPropagation()
+
+              dispatch(
+                ui.actions.toggleContextMenu({
+                  taskId: 'CONTEXT_MENU_OPENED',
+                  position: {
+                    x: e.clientX,
+                    y: e.clientY,
+                  },
+                  handlers: {
+                    onCollapse: () => setHidden(true),
+                  },
+                }),
+              )
+            }
+          }}
+        >
+          {title}
+        </h1>
         <button
           type="button"
+          className={hidden && styles.hidden}
           onClick={e => {
             e.stopPropagation()
 
@@ -157,28 +253,24 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
             />
           </svg>
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setHidden(!hidden)
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            transform={`rotate(${hidden ? '-90' : '0'})`}
-          >
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-            <path d="M0 0h24v24H0V0z" fill="none" />
-          </svg>
-        </button>
+        {hidden && (
+          <button type="button" data-circled="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+            >
+              <path d="M10 17l5-5-5-5v10z" />
+              <path d="M0 24V0h24v24H0z" fill="none" />
+            </svg>
+          </button>
+        )}
       </div>
       {transitions.map(
         ({ item, key, props }) =>
           item && (
-            <animated.div style={props}>
+            <animated.div style={props} key={key}>
               <DroppableTasksArea
                 pressDelay={1000}
                 helperClass={styles.isSortable}

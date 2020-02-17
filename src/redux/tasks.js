@@ -323,7 +323,7 @@ export const deleteTask = id => (dispatch, getState) => {
 
 export const sortTask = tasks => (dispatch, getState) => {
   const {
-    tasks,
+    tasks: tasksFromStore,
     session: {
       authUser: { uid },
     },
@@ -331,13 +331,13 @@ export const sortTask = tasks => (dispatch, getState) => {
 
   let objTasks = {}
 
-  const tasksWithoutSorted = differenceBy(tasks, tasks, 'id')
+  const tasksWithoutSorted = differenceBy(tasksFromStore, tasks, 'id')
   const allTasks = [...tasksWithoutSorted, ...tasks]
 
   allTasks.forEach(t => {
     objTasks[t.id] = t
   })
 
-  dispatch(tasksSlice.actions.loadTasks(allTasks))
+  dispatch(tasksSlice.actions.loadTasks(objTasks))
   firebase.setTasks(objTasks, uid)
 }

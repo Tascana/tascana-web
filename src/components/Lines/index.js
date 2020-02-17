@@ -1,10 +1,11 @@
-import React from 'react'
-import { connect, useSelector } from 'react-redux'
+import React, { useState } from 'react'
+import { connect } from 'react-redux'
 import { translateMonth, translateDay } from './util'
 import { HorizontalUI } from './HorizontalUI'
 import styles from './styles.module.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import '../app.css'
+// import { useShortcutSwipe } from './useShortcutSwipe'
 
 const mapStateToPropsHorzUI = (state, ownProps) => {
   // Here, prev/current/next sets of tasks are generated for a given date. Called on load and after Redux dispatch
@@ -99,17 +100,16 @@ const mapStateToPropsHorzUI = (state, ownProps) => {
 const CHorzUI = connect(mapStateToPropsHorzUI)(HorizontalUI)
 
 function Lines() {
-  const uiState = useSelector(state => state.UI)
-  const date = new Date(uiState.year, uiState.month - 1, uiState.day)
+  // const { onScroll, line } = useShortcutSwipe()
+
+  const line = ''
+  const onScroll = () => {}
 
   return (
     <main className={styles.Wrapper}>
-      <div className={styles.Header}>
-        <h2>{translateDay(date, 'MMMM d, yyyy')}</h2>
-      </div>
-      <CHorzUI type={'YEAR'} />
-      <CHorzUI type={'MONTH'} />
-      <CHorzUI type={'DAY'} />
+      <CHorzUI type={'YEAR'} onScroll={onScroll} swipeableLine={line} />
+      <CHorzUI type={'MONTH'} onScroll={onScroll} swipeableLine={line} />
+      <CHorzUI type={'DAY'} onScroll={onScroll} swipeableLine={line} />
     </main>
   )
 }

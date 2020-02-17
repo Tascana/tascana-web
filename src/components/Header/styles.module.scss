@@ -17,7 +17,7 @@
   justify-content: space-between;
   height: 64px;
   padding: 0 16px;
-  background-color:#f8f8f8;
+  background-color: #f8f8f8;
   border-radius: 19px;
 }
 
@@ -37,9 +37,16 @@
 }
 
 .center {
+  position: absolute;
   display: flex;
   align-items: center;
-  width: 530px;
+  justify-content: center;
+  width: 100%;
+  height: 64px;
+
+  > div {
+    width: 630px;
+  }
 }
 
 .right {
