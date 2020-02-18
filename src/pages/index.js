@@ -14,6 +14,24 @@ function IndexPage() {
   const authUser = useAuthorization()
 
   useEffect(() => {
+    function blockHorizontalScroll() {
+      window.scrollTo(0, window.scrollY)
+    }
+
+    window.addEventListener('scroll', blockHorizontalScroll, {
+      passive: true,
+      capture: true,
+    })
+
+    return () => {
+      window.removeEventListener('scroll', blockHorizontalScroll, {
+        passive: true,
+        capture: true,
+      })
+    }
+  })
+
+  useEffect(() => {
     dispatch(tasksSlice.actions.loadTasks({}))
     if (authUser) {
       firebase.tasks(authUser.uid).once('value', snapshot => {

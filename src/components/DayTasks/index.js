@@ -41,25 +41,25 @@ function DayTasks({ subtype, date, className, ...rest }) {
   }
 
   return (
-    <div className={cx(styles.DayTaskBox, className)} {...rest}>
-      <div className={styles.Header}>
-        <h4>{subtype.toLowerCase()}</h4>
-        <button
-          type="button"
-          onClick={() => {
-            setAddMode(true)
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 341.4 341.4">
-            <path
-              d="M192 149.4V0h-42.6v149.4H0V192h149.4v149.4H192V192h149.4v-42.6z"
-              fill="#616161"
-            />
-          </svg>
-        </button>
-      </div>
-      <Droppable droppableId={subtype}>
-        {(provided, snapshot) => (
+    <Droppable droppableId={subtype}>
+      {(provided, snapshot) => (
+        <div className={cx(styles.DayTaskBox, className)} {...rest}>
+          <div className={styles.Header}>
+            <h4>{subtype.toLowerCase()}</h4>
+            <button
+              type="button"
+              onClick={() => {
+                setAddMode(true)
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 341.4 341.4">
+                <path
+                  d="M192 149.4V0h-42.6v149.4H0V192h149.4v149.4H192V192h149.4v-42.6z"
+                  fill="#616161"
+                />
+              </svg>
+            </button>
+          </div>
           <ul
             ref={provided.innerRef}
             {...provided.droppableProps}
@@ -68,7 +68,6 @@ function DayTasks({ subtype, date, className, ...rest }) {
             {tasks.map((task, index) => (
               <DayTask key={task.id} index={index} {...task} />
             ))}
-            {provided.placeholder}
             {isInAddMode && (
               <li>
                 <TaskMark
@@ -85,10 +84,11 @@ function DayTasks({ subtype, date, className, ...rest }) {
                 />
               </li>
             )}
+            {provided.placeholder}
           </ul>
-        )}
-      </Droppable>
-    </div>
+        </div>
+      )}
+    </Droppable>
   )
 }
 

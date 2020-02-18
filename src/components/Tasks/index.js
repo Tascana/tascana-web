@@ -5,10 +5,9 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { useTransition, animated } from 'react-spring'
 import { DragDropContext } from 'react-beautiful-dnd'
 import cx from 'classnames'
-import arrayMove from 'array-move'
 import { AddingTaskBox, TaskBox as TaskBoxComponent } from '../TaskBoxes'
 import DayTasks from '../DayTasks'
-import { editTask, sortTask } from '../../redux/tasks'
+import { sortTask } from '../../redux/tasks'
 import ui, { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
 import { reorder } from './utils'
@@ -107,11 +106,10 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
             item && (
               <animated.div style={props} key={key}>
                 <DragDropContext
-                  onDragStart={() => {
+                  onBeforeDragStart={() => {
                     dispatch(setSort(true))
                   }}
                   onDragEnd={({ destination, source, draggableId }) => {
-                    // TODO: Need refactor
                     dispatch(setSort(false))
 
                     if (!destination) return
@@ -138,36 +136,22 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                         ),
                       )
                     } else {
-                      const draggable = allTasks.find(t => t.id === draggableId)
-                      const tasks = getTasksBy(allTasks)({
-                        type: types.DAY,
-                        subtype: destination.droppableId,
-                        ...date,
-                      })
+                      const draggableItem = allTasks.find(
+                        t => t.id === draggableId,
+                      )
+                      const tasks = droppableTasks.slice()
 
-                      tasks.splice(destination.index, 0, draggable)
+                      tasks.splice(destination.index, 0, draggableItem)
 
-                      const sortedByPosition = tasks
-                        .slice()
-                        .sort((a, b) => a.position - b.position)
-
-                      const reorder = arrayMove(
-                        sortedByPosition,
-                        source.index,
-                        destination.index,
-                      ).filter(Boolean)
-
-                      reorder.forEach((t, index) => {
-                        dispatch(
-                          editTask({
-                            id: t.id,
-                            updatedFields: {
-                              subtype: destination.droppableId,
-                              position: index,
-                            },
-                          }),
-                        )
-                      })
+                      dispatch(
+                        sortTask(
+                          tasks.map((t, index) => ({
+                            ...t,
+                            subtype: destination.droppableId,
+                            position: index,
+                          })),
+                        ),
+                      )
                     }
                   }}
                 >

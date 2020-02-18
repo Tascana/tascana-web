@@ -50,27 +50,29 @@ export const HorizontalUI = props => {
         ref={animatedContainer}
         style={style()}
       >
-        {springs.map(({ x, scale, display, height }, i) => (
-          <animated.div
-            key={i}
-            className={classes.Line}
-            style={{
-              x,
-              scale,
-              display,
-              height,
-            }}
-          >
-            <Tasks
-              type={props.type}
-              id={items[i].id}
-              current={items[1].id}
-              title={items[i].name}
-              onRowHide={recalculateRowHeight}
-              date={items[i].id}
-            />
-          </animated.div>
-        ))}
+        {springs.map(({ x, scale, display, height }, i) => {
+          return (
+            <animated.div
+              key={i}
+              className={classes.Line}
+              style={{
+                x,
+                scale,
+                display,
+                height,
+              }}
+            >
+              <Tasks
+                type={props.type}
+                id={items[i].id}
+                current={items[1].id}
+                title={items[i].name}
+                onRowHide={recalculateRowHeight}
+                date={items[i].id}
+              />
+            </animated.div>
+          )
+        })}
       </animated.div>
     </div>
   )

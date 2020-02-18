@@ -80,7 +80,11 @@ export function useLineSwipe({
               40,
       }))
     },
-    { event: { passive: true, capture: false } },
+    {
+      event: { passive: true, capture: false },
+      threshold: 5,
+      filterTaps: true,
+    },
   )
 
   function recalculateRowHeight() {

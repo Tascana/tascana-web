@@ -5,13 +5,15 @@ import { Draggable } from 'react-beautiful-dnd'
 import TaskMark from './TaskMark'
 import Textarea from './Textarea'
 import { separateClicks } from './separateClicks'
-import ui from '../../redux/UI'
+import ui, { selectTreeAction } from '../../redux/UI'
 import { completeTask, deleteTask, editTask } from '../../redux/tasks'
 
 import styles from './styles.module.scss'
 import tasksStyles from '../Tasks/styles.module.scss'
 
-function DayTask({ id, progress, background, text: textTask, index }) {
+function DayTask(props) {
+  const { id, progress, background, text: textTask, index } = props
+
   const [isInEditMode, setEditMode] = useState(false)
   const dispatch = useDispatch()
   const editTextareaRef = useRef(null)
@@ -65,7 +67,12 @@ function DayTask({ id, progress, background, text: textTask, index }) {
           onClick={e => {
             e.stopPropagation()
 
+            if (isInEditMode) return
+
             separateClicks(e, {
+              onClick: () => {
+                dispatch(selectTreeAction({ todo: props }))
+              },
               onDoubleClick: () => {
                 setEditMode(true)
               },
@@ -101,7 +108,10 @@ function DayTask({ id, progress, background, text: textTask, index }) {
           })}
         >
           <TaskMark
-            onClick={onDone}
+            onClick={e => {
+              e.stopPropagation()
+              onDone()
+            }}
             id={id}
             done={progress === 100}
             gradient={background}
