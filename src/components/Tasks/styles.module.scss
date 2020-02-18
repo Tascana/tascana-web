@@ -8,7 +8,6 @@
   align-items: center;
 
   h1 {
-    padding-left: 4px;
     font-size: 30px;
     line-height: 41px;
     user-select: none;
@@ -40,10 +39,10 @@
 .DayHeader {
   display: flex;
   margin-bottom: 14px;
-  margin-left: -4px;
 
   h1 {
-    padding: 4px;
+    font-size: 30px;
+    line-height: 41px;
     user-select: none; 
   }
 }
