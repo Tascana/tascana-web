@@ -120,7 +120,7 @@ function Landing() {
         history.push('/')
       })
       .catch(error => {
-        setError(error)
+        setError(error.message)
       })
   }
 
@@ -133,7 +133,7 @@ function Landing() {
         history.push('/')
       })
       .catch(error => {
-        setError(error)
+        setError(error.message)
       })
   }
 
