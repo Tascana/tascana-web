@@ -1,14 +1,23 @@
 .header {
   position: fixed;
+  top: 0;
   left: calc((100vw - 1080px) / 2);
   z-index: 2;
   width: calc(100vw - 32px);
   max-width: 1080px;
   padding-top: 15px;
+  touch-action: pan-y;
   background-color: #fff;
 
   @media (max-width: 1144px) {
     left: 16px;
+  }
+
+  @media (max-width: 420px) {
+    left: 0;
+    width: 100vw;
+    padding-right: 16px;
+    padding-left: 16px;
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { translateMonth, translateDay } from './util'
 import { HorizontalUI } from './HorizontalUI'

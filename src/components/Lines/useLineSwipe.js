@@ -8,7 +8,7 @@ import '../app.css'
 
 import ui from '../../redux/UI'
 
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps, eqeqeq */
 export function useLineSwipe({
   type,
   num,
@@ -84,6 +84,7 @@ export function useLineSwipe({
       event: { passive: true, capture: false },
       threshold: 5,
       filterTaps: true,
+      axis: 'x',
     },
   )
 
