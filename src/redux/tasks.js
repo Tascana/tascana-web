@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 import nanoid from 'nanoid'
-import isEqual from 'lodash/isEqual'
 import differenceBy from 'lodash/differenceBy'
 import findLastIndex from 'lodash/findLastIndex'
 import { randomGrad } from '../components/Tasks/utils'
@@ -82,44 +81,56 @@ const recalculateProgress = () => (dispatch, getState) => {
   })
 }
 
-const updateTree = () => (dispatch, getState) => {
+const updateTree = changedTask => (dispatch, getState) => {
   const {
     tasks,
     session: {
       authUser: { uid },
     },
-    UI: { day, month, year },
   } = getState()
 
-  getTasksBy(tasks)({ day, month, year }).forEach((task, index, arr) => {
-    const { parents, children } = getTree(arr, {
-      id: task.id,
-      firstParentId: task.firstParentId,
-    })
+  const { parents, children } = getTree(tasks, {
+    id: changedTask.id,
+    firstParentId: changedTask.firstParentId,
+  })
 
-    if (!isEqual(parents, task.parents)) {
-      dispatch(
-        tasksSlice.actions.updateTask({
-          id: task.id,
-          updatedFields: {
-            parents,
-          },
-        }),
-      )
-      firebase.editTask(getTaskById(getState().tasks, task.id), uid, task.id)
-    }
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id: changedTask.id,
+      updatedFields: {
+        children,
+        parents,
+      },
+    }),
+  )
 
-    if (!isEqual(children, task.children)) {
-      dispatch(
-        tasksSlice.actions.updateTask({
-          id: task.id,
-          updatedFields: {
-            children,
-          },
-        }),
-      )
-      firebase.editTask(getTaskById(getState().tasks, task.id), uid, task.id)
-    }
+  firebase.editTask(
+    getTaskById(getState().tasks, changedTask.id),
+    uid,
+    changedTask.id,
+  )
+
+  const tree = [...parents, ...children]
+
+  if (!tree.length) return
+
+  tree.forEach(id => {
+    const task = getTaskById(getState().tasks, id)
+
+    let updatedFields = {}
+
+    if (parents.length)
+      updatedFields.children = task.children.concat(changedTask.id)
+    if (children.length)
+      updatedFields.parents = task.parents.concat(changedTask.id)
+
+    dispatch(
+      tasksSlice.actions.updateTask({
+        id,
+        updatedFields,
+      }),
+    )
+    firebase.editTask(getTaskById(getState().tasks, id), uid, id)
   })
 }
 
@@ -185,7 +196,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   if (childId) dispatch(linkTasks({ childId, parentId: id }))
 
-  dispatch(updateTree())
+  dispatch(updateTree(newTask))
   dispatch(recalculateProgress())
 
   if (isCorrectParent)
@@ -253,7 +264,6 @@ export const completeTask = id => (dispatch, getState) => {
   const task = getTaskById(tasks, id)
 
   const isComplete = task.progress === 100
-  console.log(task.children)
 
   if (task.children.length) {
     task.children.forEach(id => {
@@ -294,30 +304,38 @@ export const deleteTask = id => (dispatch, getState) => {
     },
   } = getState()
 
-  const task = getTaskById(tasks, id)
+  const deletedTask = getTaskById(tasks, id)
 
-  if (task.children.length) {
-    task.children
-      .map(id => getTaskById(tasks, id))
-      .forEach(t => {
-        dispatch(
-          tasksSlice.actions.updateTask({
-            id: t.id,
-            updatedFields: {
-              parents: t.parents.filter(t => t.id === id),
-              firstParentId: null,
-              background: 'linear-gradient(to bottom, #e2e2e2, #bbb)',
-            },
-          }),
-        )
-        firebase.editTask(getTaskById(getState().tasks, t.id), uid, t.id)
-      })
+  const tree = [...deletedTask.children, ...deletedTask.parents]
+
+  if (tree.length) {
+    tree.forEach(id => {
+      const task = getTaskById(getState().tasks, id)
+
+      let updatedFields = {}
+
+      if (deletedTask.parents.length) {
+        updatedFields.children = task.children.filter(t => t.id === id)
+      }
+      if (deletedTask.children.length) {
+        updatedFields.parents = task.parents.filter(t => t.id === id)
+        updatedFields.firstParentId = null
+        updatedFields.background = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+      }
+
+      dispatch(
+        tasksSlice.actions.updateTask({
+          id,
+          updatedFields,
+        }),
+      )
+      firebase.editTask(getTaskById(getState().tasks, id), uid, id)
+    })
   }
 
   dispatch(tasksSlice.actions.deleteTask(id))
   firebase.deleteTask(uid, id)
 
-  dispatch(updateTree())
   dispatch(recalculateProgress())
 }
 

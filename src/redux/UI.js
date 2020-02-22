@@ -142,8 +142,6 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
     return
   }
 
-  console.log(todo)
-
   const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(
     Boolean,
   )

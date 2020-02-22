@@ -38,7 +38,8 @@ export const getTasksBy = tasks => params => {
   }
 }
 
-export const getTaskById = (tasks, id) => tasks.find(task => task.id === id)
+export const getTaskById = (tasks, id) =>
+  id ? tasks.find(task => task.id === id) : undefined
 
 export const addSibling = (siblings, newSibling) =>
   siblings
