@@ -39,6 +39,8 @@
     margin-top: 8px;
 
     li {
+      display: flex;
+      align-items: center;
       padding-top: 8px;
       padding-bottom: 8px;
       font-size: 18px;
@@ -61,7 +63,7 @@
 }
 
 .DayTaskField {
-  font-size: 18px;
+  min-height: 22px;
   line-height: 22px;
   resize: none;
   background-color: transparent;

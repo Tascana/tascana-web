@@ -44,7 +44,6 @@ function DayTask(props) {
       setEditMode(false)
       return
     }
-
     dispatch(
       editTask({
         id,
@@ -125,7 +124,7 @@ function DayTask(props) {
               onBlur={onEdit}
             />
           ) : (
-            textTask
+            <p>{textTask}</p>
           )}
         </li>
       )}
