@@ -58,7 +58,7 @@ export const HorizontalUI = props => {
               style={{
                 x,
                 scale,
-                display,
+                display: i === 1 ? 'block' : 'none',
                 height,
               }}
             >
