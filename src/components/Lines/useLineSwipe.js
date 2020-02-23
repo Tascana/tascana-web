@@ -81,7 +81,6 @@ export function useLineSwipe({
       }))
     },
     {
-      event: { passive: true, capture: false },
       threshold: 5,
       filterTaps: true,
       axis: 'x',
