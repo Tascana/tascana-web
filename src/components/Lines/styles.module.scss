@@ -52,4 +52,12 @@
     width: 10%;
     height: 100%;
   }
+
+  :nth-child(1) {
+    cursor: w-resize;
+  }
+  
+  :nth-child(2) {
+    cursor: e-resize;
+  }
 }
