@@ -1,0 +1,214 @@
+.TaskBox {
+  position: relative;
+  display: inline-flex;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  cursor: pointer;
+  background-image: linear-gradient(to bottom, #e2e2e2, #bbb);
+  border-radius: 12px;
+  outline: none;
+  transition: 100ms ease-in-out;
+
+  @media (max-width: 420px) {
+    width: calc(50vw - 15px);
+    height: calc(50vw - 15px);
+    margin: 10px 10px 0 0;
+  }
+
+  &.isDone .ProgressBar {
+    opacity: 0;
+  }
+
+  &.isMonth {
+    height: 100px;
+
+    > div:first-child {
+      width: 100%;
+      padding: 10px;
+      margin: 2px;
+      color: #000;
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    &.isDone {
+      > div:first-child {
+        color: #fff;
+        background: transparent;
+      }
+
+      .Actions .ActionButton {
+        opacity: 1;
+      }
+    }
+
+    .Actions {
+      .ActionButton {
+        width: 24px;
+        height: 24px;
+
+        &.DoneButton {
+          margin-left: 0;
+        }
+      }
+    }
+
+    .ProgressBar {
+      bottom: 2px;
+      background-image: inherit;
+    }
+  }
+
+  .TaskText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+  }
+
+  .TaskText,
+  textarea {
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+    color: #fff;
+  }
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+    outline: none;
+    caret-color: #fff;
+  }
+
+  .Actions {
+    position: absolute;
+    bottom: 12px;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 0 9px;
+    user-select: none;
+
+    &.isLinkMode {
+      opacity: 1;
+    }
+
+    .ActionButton {
+      width: 40px;
+      height: 40px;
+      opacity: 0;
+      transition: 0.2s ease;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+
+      &.DoneButton {
+        margin-left: 10px;
+
+        &.Done {
+          opacity: 1;
+        }
+      }
+    }
+
+    .Links {
+      display: flex;
+      flex-wrap: wrap-reverse;
+
+      li {
+        width: 22px;
+        height: 22px;
+        margin: 3.5px;
+        border-radius: 50%;
+
+        &.Parent:hover {
+          border: 3px solid #fff;
+        }
+
+        &.isSelected {
+          border: 3px solid #fff;
+        }
+      }
+    }
+  }
+
+  &:hover .ActionButton {
+    pointer-events: initial;
+    opacity: 1;
+  }
+}
+
+.AddingTaskBox {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  cursor: pointer;
+  background-color: #e8e8e8;
+  border-radius: 12px;
+  outline: none;
+
+  &.isMonth {
+    height: 100px;
+  }
+
+  &.isDisabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+    color: #000;
+    resize: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+    outline: none;
+    caret-color: #000;
+  }
+
+  .Plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background-color: #f6f6f6;
+    border: 1px solid #b1b1b1;
+    border-radius: 50%;
+
+    > svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+.ProgressBar {
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  height: 2px;
+  padding: 0;
+  margin: 0;
+  background-color: #fff;
+  border: none;
+}
+

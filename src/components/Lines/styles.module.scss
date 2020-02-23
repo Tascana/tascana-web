@@ -1,0 +1,55 @@
+.Wrapper {
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 120px;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: initial;
+}
+
+.Line {
+  position: absolute;
+  float: left;
+  width: 630px;
+
+  @media (min-width: 1080px) {
+    width: 840px;
+  }
+
+  @media (max-width: 630px) {
+    width: 420px;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
+    padding-left: 10px;
+  }
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+
+  h2 {
+    font-size: 38px;
+    font-weight: bold;
+    line-height: normal;
+    color: #151515;
+  }
+}
+
+.DirectionChangeContainer {
+  position: absolute;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: inherit;
+
+  div {
+    width: 10%;
+    height: 100%;
+  }
+}

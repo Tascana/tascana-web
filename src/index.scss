@@ -1,0 +1,93 @@
+@font-face {
+  font-family: 'Helvetica Now';
+  src: url('./assets/fonts/helvetica-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: 'Helvetica Now';
+  src: url('./assets/fonts/helvetica-medium.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: 'Helvetica Now', 'Helvetica Now Display', 'Helvetica Neue',
+    'Helvetica', 'Arial', sans-serif;
+  scroll-behavior: smooth;
+  color: #151515;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: bold;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+ul {
+  list-style-type: none;
+}
+
+#root {
+  width: 630px;
+  padding-bottom: 80px;
+  margin: 0 auto;
+  overflow-x: hidden;
+  user-select: none;
+
+  @media (min-width: 1080px) {
+    width: 840px;
+  }
+
+  @media (max-width: 630px) {
+    width: 420px;
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
+  }
+}
+
+.noselect {
+  user-select: none;
+}
+
+.noselect:focus() {
+  user-select: initial;
+}
+
+.react-datepicker__month-container {
+  font-family: 'SF Pro Text', sans-serif;
+  letter-spacing: -0.43px;
+}

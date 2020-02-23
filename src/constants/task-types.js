@@ -1,0 +1,6 @@
+export const YEAR = 'YEAR'
+export const MONTH = 'MONTH'
+export const DAY = 'DAY'
+export const MORNING = 'MORNING'
+export const EVENING = 'EVENING'
+export const AFTERNOON = 'AFTERNOON'

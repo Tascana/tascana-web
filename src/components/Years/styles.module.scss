@@ -1,0 +1,52 @@
+.wrapper {
+  max-width: 720px;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+.year {
+  margin-bottom: 58px;
+
+  h2 {
+    margin-bottom: 8px;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+  }
+}
+
+.months {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -7px;
+}
+
+.month { 
+  width: calc((100% - (14px * 2)) / 2);
+  margin: 7px;
+  cursor: pointer;
+  background-color: #e8e8e8;
+  border-radius: 12px;
+
+  @media (min-width: 500px) {
+    width: calc((100% - (14px * 3)) / 3);
+  }
+
+  @media (min-width: 768px) {
+    width: calc((100% - (14px * 6)) / 6);
+  }
+
+  .item {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+
+    .content {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  }
+}

@@ -1,68 +1,82 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Welcome to Tascana!
 
-## Available Scripts
+Tascana is a todo app helping you achieve big goals in a calm way.
 
-In the project directory, you can run:
+The key idea of Tascana is to shift the mindset of short term tasks (most of the current todo apps) to long term goals. 
 
-### `npm start`
+- Allow users to define yearly goals
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Allow users to define monthly goals connected to their yearly goals
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+- Allow users to define daily tasks connected to their monthly goals
 
-### `npm test`
+- Split days in 3 parts: morning, afternoon, evening
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Test it live
 
-### `npm run build`
+Our stable deployment runs on https://tascana.com
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+WIP build runs on https://dev.tascana.com
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### Contribute
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Check current [Issues](https://github.com/Tascana/tascana-web/issues), [Project plans](https://github.com/Tascana/tascana-web/projects/1)
 
-### `npm run eject`
+#### start
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```sh
+npm run start
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### build
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```sh
+npm run build
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+#### db task structure
 
-## Learn More
+```
+{
+  id: "0000000000",
+  background: "linear-gradient(to bottom, #e2e2e2, #bbb)",
+  progress: 0,
+  parents: "0000000000,0000000001,0000000002",
+  children: "0000000003,0000000004",
+  position: 0,
+  type: "DAY"|"MONTH"|"YEAR"
+  subtype?: "MORNING"|"AFTERNOON"|"EVENING",
+  text: "Just do it!",
+  createdAt: 1581844989771,
+  updatedAt?: 1581844989771,
+  userId:"GhJmgbU5qpc0LZsoRzps1SHFJiG3" 
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### redux task structure
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+{
+  id: "0000000000",
+  background: "linear-gradient(to bottom, #e2e2e2, #bbb)",
+  progress: 0,
+  parents: [{ id: "0000000001", ... }, ...],
+  children: [{ id: "0000000001", ... }, ...],
+  position: 0,
+  type: "DAY"|"MONTH"|"YEAR"
+  subtype?: "MORNING"|"AFTERNOON"|"EVENING",
+  text: "Just do it!",
+  year: 2020,
+  month?: 2,
+  day?: 20,
+  userId:"GhJmgbU5qpc0LZsoRzps1SHFJiG3" 
+}
+```
 
-### Code Splitting
+#### Before pushing
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+- [ ] [Check if everything works](https://docs.google.com/spreadsheets/d/1dY_AM7NfbhIYaTQUI2X-cg3cDLvQlS-iNJovOwJDLoI/edit#gid=0)
 
-### Analyzing the Bundle Size
+## License
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+https://tldrlegal.com/license/simple-non-code-license-(sncl)#fulltext
