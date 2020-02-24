@@ -61,29 +61,28 @@
   }
 
   .TaskText {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    user-select: none;
-  }
-
-  .TaskText,
-  textarea {
     padding: 10px;
+    overflow: hidden;
     font-size: 18px;
     font-weight: bold;
     line-height: 24px;
     color: #fff;
+    text-overflow: ellipsis;
+    user-select: none;
   }
 
   textarea {
     width: 100%;
     height: 100%;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+    color: inherit;
     resize: none;
     background-color: transparent;
     border: none;
     border-radius: 12px;
     outline: none;
-    caret-color: #fff;
   }
 
   .Actions {
@@ -217,4 +216,3 @@
   background-color: #fff;
   border: none;
 }
-
