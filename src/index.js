@@ -1,5 +1,5 @@
 import 'normalize.css'
-import 'react-tippy/dist/tippy.css'
+import 'react-datepicker/dist/react-datepicker.css'
 import './index.scss'
 import React from 'react'
 import ReactDOM from 'react-dom'

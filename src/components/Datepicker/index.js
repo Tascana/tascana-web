@@ -1,10 +1,11 @@
 import React, { useState, useEffect, forwardRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import DatePicker from 'react-datepicker'
-import { format } from 'date-fns'
-import 'react-datepicker/dist/react-datepicker.css'
-import classes from './styles.module.scss'
+import { format } from 'date-fns/esm'
 import ui from '../../redux/UI'
+import { swipeSlice } from '../../redux/swipe'
+
+import classes from './styles.module.scss'
 
 const DatePickerTrigger = forwardRef(({ onClick }, ref) => {
   const uiState = useSelector(state => state.UI)
@@ -20,6 +21,7 @@ const DatePickerTrigger = forwardRef(({ onClick }, ref) => {
 function Datepicker() {
   const today = new Date()
   const dispatch = useDispatch()
+  const dateFromStore = useSelector(state => new Date(state.swipe.date))
 
   const [startDate, setStartDate] = useState(today)
   const [isChanged, setIsChanged] = useState(false)
@@ -37,6 +39,13 @@ function Datepicker() {
       if (month === 1) return 12
       return month - 1
     }
+
+    dispatch(
+      swipeSlice.actions.swipe({
+        virtualPrevDate: format(dateFromStore, 'yyyy-MM-dd'),
+        virtualDate: format(date, 'yyyy-MM-dd'),
+      }),
+    )
 
     dispatch(
       ui.actions.changeDate({
