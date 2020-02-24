@@ -4,8 +4,10 @@ import {
   isYesterday,
   isTomorrow,
   isSameMonth,
+  getYear,
   differenceInCalendarMonths,
-} from 'date-fns'
+} from 'date-fns/esm'
+import { YEAR, MONTH, DAY } from '../../constants/task-types'
 
 export function translateDay(date, dateFormat = 'EEEE, d') {
   const now = new Date()
@@ -33,4 +35,39 @@ export function extractHeight(parent, dx) {
     a.push(i.children[0].scrollHeight + 40)
   })
   return dx > 0 ? [a[0], a[1]] : [a[1], a[2]]
+}
+
+export const getDateObject = (type, year, month, day) => {
+  switch (type) {
+    case YEAR:
+      return {
+        year,
+      }
+    case MONTH:
+      return {
+        year,
+        month: month + 1,
+      }
+    case DAY:
+      return {
+        year,
+        month: month + 1,
+        day,
+      }
+    default:
+      break
+  }
+}
+
+export const getName = (type, date) => {
+  switch (type) {
+    case YEAR:
+      return getYear(date)
+    case MONTH:
+      return translateMonth(date)
+    case DAY:
+      return translateDay(date)
+    default:
+      break
+  }
 }

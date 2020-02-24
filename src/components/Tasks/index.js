@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash.isequal'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { useTransition, animated } from 'react-spring'
 import { DragDropContext } from 'react-beautiful-dnd'
