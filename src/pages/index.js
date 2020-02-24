@@ -32,6 +32,12 @@ function IndexPage() {
     }
   }, [isSort])
 
+  useEffect(() => {
+    document.getElementById('landing-root').style.display = 'none'
+    document.body.style.height = 'initial'
+    document.body.style.overflow = 'initial'
+  }, [])
+
   if (!authUser) return null
 
   return (

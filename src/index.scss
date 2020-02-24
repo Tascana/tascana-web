@@ -108,3 +108,15 @@ ul {
 .react-datepicker__month-container {
   font-family: 'Helvetica Now', sans-serif;
 }
+
+#landing-root {
+  overflow: scroll;
+  height: 100vh;
+  scroll-snap-type: y mandatory;
+
+  main {
+    height: 100vh;
+    scroll-snap-align: start;
+    position: relative;
+  }
+}

@@ -1,7 +1,7 @@
 .Hero {
   //position: relative;
   height: 100vh;
-  padding: 32px 0;
+  padding: 32px 0 0 0;
 
   &::before {
     position: absolute;
@@ -277,10 +277,6 @@
   margin: 0 auto;
   margin-bottom: 120px;
 
-  &:nth-child(2) {
-    padding-top: 106px;
-  }
-
   &:nth-child(4) {
     margin-bottom: 250px;
   }
@@ -379,4 +375,17 @@
   margin-top: 53px;
   color: #aaa;
   text-align: center;
+
+  a {
+    color: #aaa;
+  }
+}
+
+.MoreInfoSection {
+  overflow: scroll;
+  padding: 50px calc((100vw - 1000px)/2);
+
+  &::-webkit-scrollbar {
+    width: 0 !important;
+  }
 }

@@ -217,7 +217,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
         </h1>
         <button
           type="button"
-          className={hidden && styles.hidden}
+          className={hidden ? styles.hidden : ''}
           onClick={e => {
             e.stopPropagation()
 
