@@ -65,7 +65,7 @@ function HorizontalUI({
     ({ down, cancel, movement: [x, y], direction: [dx] }) => {
       if (UI.sort) return
 
-      if (Math.abs(x) > (width > 768 ? width / 3 : width / 1.4)) {
+      if (Math.abs(x) > (width > 768 ? width / 3 : width / 2)) {
         cancel()
         dispatch(
           swipeSlice.actions.swipe({
@@ -209,6 +209,7 @@ function HorizontalUI({
         style={{
           height: spring.height,
           margin: 'auto',
+          willChange: 'height',
         }}
       />
       <animated.div
@@ -217,6 +218,7 @@ function HorizontalUI({
         style={{
           height: spring.height,
           margin: 'auto',
+          willChange: 'height',
         }}
       >
         <animated.div
@@ -226,6 +228,7 @@ function HorizontalUI({
           style={{
             x: spring.x,
             opacity: spring.opacity,
+            willChange: 'transform, opacity',
           }}
         >
           <Tasks

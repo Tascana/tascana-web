@@ -2,7 +2,8 @@
   width: 100%;
   margin: 0 auto;
   margin-top: 120px;
-  overflow: hidden;
+  overflow-x: hidden;
+  touch-action: pan-y;
   user-select: initial;
 }
 
@@ -10,6 +11,7 @@
   position: absolute;
   float: left;
   width: 630px;
+  overflow-x: hidden;
 
   @media (min-width: 1080px) {
     width: 840px;
