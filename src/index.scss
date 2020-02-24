@@ -79,6 +79,24 @@ ul {
   }
 }
 
+#react-dnd-draggable {
+  li {
+    display: flex;
+    align-items: center;
+    padding-top: calc(8px * 1.05);
+    padding-bottom: calc(8px * 1.05);
+    font-size: calc(18px * 1.05);
+    line-height: calc(22px * 1.05);
+    user-select: none;
+    border-bottom: 1px solid #f5f5f5;
+    outline: none;
+
+    svg {
+      transform: scale(1.05);
+    }
+  }
+}
+
 .noselect {
   user-select: none;
 }

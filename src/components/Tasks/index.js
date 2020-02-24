@@ -261,8 +261,19 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                 axis={'xy'}
                 onSortStart={() => {
                   dispatch(setSort(true))
+                  const el = document.querySelector('.' + styles.isSortable)
+                  if (el) {
+                    el.style.transform = el.style.transform + 'scale(1.05)'
+                  }
+                }}
+                onSortMove={e => {
+                  const el = document.querySelector('.' + styles.isSortable)
+                  if (el) {
+                    el.style.transform = el.style.transform + 'scale(1.05)'
+                  }
                 }}
                 onSortEnd={({ oldIndex, newIndex }) => {
+                  document.body.style.cursor = 'default'
                   const reorderedTasks = reorder(
                     currentTasks,
                     oldIndex,

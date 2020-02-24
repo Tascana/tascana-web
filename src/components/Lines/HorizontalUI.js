@@ -100,7 +100,7 @@ function HorizontalUI({
         height: tasksRef.current.scrollHeight + 40,
       })
     }, ANIMATION_TIME)
-  }, [date, set])
+  }, [date]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     onScroll(type, inView)

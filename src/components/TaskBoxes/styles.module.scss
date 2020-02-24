@@ -159,6 +159,12 @@
   border-radius: 12px;
   outline: none;
 
+  @media (max-width: 420px) {
+    width: calc(50vw - 15px);
+    height: calc(50vw - 15px);
+    margin: 10px 10px 0 0;
+  }
+
   &.isMonth {
     height: 100px;
   }
