@@ -58,6 +58,7 @@ function AddingTaskBox({ type, date, className = '', offAddMode, ...rest }) {
           {...rest}
         >
           <textarea
+            autoFocus
             ref={textarea}
             spellCheck={false}
             maxLength={80}

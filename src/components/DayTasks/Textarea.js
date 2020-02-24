@@ -20,6 +20,7 @@ const Textarea = forwardRef(
         type="text"
         className={className}
         spellCheck={false}
+        autoFocus
         value={value}
         maxLength={80}
         onKeyPress={e => {
