@@ -54,7 +54,7 @@
 .HoverableLinesHeader {
   width: fit-content;
 
-  &:hover {
+  &:hover, &:focus {
     background-color: rgba(216, 216, 216, 0.4);
     border-radius: 8px;
   }

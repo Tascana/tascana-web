@@ -66,6 +66,9 @@ function AddingTaskBox({ type, date, className = '', offAddMode, ...rest }) {
             onChange={e => {
               setValue(e.target.value)
             }}
+            onMouseDown={e => {
+              e.stopPropagation()
+            }}
             onKeyPress={e => {
               e.stopPropagation()
               if (e.key === 'Enter') {
