@@ -63,6 +63,7 @@ ul {
   width: 630px;
   padding-bottom: 80px;
   margin: 0 auto;
+  overflow-x: hidden;
   user-select: none;
 
   @media (min-width: 1080px) {
