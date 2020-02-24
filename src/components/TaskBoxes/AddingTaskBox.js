@@ -30,11 +30,9 @@ function AddingTaskBox({ type, date, className = '', offAddMode, ...rest }) {
   }
 
   useEffect(() => {
-    const taskTextLength = value.length
-
     setTimeout(() => {
       textarea.current.focus()
-      textarea.current.setSelectionRange(taskTextLength, taskTextLength)
+      textarea.current.click()
     }, 100)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
