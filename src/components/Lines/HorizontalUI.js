@@ -26,7 +26,7 @@ import { YEAR, MONTH, DAY } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
 
-const ANIMATION_TIME = 250
+const ANIMATION_TIME = 350
 const DATE_FORMAT = 'yyyy-MM-dd'
 
 function HorizontalUI({
@@ -100,7 +100,7 @@ function HorizontalUI({
         height: tasksRef.current.scrollHeight + 40,
       })
     }, ANIMATION_TIME)
-  }, [date, set])
+  }, [date]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     onScroll(type, inView)
@@ -111,7 +111,7 @@ function HorizontalUI({
     const dir = pos > 0 ? 1 : -1
 
     set({
-      x: width * dir,
+      x: spring.x.getValue() + width * dir,
     })
 
     setTimeout(() => {
@@ -126,10 +126,9 @@ function HorizontalUI({
       set({
         x: 0,
         opacity: 1,
-        height: tasksRef.current.scrollHeight + 40,
       })
       cb()
-    }, ANIMATION_TIME)
+    }, ANIMATION_TIME + 1)
   }
 
   useEffect(() => {

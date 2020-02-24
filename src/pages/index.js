@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Lines from '../components/Lines'
 import Header from '../components/Header'
 import { FirebaseContext } from '../components/Firebase'
@@ -10,6 +10,7 @@ import { tasksSlice } from '../redux/tasks'
 function IndexPage() {
   const firebase = useContext(FirebaseContext)
   const dispatch = useDispatch()
+  const isSort = useSelector(state => state.UI.sort)
 
   const authUser = useAuthorization()
 
@@ -22,6 +23,14 @@ function IndexPage() {
       })
     }
   }, [authUser]) // eslint-disable-line
+
+  useEffect(() => {
+    if (isSort) {
+      document.body.style.cursor = 'grabbing'
+    } else {
+      document.body.style.cursor = 'default'
+    }
+  }, [isSort])
 
   if (!authUser) return null
 

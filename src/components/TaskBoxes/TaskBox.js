@@ -238,22 +238,24 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         {...rest}
       >
         {isEditMode ? (
-          <textarea
-            ref={textarea}
-            spellCheck={false}
-            maxLength={80}
-            value={value}
-            onChange={e => {
-              setValue(e.target.value)
-            }}
-            onKeyPress={e => {
-              e.stopPropagation()
-              if (e.key === 'Enter') onEdit()
-            }}
-            onBlur={() => {
-              onEdit()
-            }}
-          />
+          <div className={styles.TaskText}>
+            <textarea
+              ref={textarea}
+              spellCheck={false}
+              maxLength={80}
+              value={value}
+              onChange={e => {
+                setValue(e.target.value)
+              }}
+              onKeyPress={e => {
+                e.stopPropagation()
+                if (e.key === 'Enter') onEdit()
+              }}
+              onBlur={() => {
+                onEdit()
+              }}
+            />
+          </div>
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
