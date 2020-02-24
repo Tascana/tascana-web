@@ -10,6 +10,10 @@
   @media (max-width: 1144px) {
     left: 16px;
   }
+
+  @media (max-width: 420px) {
+    position: absolute;
+  }
 }
 
 .content {
