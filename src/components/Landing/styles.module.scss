@@ -382,8 +382,8 @@
 }
 
 .MoreInfoSection {
+  padding: 50px calc((100vw - 1000px) / 2);
   overflow: scroll;
-  padding: 50px calc((100vw - 1000px)/2);
 
   &::-webkit-scrollbar {
     width: 0 !important;
