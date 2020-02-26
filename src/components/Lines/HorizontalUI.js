@@ -63,7 +63,7 @@ function HorizontalUI({
   }))
   const bind = useDrag(
     ({ down, cancel, movement: [x, y], direction: [dx] }) => {
-      if (UI.sort) return
+      if (UI.sort || UI.isLinking || UI.isEditing || UI.isSelected) return
 
       const swipeDistance = width / 3
 

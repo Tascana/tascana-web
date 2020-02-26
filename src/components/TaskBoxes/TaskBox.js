@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ProgressBar from './ProgressBar'
+import ActionsBar from './ActionsBar'
+import LinkParentBar from './LinkParentBar'
 import { separateClicks } from './separateClicks'
 import { useOnClickOutside } from './useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
@@ -15,13 +17,6 @@ import { getTasksBy } from '../../redux/utils'
 import { YEAR, MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
-
-import linkGrey from '../../assets/icons/link__grey.svg'
-import linkWhite from '../../assets/icons/link__white.svg'
-import smallAdd from '../../assets/icons/small-add.svg'
-import checkWhite from '../../assets/icons/check__white.svg'
-import checkGrey from '../../assets/icons/check__grey.svg'
-import checkDone from '../../assets/icons/done.svg'
 
 function TaskBox({ task, className = '', date, style = {}, ...rest }) {
   const [isEditMode, setEditMode_] = useState(false)
@@ -40,6 +35,11 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
     if (isLinkMode) {
       if (parentId) dispatch(linkTasks({ childId: isLinkMode, parentId }))
       setLinkMode(false)
+      dispatch(
+        selectTreeAction({
+          todo: null,
+        }),
+      )
     }
   })
 
@@ -93,96 +93,6 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
 
   function onRemove() {
     dispatch(deleteTask(task.id))
-  }
-
-  function renderActions(task) {
-    if (!isLinkMode) {
-      return (
-        <>
-          {task.type !== YEAR && !task.firstParentId && (
-            <button
-              type="button"
-              onClick={e => {
-                e.stopPropagation()
-
-                setLinkMode(task.id)
-              }}
-              className={styles.ActionButton}
-            >
-              <img src={task.progress === 100 ? linkWhite : linkGrey} alt="" />
-            </button>
-          )}
-          {(task.firstParentId || task.type === YEAR) &&
-            !(task.progress === 100 && task.type === MONTH) && (
-              <button
-                type="button"
-                onClick={e => {
-                  e.stopPropagation()
-
-                  onDone()
-                }}
-                className={cx(styles.ActionButton, styles.DoneButton, {
-                  [styles.Done]: task.progress === 100,
-                })}
-              >
-                <img
-                  src={
-                    task.progress === 100
-                      ? checkDone
-                      : task.type === YEAR
-                      ? checkWhite
-                      : checkGrey
-                  }
-                  alt=""
-                />
-              </button>
-            )}
-        </>
-      )
-    }
-
-    return (
-      <ul className={styles.Links}>
-        {yearTasks.map(t => (
-          <li
-            key={t.id}
-            role="button"
-            onClick={e => {
-              e.stopPropagation()
-
-              if (parentId === t.id) {
-                selectParentId(null)
-                return
-              }
-
-              selectParentId(t.id)
-            }}
-            className={cx(styles.Parent, {
-              [styles.isSelected]: parentId === t.id,
-            })}
-            style={{ backgroundImage: t.background }}
-          ></li>
-        ))}
-        <li>
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation()
-              dispatch(
-                ui.actions.toggleAddMode({
-                  on: true,
-                  child: task.id,
-                  type: YEAR,
-                }),
-              )
-              setLinkMode(false)
-            }}
-          >
-            <img src={smallAdd} alt="" />
-          </button>
-        </li>
-      </ul>
-    )
   }
 
   return (
@@ -266,7 +176,40 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         <div
           className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
         >
-          {renderActions(task)}
+          {isLinkMode ? (
+            <LinkParentBar
+              task={task}
+              date={date}
+              setLinkMode={setLinkMode}
+              parentId={parentId}
+              selectParentId={selectParentId}
+            />
+          ) : (
+            <ActionsBar
+              task={task}
+              onLink={() => {
+                setLinkMode(task.id)
+              }}
+              onDone={onDone}
+              onContextMenu={e => {
+                e.preventDefault()
+                dispatch(
+                  ui.actions.toggleContextMenu({
+                    taskId: task.id,
+                    position: {
+                      x: e.clientX - 134 / 2,
+                      y: e.clientY - 137,
+                    },
+                    handlers: {
+                      onEdit: () => setEditMode(true),
+                      onDone,
+                      onRemove,
+                    },
+                  }),
+                )
+              }}
+            />
+          )}
         </div>
       </div>
     </>

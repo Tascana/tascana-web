@@ -38,7 +38,8 @@
   .TaskList {
     margin-top: 8px;
 
-    li {
+    > li {
+      position: relative;
       display: flex;
       align-items: center;
       padding-top: 8px;
@@ -50,8 +51,16 @@
       border-bottom: 1px solid #f5f5f5;
       outline: none;
 
+      > div {
+        bottom: unset;
+      }
+
+      &:hover button {
+        pointer-events: initial;
+        opacity: 1;
+      }
+
       &:last-child {
-        padding-bottom: 0;
         border-bottom: none;
       }
 
@@ -75,4 +84,53 @@
 .TaskMark {
   min-width: 13px;
   margin-right: 6px;
+}
+
+.Actions {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 0 9px;
+  user-select: none;
+
+  &.isLinkMode {
+    opacity: 1;
+  }
+
+  button {
+    margin-left: 7px;
+
+    &.isNotYearTask {
+      margin-left: 5px;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.Links {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  li {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin: 3.5px;
+    border-radius: 50%;
+
+    &.Parent:hover {
+      border: 3px solid #ebebeb;
+    }
+
+    &.isSelected {
+      border: 3px solid #ebebeb;
+    }
+  }
 }

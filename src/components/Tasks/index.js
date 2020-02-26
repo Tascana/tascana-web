@@ -26,6 +26,7 @@ const DraggableTaskBox = SortableElement(({ children }) => children)
 function Tasks({ type, id, date, title, current, onRowHide }) {
   const [hidden, setHidden] = useState(false)
   const isSort = useSelector(state => state.UI.sort)
+  const isLinking = useSelector(state => state.UI.isLinking)
   const allTasks = useSelector(state => state.tasks)
   let currentTasks = useSelector(state =>
     getTasksBy(state.tasks)({ type, ...date }),
@@ -107,6 +108,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
               <animated.div style={props} key={key}>
                 <DragDropContext
                   onBeforeDragStart={() => {
+                    if (isLinking) return
                     dispatch(setSort(true))
                   }}
                   onDragEnd={({ destination, source, draggableId }) => {
@@ -260,6 +262,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                 helperClass={styles.isSortable}
                 axis={'xy'}
                 onSortStart={() => {
+                  if (isLinking) return
                   dispatch(setSort(true))
                   const el = document.querySelector('.' + styles.isSortable)
                   if (el) {

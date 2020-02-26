@@ -66,7 +66,7 @@ function DayTasks({ subtype, date, className, ...rest }) {
             className={styles.TaskList}
           >
             {tasks.map((task, index) => (
-              <DayTask key={task.id} index={index} {...task} />
+              <DayTask key={task.id} index={index} date={date} {...task} />
             ))}
             {isInAddMode && (
               <li>
