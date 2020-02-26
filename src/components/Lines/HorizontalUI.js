@@ -65,7 +65,9 @@ function HorizontalUI({
     ({ down, cancel, movement: [x, y], direction: [dx] }) => {
       if (UI.sort) return
 
-      if (Math.abs(x) > (width > 768 ? width / 3 : width / 2)) {
+      const swipeDistance = width / 3
+
+      if (Math.abs(x) > swipeDistance) {
         cancel()
         dispatch(
           swipeSlice.actions.swipe({
