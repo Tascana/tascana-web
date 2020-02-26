@@ -15,10 +15,15 @@ function IndexPage() {
   const authUser = useAuthorization()
 
   useEffect(() => {
-    dispatch(tasksSlice.actions.loadTasks({}))
     if (authUser) {
+      firebase.logEvent('visit_of_the_task_page')
+
       firebase.tasks(authUser.uid).once('value', snapshot => {
-        if (!snapshot.val()) return
+        if (!snapshot.val()) {
+          dispatch(tasksSlice.actions.loadTasks({}))
+          return
+        }
+
         dispatch(tasksSlice.actions.loadTasks(snapshot.val()))
       })
     }

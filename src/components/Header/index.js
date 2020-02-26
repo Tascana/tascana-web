@@ -49,6 +49,7 @@ function Header() {
                 <button
                   type="button"
                   onClick={() => {
+                    firebase.logEvent('logged_out')
                     firebase.signOut()
                   }}
                 >

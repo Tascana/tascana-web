@@ -107,9 +107,10 @@ function Landing() {
   }, [scrollRef])
 
   useEffect(() => {
+    firebase.logEvent('visit_the_landing_page')
     document.body.style.height = '100vh'
     document.body.style.overflow = 'hidden'
-  }, [])
+  }, []) // eslint-disable-line
 
   function createTasksFromLanding(userId) {
     const allTasks = [
@@ -140,10 +141,12 @@ function Landing() {
   }
 
   function signInWithGoogle() {
+    firebase.logEvent('clicked_signin_with_google')
     firebase
       .signInWithGoogle()
       .then(handleSignIn)
       .then(user => {
+        firebase.logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -153,10 +156,12 @@ function Landing() {
   }
 
   function signInWithFb() {
+    firebase.logEvent('clicked_signin_with_facebook')
     firebase
       .signInWithFacebook()
       .then(handleSignIn)
       .then(() => {
+        firebase.logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -177,6 +182,7 @@ function Landing() {
               <button
                 type="button"
                 onClick={() => {
+                  firebase.logEvent('scroll_to_signin_buttons')
                   scroll(document.getElementById('signin'))
                 }}
               >
