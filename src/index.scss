@@ -110,13 +110,13 @@ ul {
 }
 
 #landing-root {
-  overflow: scroll;
   height: 100vh;
+  overflow: scroll;
   scroll-snap-type: y mandatory;
 
   main {
+    position: relative;
     height: 100vh;
     scroll-snap-align: start;
-    position: relative;
   }
 }
