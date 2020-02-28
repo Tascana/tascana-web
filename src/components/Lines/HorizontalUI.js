@@ -1,5 +1,5 @@
 import '../app.css'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, createRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useDrag } from 'react-use-gesture'
 import { animated, useSpring } from 'react-spring'
@@ -29,6 +29,12 @@ import styles from './styles.module.scss'
 const ANIMATION_TIME = 350
 const DATE_FORMAT = 'yyyy-MM-dd'
 
+function getHeight(ref) {
+  if (ref.current) {
+    return ref.current.scrollHeight + 40
+  }
+}
+
 function HorizontalUI({
   type,
   swipeableLine: swipeableLineFromProps,
@@ -44,7 +50,7 @@ function HorizontalUI({
   )
   const UI = useSelector(state => state.UI)
   const dispatch = useDispatch()
-  const tasksRef = useRef()
+  const tasksRef = createRef()
 
   const month = getMonth(date)
   const year = getYear(date)
@@ -94,12 +100,12 @@ function HorizontalUI({
 
   useEffect(() => {
     set({
-      height: tasksRef.current.scrollHeight + 40,
+      height: getHeight(tasksRef),
     })
 
     setTimeout(() => {
       set({
-        height: tasksRef.current.scrollHeight + 40,
+        height: getHeight(tasksRef),
       })
     }, ANIMATION_TIME)
   }, [date]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -182,7 +188,7 @@ function HorizontalUI({
     setTimeout(() => {
       set(() => {
         return {
-          height: tasksRef.current.scrollHeight + 40,
+          height: getHeight(tasksRef),
         }
       })
     }, 1)
