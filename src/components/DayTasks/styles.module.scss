@@ -97,6 +97,7 @@
 .Actions {
   display: flex;
   justify-content: flex-end;
+  margin: 0 8px;
   user-select: none;
 
   &.isLinkMode {
@@ -118,10 +119,7 @@
 
 .Links {
   display: flex;
-  margin-top: -3.5px;
-  margin-right: 4.5px;
-  margin-bottom: -3.5px;
-  margin-left: 4.5px;
+  margin: -3.5px;
   overflow-x: auto;
   overflow-y: hidden;
 

@@ -201,8 +201,8 @@
 }
 
 .ActionButton {
-  width: 41px;
-  height: 41px;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
   background-repeat: no-repeat;
   background-size: cover;
@@ -210,6 +210,8 @@
   transition: 0.2s ease;
 
   @media (min-width: 768px) {
+    width: 41px;
+    height: 41px;
     opacity: 0;
   }
 
@@ -217,16 +219,19 @@
     width: 24px;
     height: 24px;
   }
+
+  &.isDone {
+    opacity: 1;
+  }
 }
 
 .ContextButton {
   display: initial;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MSIgaGVpZ2h0PSI0MSIgdmlld0JveD0iMCAwIDQxIDQxIj4gICAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4gICAgICAgIDxwYXRoIGZpbGw9IiNGMkYyRjIiIGZpbGwtcnVsZT0ibm9uemVybyIgZD0iTTIwLjUuNWMxMS4wNDYgMCAyMCA4Ljk1NCAyMCAyMHMtOC45NTQgMjAtMjAgMjAtMjAtOC45NTQtMjAtMjAgOC45NTQtMjAgMjAtMjB6bTAgM2MtOS4zODkgMC0xNyA3LjYxMS0xNyAxN3M3LjYxMSAxNyAxNyAxNyAxNy03LjYxMSAxNy0xNy03LjYxMS0xNy0xNy0xN3oiIG9wYWNpdHk9Ii45MDIiLz4gICAgICAgIDxjaXJjbGUgY3g9IjIxIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgICAgIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgICAgIDxjaXJjbGUgY3g9IjEyIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgPC9nPjwvc3ZnPg==);
 
   @media (min-width: 768px) {
     display: none;
   }
-
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MSIgaGVpZ2h0PSI0MSIgdmlld0JveD0iMCAwIDQxIDQxIj4gICAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4gICAgICAgIDxwYXRoIGZpbGw9IiNGMkYyRjIiIGZpbGwtcnVsZT0ibm9uemVybyIgZD0iTTIwLjUuNWMxMS4wNDYgMCAyMCA4Ljk1NCAyMCAyMHMtOC45NTQgMjAtMjAgMjAtMjAtOC45NTQtMjAtMjAgOC45NTQtMjAgMjAtMjB6bTAgM2MtOS4zODkgMC0xNyA3LjYxMS0xNyAxN3M3LjYxMSAxNyAxNyAxNyAxNy03LjYxMSAxNy0xNy03LjYxMS0xNy0xNy0xN3oiIG9wYWNpdHk9Ii45MDIiLz4gICAgICAgIDxjaXJjbGUgY3g9IjIxIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgICAgIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgICAgIDxjaXJjbGUgY3g9IjEyIiBjeT0iMjEiIHI9IjMiIGZpbGw9IiNFREVERUQiLz4gICAgPC9nPjwvc3ZnPg==);
 
   &.isNotYearTask {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4gICAgPGcgZmlsbD0iI0JCQiIgZmlsbC1ydWxlPSJldmVub2RkIj4gICAgICAgIDxwYXRoIGZpbGwtcnVsZT0ibm9uemVybyIgZD0iTTEyIDBjNi42MjcgMCAxMiA1LjM3MyAxMiAxMnMtNS4zNzMgMTItMTIgMTJTMCAxOC42MjcgMCAxMiA1LjM3MyAwIDEyIDB6bTAgMS44QzYuMzY3IDEuOCAxLjggNi4zNjcgMS44IDEyYzAgNS42MzMgNC41NjcgMTAuMiAxMC4yIDEwLjIgNS42MzMgMCAxMC4yLTQuNTY3IDEwLjItMTAuMiAwLTUuNjMzLTQuNTY3LTEwLjItMTAuMi0xMC4yeiIgb3BhY2l0eT0iLjkwMiIvPiAgICAgICAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMiIvPiAgICAgICAgPGNpcmNsZSBjeD0iMTgiIGN5PSIxMiIgcj0iMiIvPiAgICAgICAgPGNpcmNsZSBjeD0iNiIgY3k9IjEyIiByPSIyIi8+ICAgIDwvZz48L3N2Zz4=);
