@@ -8,8 +8,7 @@ import { swipeSlice } from '../../redux/swipe'
 import classes from './styles.module.scss'
 
 const DatePickerTrigger = forwardRef(({ onClick }, ref) => {
-  const uiState = useSelector(state => state.UI)
-  const date = new Date(uiState.year, uiState.month - 1, uiState.day)
+  const date = useSelector(state => new Date(state.swipe.date))
 
   return (
     <button className={classes.DatePickerTrigger} onClick={onClick} ref={ref}>

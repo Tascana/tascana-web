@@ -198,7 +198,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
                     taskId: task.id,
                     position: {
                       x: e.clientX - 134 / 2,
-                      y: e.clientY - 137,
+                      y: e.clientY - 147,
                     },
                     handlers: {
                       onEdit: () => setEditMode(true),

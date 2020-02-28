@@ -112,8 +112,6 @@ function DayTask(props) {
     setEditMode(false)
   }
 
-  console.log(isLinkMode)
-
   return (
     <Draggable draggableId={id} index={index}>
       {(provided, snapshot) =>
