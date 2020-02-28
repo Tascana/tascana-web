@@ -73,7 +73,17 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
     setEditMode(true)
   }
 
+  function onDone() {
+    dispatch(completeTask(task.id))
+  }
+
+  function onRemove() {
+    dispatch(deleteTask(task.id))
+  }
+
   function onEdit() {
+    const prevText = task.text
+
     setEditMode(false)
     if (value) {
       dispatch(
@@ -84,15 +94,13 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
           },
         }),
       )
+    } else {
+      if (window.confirm('Do you want to delete a task?')) {
+        onRemove()
+      } else {
+        setValue(prevText)
+      }
     }
-  }
-
-  function onDone() {
-    dispatch(completeTask(task.id))
-  }
-
-  function onRemove() {
-    dispatch(deleteTask(task.id))
   }
 
   return (

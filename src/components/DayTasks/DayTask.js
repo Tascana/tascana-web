@@ -96,20 +96,25 @@ function DayTask(props) {
   }
 
   function onEdit(value) {
-    if (!value) {
-      onRemove()
-      setEditMode(false)
-      return
-    }
-    dispatch(
-      editTask({
-        id,
-        updatedFields: {
-          text: value,
-        },
-      }),
-    )
+    const prevText = textTask
+
     setEditMode(false)
+    if (value) {
+      dispatch(
+        editTask({
+          id,
+          updatedFields: {
+            text: value,
+          },
+        }),
+      )
+    } else {
+      if (window.confirm('Do you want to delete a task?')) {
+        onRemove()
+      } else {
+        editTextareaRef.current.value = prevText
+      }
+    }
   }
 
   return (
