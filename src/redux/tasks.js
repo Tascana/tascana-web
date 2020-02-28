@@ -49,10 +49,9 @@ const recalculateProgress = () => (dispatch, getState) => {
     session: {
       authUser: { uid },
     },
-    UI: { day, month, year },
   } = getState()
 
-  getTasksBy(tasks)({ day, month, year }).forEach((task, index, arr) => {
+  tasks.forEach((task, index, arr) => {
     if (!task.children.length) return
 
     const completedChildren = task.children

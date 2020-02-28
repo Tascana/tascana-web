@@ -151,6 +151,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
           <div className={styles.TaskText}>
             <textarea
               ref={textarea}
+              autoFocus
               spellCheck={false}
               maxLength={80}
               value={value}
