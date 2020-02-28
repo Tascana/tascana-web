@@ -1,6 +1,6 @@
 import React from 'react'
 import cx from 'classnames'
-import { YEAR, DAY } from '../../constants/task-types'
+import { YEAR, DAY, MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
 
@@ -26,6 +26,8 @@ function LinkButton({ task, onClick }) {
       type="button"
       className={cx(styles.ActionButton, styles.LinkButton, {
         [styles.isNotYearTask]: task.type !== YEAR,
+        [styles.isMonthTask]: task.type === MONTH,
+        [styles.isDone]: task.progress === 100,
       })}
       onClick={e => {
         e.stopPropagation()
