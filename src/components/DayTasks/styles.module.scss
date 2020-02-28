@@ -42,6 +42,7 @@
       position: relative;
       display: flex;
       align-items: center;
+      min-height: 40px;
       padding-top: 8px;
       padding-bottom: 8px;
       font-size: 18px;
@@ -54,6 +55,12 @@
       > div {
         bottom: unset;
       }
+
+      // p.isLinkMode {
+      //   overflow: hidden;
+      //   text-overflow: ellipsis;
+      //   white-space: nowrap;
+      // }
 
       &:hover button {
         pointer-events: initial;
@@ -82,17 +89,14 @@
 }
 
 .TaskMark {
-  min-width: 13px;
+  width: 16px;
+  min-width: 16px;
   margin-right: 6px;
 }
 
 .Actions {
-  position: absolute;
-  bottom: 12px;
   display: flex;
   justify-content: flex-end;
-  width: 100%;
-  padding: 0 9px;
   user-select: none;
 
   &.isLinkMode {
@@ -114,8 +118,13 @@
 
 .Links {
   display: flex;
+  margin-top: -3.5px;
+  margin-right: 4.5px;
+  margin-bottom: -3.5px;
+  margin-left: 4.5px;
   overflow-x: auto;
   overflow-y: hidden;
+
 
   li {
     width: 21px;

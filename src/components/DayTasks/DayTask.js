@@ -52,8 +52,12 @@ function DayTask(props) {
   const dispatch = useDispatch()
   const editTextareaRef = useRef(null)
   const actionsBar = useRef(null)
+
+  const tasks = useSelector(state => state.tasks)
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const isSort = useSelector(state => state.UI.sort)
+
+  const possibleParent = tasks.find(t => t.id === parentId)
 
   useOnClickOutside(actionsBar, () => {
     if (isLinkMode) {
@@ -108,6 +112,8 @@ function DayTask(props) {
     setEditMode(false)
   }
 
+  console.log(isLinkMode)
+
   return (
     <Draggable draggableId={id} index={index}>
       {(provided, snapshot) =>
@@ -121,10 +127,9 @@ function DayTask(props) {
             onClick={e => {
               e.stopPropagation()
 
-              if (isInEditMode || !firstParentId) return
-
               separateClicks(e, {
                 onClick: () => {
+                  if (isInEditMode || !firstParentId) return
                   dispatch(selectTreeAction({ todo: task }))
                 },
                 onDoubleClick: () => {
@@ -168,7 +173,7 @@ function DayTask(props) {
               }}
               id={id}
               done={progress === 100}
-              gradient={background}
+              gradient={possibleParent ? possibleParent.background : background}
             />{' '}
             {isInEditMode ? (
               <Textarea
@@ -180,7 +185,13 @@ function DayTask(props) {
               />
             ) : (
               <>
-                <p>{textTask}</p>
+                <p
+                  className={cx({
+                    [styles.isLinkMode]: isLinkMode,
+                  })}
+                >
+                  {textTask}
+                </p>
                 <div
                   ref={actionsBar}
                   className={cx(styles.Actions, {
