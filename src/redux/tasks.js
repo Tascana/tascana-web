@@ -17,10 +17,11 @@ export const tasksSlice = createSlice({
 
       const sortedLoadedTasks = loadedTasks
         .sort((a, b) => a.position - b.position)
-        .map(t => {
+        .map((t, index) => {
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
           if (!Array.isArray(t.parents)) task.parents = []
+          if (typeof task.index !== 'number') task.index = index
 
           return task
         })
@@ -149,9 +150,10 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   const [parentId] = selectedTree // Has selected parent
 
   const filteredTasks = getTasksBy(tasks)({ type, subtype, day, month, year })
-  const newTaskIndex = findLastIndex(filteredTasks)
+  const lastIndex = findLastIndex(filteredTasks)
+  const lastTask = filteredTasks[lastIndex]
 
-  const position = newTaskIndex + 1
+  const position = lastIndex + 1
 
   const id = nanoid()
   const createdAt = Date.now()
@@ -159,7 +161,11 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   const parent = getTaskById(tasks, parentId)
 
   const getBg = () => {
-    if (type === YEAR) return randomGrad(newTaskIndex + 1)
+    const index =
+      lastTask && typeof lastTask.index === 'number'
+        ? lastTask.index + 1
+        : lastIndex + 1
+    if (type === YEAR) return randomGrad(index)
 
     if (parent && type !== parent.type) return parent.background
 
@@ -173,6 +179,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const newTask = {
     id,
+    index: lastTask && lastTask.index ? lastTask.index + 1 : lastIndex + 1,
     background,
     progress: 0,
     parents: [],
