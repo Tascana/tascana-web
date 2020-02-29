@@ -11,6 +11,9 @@ function ContextMenuComponent() {
   const { taskId, position, handlers } = useSelector(
     state => state.UI.contextMenu,
   )
+  const tasks = useSelector(state => state.tasks)
+
+  const task = tasks.find(t => t.id === taskId)
 
   const onClose = () => {
     dispatch(
@@ -84,7 +87,7 @@ function ContextMenuComponent() {
             onClick={handlers.onDone}
             className={styles.Button}
           >
-            Done
+            {task.progress === 100 ? 'Undone' : 'Done'}
           </button>
           <div className={styles.Separator} />
         </>
