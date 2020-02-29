@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ui, { selectTreeAction } from '../../redux/UI'
+import { linkTasks } from '../../redux/tasks'
 import { getTasksBy } from '../../redux/utils'
 import { YEAR } from '../../constants/task-types'
 
@@ -26,6 +27,7 @@ function LinkParentBar({
       t => t.type === YEAR || t.firstParentId,
     ),
   )
+  const linkingTask = useSelector(state => state.UI.isLinking)
 
   return (
     <ul className={styles.Links}>
@@ -53,24 +55,45 @@ function LinkParentBar({
         <li
           key={t.id}
           role="button"
+          onDoubleClick={e => {
+            e.stopPropagation()
+            dispatch(linkTasks({ childId: linkingTask, parentId }))
+            setLinkMode(false)
+            dispatch(
+              selectTreeAction({
+                todo: null,
+              }),
+            )
+          }}
           onClick={e => {
             e.stopPropagation()
 
-            if (parentId === t.id) {
-              selectParentId(null)
+            if (!e.currentTarget.getAttribute('clicked')) {
+              if (parentId === t.id) {
+                selectParentId(null)
+                dispatch(
+                  selectTreeAction({
+                    todo: null,
+                  }),
+                )
+                return
+              }
+
+              selectParentId(t.id)
               dispatch(
                 selectTreeAction({
-                  todo: null,
+                  todo: t,
                 }),
               )
-              return
             }
+            e.currentTarget.setAttribute('clicked', true)
 
-            selectParentId(t.id)
-            dispatch(
-              selectTreeAction({
-                todo: t,
-              }),
+            setTimeout(
+              e => {
+                e.removeAttribute('clicked')
+              },
+              500,
+              e.currentTarget,
             )
           }}
           className={cx(styles.Parent, {

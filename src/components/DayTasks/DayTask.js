@@ -7,7 +7,6 @@ import TaskMark from './TaskMark'
 import Textarea from './Textarea'
 import { ActionsBar, LinkParentBar } from '../TaskBoxes'
 import { useOnClickOutside } from '../TaskBoxes/useOnClickOutside'
-import { separateClicks } from './separateClicks'
 import ui, { selectTreeAction } from '../../redux/UI'
 import {
   completeTask,
@@ -127,18 +126,26 @@ function DayTask(props) {
             {...provided.dragHandleProps}
             ref={provided.innerRef}
             role="button"
+            onDoubleClick={e => {
+              e.stopPropagation()
+              setEditMode(true)
+            }}
             onClick={e => {
               e.stopPropagation()
 
-              separateClicks(e, {
-                onClick: () => {
-                  if (isInEditMode || !firstParentId) return
-                  dispatch(selectTreeAction({ todo: task }))
+              if (!e.currentTarget.getAttribute('clicked')) {
+                if (isInEditMode || !firstParentId) return
+                dispatch(selectTreeAction({ todo: task }))
+              }
+              e.currentTarget.setAttribute('clicked', true)
+
+              setTimeout(
+                e => {
+                  e.removeAttribute('clicked')
                 },
-                onDoubleClick: () => {
-                  setEditMode(true)
-                },
-              })
+                500,
+                e.currentTarget,
+              )
             }}
             onContextMenu={e => {
               e.preventDefault()

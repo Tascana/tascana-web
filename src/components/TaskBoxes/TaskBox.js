@@ -4,7 +4,6 @@ import cx from 'classnames'
 import ProgressBar from './ProgressBar'
 import ActionsBar from './ActionsBar'
 import LinkParentBar from './LinkParentBar'
-import { separateClicks } from './separateClicks'
 import { useOnClickOutside } from './useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
 import {
@@ -139,12 +138,27 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
             }),
           )
         }}
+        onDoubleClick={e => {
+          e.stopPropagation()
+          onDoubleClick(e)
+        }}
         onClick={e => {
           e.stopPropagation()
 
           if (isEditMode) return
 
-          separateClicks(e, { onClick, onDoubleClick })
+          if (!e.currentTarget.getAttribute('clicked')) {
+            onClick(e)
+          }
+          e.currentTarget.setAttribute('clicked', true)
+
+          setTimeout(
+            e => {
+              e.removeAttribute('clicked')
+            },
+            500,
+            e.currentTarget,
+          )
         }}
         style={{
           backgroundImage:
