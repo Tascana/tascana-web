@@ -80,6 +80,18 @@ function ContextMenuComponent() {
           <div className={styles.Separator} />
         </>
       )}
+      {handlers.changeColor && (
+        <>
+          <button
+            type="button"
+            onClick={handlers.changeColor}
+            className={styles.Button}
+          >
+            Change color
+          </button>
+          <div className={styles.Separator} />
+        </>
+      )}
       {handlers.onDone && (
         <>
           <button
