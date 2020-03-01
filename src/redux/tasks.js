@@ -163,10 +163,10 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   const parent = getTaskById(tasks, parentId)
 
   const indexes = filteredTasks.map(t => t.incrementIndex)
-  const maxIndex = indexes.length ? Math.max(...indexes) : 0
+  const nextIndex = indexes.length ? Math.max(...indexes) + 1 : 0
 
   const getBg = () => {
-    if (type === YEAR) return randomGrad(maxIndex + 1)
+    if (type === YEAR) return randomGrad(nextIndex)
 
     if (parent && type !== parent.type) return parent.background
 
@@ -180,7 +180,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const newTask = {
     id,
-    incrementIndex: maxIndex + 1,
+    incrementIndex: nextIndex,
     background,
     progress: 0,
     parents: [],
