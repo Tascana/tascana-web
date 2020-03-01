@@ -55,10 +55,10 @@
 }
 
 .HeroImage {
-  display: block;
+  position: absolute;
   bottom: 10px;
   left: calc((100vw - 1340px) / 2);
-  position: absolute;
+  display: block;
   width: calc(100% - 100px);
   height: 75%;
   margin: 0 auto;
@@ -68,11 +68,11 @@
   background-size: contain;
 
   @media (max-width: 420px) {
-    background-image: url(./mobile-banner.png);
     position: absolute;
     bottom: -270px;
-    height: 600px;
     left: 50px;
+    height: 600px;
+    background-image: url(./mobile-banner.png);
   }
 }
 
@@ -80,19 +80,19 @@
   display: none;
 
   @media (max-width: 420px) {
+    position: absolute;
+    top: -330px;
+    left: 50px;
     display: block;
     width: calc(100% - 100px);
     height: 75%;
+    height: 600px;
     margin: 0 auto;
     background-image: url(../../assets/images/hero@3x.png);
+    background-image: url(./mobile-banner.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    background-image: url(./mobile-banner.png);
-    position: absolute;
-    top: -330px;
-    height: 600px;
-    left: 50px;
   }
 }
 
@@ -104,8 +104,8 @@
   text-align: center;
 
   @media (max-width: 420px) {
-    font-size: 36px;
     margin-top: 10vh;
+    font-size: 36px;
   }
 }
 
