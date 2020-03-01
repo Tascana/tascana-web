@@ -24,6 +24,8 @@ export const Video = ({ src }) => {
         height="auto"
         preload="metadata"
         muted="muted"
+        playsInline="playsInline"
+        autoPlay="autoPlay"
         ref={ref => (videoRef = ref)}
         className={styles.video}
       >
