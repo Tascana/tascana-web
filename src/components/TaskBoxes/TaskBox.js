@@ -199,7 +199,9 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
-        <ProgressBar progress={task.progress} />
+        {task.progress !== 100 && (
+          <ProgressBar type={task.type} progress={task.progress} />
+        )}
         <div
           className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
         >
