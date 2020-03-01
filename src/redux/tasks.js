@@ -18,10 +18,13 @@ export const tasksSlice = createSlice({
       const sortedLoadedTasks = loadedTasks
         .sort((a, b) => a.position - b.position)
         .map((t, index) => {
+          if (t.index) delete t.index
+
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
           if (!Array.isArray(t.parents)) task.parents = []
-          if (typeof task.index !== 'number') task.index = index
+          if (typeof task.incrementIndex !== 'number')
+            task.incrementIndex = index
 
           return task
         })
@@ -159,7 +162,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const parent = getTaskById(tasks, parentId)
 
-  const indexes = filteredTasks.map(t => t.index)
+  const indexes = filteredTasks.map(t => t.incrementIndex)
   const maxIndex = indexes.length ? Math.max(...indexes) : 0
 
   const getBg = () => {
@@ -177,7 +180,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const newTask = {
     id,
-    index: maxIndex + 1,
+    incrementIndex: maxIndex + 1,
     background,
     progress: 0,
     parents: [],
@@ -258,7 +261,9 @@ export const changeColor = taskId => async (dispatch, getState) => {
   const year = new Date(date).getFullYear()
   const task = getTaskById(tasks, taskId)
 
-  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(t => t.index)
+  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(
+    t => t.incrementIndex,
+  )
   const maxIndex = Math.max(...indexes)
   const newBg = randomGrad(maxIndex + 1)
 
@@ -266,7 +271,7 @@ export const changeColor = taskId => async (dispatch, getState) => {
     tasksSlice.actions.updateTask({
       id: taskId,
       updatedFields: {
-        index: maxIndex + 1,
+        incrementIndex: maxIndex + 1,
         background: newBg,
       },
     }),
