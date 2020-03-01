@@ -17,7 +17,7 @@ function ProgressBar({ progress, type }) {
           </clipPath>
         </defs>
 
-        <rect x="0" y="98.5" width={progress * 0.94 + 6} height="3" />
+        <rect x="0" y="98" width={progress * 0.94 + 6} height="3" />
       </svg>
     )
   }
