@@ -103,6 +103,25 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
     }
   }
 
+  function returnContextMenuHandlers() {
+    let handlerObj = {
+      onEdit: () => setEditMode(true),
+      onDone,
+      onRemove,
+    }
+
+    if (task.type === 'MONTH') {
+      return handlerObj
+    }
+
+    return {
+      changeColor: () => {
+        dispatch(changeColor(task.id))
+      },
+      ...handlerObj,
+    }
+  }
+
   return (
     <>
       <div
@@ -123,6 +142,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         onContextMenu={e => {
           e.preventDefault()
           e.stopPropagation()
+          console.log(task)
 
           dispatch(
             ui.actions.toggleContextMenu({
@@ -131,14 +151,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
                 x: e.clientX,
                 y: e.clientY,
               },
-              handlers: {
-                changeColor: () => {
-                  dispatch(changeColor(task.id))
-                },
-                onEdit: () => setEditMode(true),
-                onDone,
-                onRemove,
-              },
+              handlers: returnContextMenuHandlers(),
             }),
           )
         }}
