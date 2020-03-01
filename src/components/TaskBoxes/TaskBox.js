@@ -11,6 +11,7 @@ import {
   completeTask,
   deleteTask,
   editTask,
+  changeColor,
 } from '../../redux/tasks'
 import { getTasksBy } from '../../redux/utils'
 import { YEAR, MONTH } from '../../constants/task-types'
@@ -131,6 +132,9 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
                 y: e.clientY,
               },
               handlers: {
+                changeColor: () => {
+                  dispatch(changeColor(task.id))
+                },
                 onEdit: () => setEditMode(true),
                 onDone,
                 onRemove,
@@ -195,7 +199,9 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
-        <ProgressBar progress={task.progress} />
+        {task.progress !== 100 && (
+          <ProgressBar type={task.type} progress={task.progress} />
+        )}
         <div
           className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
         >

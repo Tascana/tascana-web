@@ -80,6 +80,18 @@ function ContextMenuComponent() {
           <div className={styles.Separator} />
         </>
       )}
+      {handlers.changeColor && (
+        <>
+          <button
+            type="button"
+            onClick={handlers.changeColor}
+            className={styles.Button}
+          >
+            Change color
+          </button>
+          <div className={styles.Separator} />
+        </>
+      )}
       {handlers.onDone && (
         <>
           <button
@@ -87,7 +99,7 @@ function ContextMenuComponent() {
             onClick={handlers.onDone}
             className={styles.Button}
           >
-            {task.progress === 100 ? 'Undone' : 'Done'}
+            {task && task.progress === 100 ? 'Undone' : 'Done'}
           </button>
           <div className={styles.Separator} />
         </>

@@ -18,10 +18,13 @@ export const tasksSlice = createSlice({
       const sortedLoadedTasks = loadedTasks
         .sort((a, b) => a.position - b.position)
         .map((t, index) => {
+          if (t.index) delete t.index
+
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
           if (!Array.isArray(t.parents)) task.parents = []
-          if (typeof task.index !== 'number') task.index = index
+          if (typeof task.incrementIndex !== 'number')
+            task.incrementIndex = index
 
           return task
         })
@@ -151,7 +154,6 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const filteredTasks = getTasksBy(tasks)({ type, subtype, day, month, year })
   const lastIndex = findLastIndex(filteredTasks)
-  const lastTask = filteredTasks[lastIndex]
 
   const position = lastIndex + 1
 
@@ -160,12 +162,11 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const parent = getTaskById(tasks, parentId)
 
+  const indexes = filteredTasks.map(t => t.incrementIndex)
+  const nextIndex = indexes.length ? Math.max(...indexes) + 1 : 0
+
   const getBg = () => {
-    const index =
-      lastTask && typeof lastTask.index === 'number'
-        ? lastTask.index + 1
-        : lastIndex + 1
-    if (type === YEAR) return randomGrad(index)
+    if (type === YEAR) return randomGrad(nextIndex)
 
     if (parent && type !== parent.type) return parent.background
 
@@ -179,7 +180,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const newTask = {
     id,
-    index: lastTask && lastTask.index ? lastTask.index + 1 : lastIndex + 1,
+    incrementIndex: nextIndex,
     background,
     progress: 0,
     parents: [],
@@ -246,6 +247,48 @@ export const linkTasks = ({ childId, parentId }) => async (
   firebase.editTask(getTaskById(getState().tasks, child.id), uid, child.id)
 
   dispatch(recalculateProgress())
+}
+
+export const changeColor = taskId => async (dispatch, getState) => {
+  const {
+    session: {
+      authUser: { uid },
+    },
+    tasks,
+    swipe: { date },
+  } = getState()
+
+  const year = new Date(date).getFullYear()
+  const task = getTaskById(tasks, taskId)
+
+  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(
+    t => t.incrementIndex,
+  )
+  const maxIndex = Math.max(...indexes)
+  const newBg = randomGrad(maxIndex + 1)
+
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id: taskId,
+      updatedFields: {
+        incrementIndex: maxIndex + 1,
+        background: newBg,
+      },
+    }),
+  )
+  firebase.editTask(getTaskById(getState().tasks, taskId), uid, taskId)
+
+  task.children.forEach(id => {
+    dispatch(
+      tasksSlice.actions.updateTask({
+        id,
+        updatedFields: {
+          background: newBg,
+        },
+      }),
+    )
+    firebase.editTask(getTaskById(getState().tasks, id), uid, id)
+  })
 }
 
 export const editTask = payload => async (dispatch, getState) => {
