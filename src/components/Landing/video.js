@@ -15,7 +15,7 @@ export const Video = ({ src }) => {
       }
     }
     playback()
-  }, [inView])
+  }, [inView, videoRef])
 
   return (
     <div ref={divRef}>
