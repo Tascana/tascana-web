@@ -57,9 +57,8 @@
 .HeroImage {
   position: absolute;
   bottom: 10px;
-  left: calc((100vw - 1340px) / 2);
   display: block;
-  width: calc(100% - 100px);
+  width: 100vw;
   height: 75%;
   margin: 0 auto;
   background-image: url(/static/media/hero@3x.31c05336.png);
@@ -68,6 +67,7 @@
   background-size: contain;
 
   @media (max-width: 420px) {
+    width: calc(100% - 100px);
     position: absolute;
     bottom: -270px;
     left: 50px;

@@ -105,7 +105,10 @@ function Landing() {
   useEffect(() => {
     firebase.logEvent('visit_the_landing_page')
     document.body.style.display = 'block'
-  }) // eslint-disable-line
+    document.getElementById('root').style.display = 'none'
+
+    return () => (document.getElementById('root').style.display = 'block')
+  }, []) // eslint-disable-line
 
   function handleSignIn(socialAuthUser) {
     return firebase.user(socialAuthUser.user.uid).set({
@@ -146,7 +149,7 @@ function Landing() {
 
   return ReactDOM.createPortal(
     <>
-      <main>
+      <main onScroll={console.log}>
         <section className={styles.Hero}>
           <header>
             <div>
