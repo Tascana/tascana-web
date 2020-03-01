@@ -41,6 +41,9 @@ function IndexPage() {
     document.getElementById('landing-root').style.display = 'none'
     document.body.style.height = 'initial'
     document.body.style.overflow = 'initial'
+
+    return () =>
+      (document.getElementById('landing-root').style.display = 'block')
   }, [])
 
   if (!authUser) return null

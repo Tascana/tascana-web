@@ -13,6 +13,10 @@
     content: '';
     background-image: url(../../assets/images/bitmap.png);
     opacity: 0.05;
+
+    @media (max-width: 420px) {
+      display: none;
+    }
   }
 
   svg {
@@ -26,6 +30,11 @@
     right: 60px;
     display: flex;
     flex-direction: column;
+
+    @media (max-width: 420px) {
+      top: 20px;
+      right: 20px;
+    }
 
     button {
       height: 34px;
@@ -47,13 +56,44 @@
 
 .HeroImage {
   display: block;
+  bottom: 10px;
+  left: calc((100vw - 1340px) / 2);
+  position: absolute;
   width: calc(100% - 100px);
   height: 75%;
   margin: 0 auto;
-  background-image: url(../../assets/images/hero@3x.png);
+  background-image: url(/static/media/hero@3x.31c05336.png);
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
+
+  @media (max-width: 420px) {
+    background-image: url(./mobile-banner.png);
+    position: absolute;
+    bottom: -270px;
+    height: 600px;
+    left: 50px;
+  }
+}
+
+.MobileHeroImage {
+  display: none;
+
+  @media (max-width: 420px) {
+    display: block;
+    width: calc(100% - 100px);
+    height: 75%;
+    margin: 0 auto;
+    background-image: url(../../assets/images/hero@3x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: url(./mobile-banner.png);
+    position: absolute;
+    top: -330px;
+    height: 600px;
+    left: 50px;
+  }
 }
 
 .Title {
@@ -62,6 +102,11 @@
   margin-bottom: 35px;
   font-size: 60px;
   text-align: center;
+
+  @media (max-width: 420px) {
+    font-size: 36px;
+    margin-top: 10vh;
+  }
 }
 
 .TaskBox {
@@ -268,6 +313,14 @@
   p {
     font-size: 16px;
     line-height: normal;
+
+    &:nth-child(n+1) {
+      margin-top: 5px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    margin-bottom: 20px;
   }
 }
 
@@ -279,6 +332,16 @@
 
   &:nth-child(4) {
     margin-bottom: 250px;
+
+    @media (max-width: 420px) {
+      margin-bottom: 0;
+    }
+  }
+
+  @media (max-width: 420px) {
+    flex-direction: column;
+    width: 100vw;
+    margin-bottom: 50px;
   }
 }
 
@@ -288,6 +351,10 @@
     font-size: 24px;
     font-weight: bold;
     line-height: 41px;
+
+    @media (max-width: 420px) {
+      display: none;
+    }
   }
 }
 
@@ -346,7 +413,7 @@
       height: 60px;
       font-size: 24px;
       line-height: 0.92;
-      border: 1px solid #000;
+      border: solid 0.8px #686868;
       border-radius: 12px;
       transition: 0.2s ease;
 
@@ -369,6 +436,10 @@
       }
     }
   }
+
+  @media (max-width: 420px) {
+    margin: 50px 0 100px 0;
+  }
 }
 
 .Note {
@@ -387,5 +458,33 @@
 
   &::-webkit-scrollbar {
     width: 0 !important;
+  }
+
+  @media (max-width: 420px) {
+    padding: 0;
+  }
+}
+
+.video {
+  width: 420px;
+
+  @media (max-width: 420px) {
+    width: 100%;
+  }
+}
+
+main {
+  overflow: hidden;
+}
+
+main section {
+  @media (max-width: 420px) {
+    padding: 0 15px;
+  }
+}
+
+.YearsSection {
+  @media (max-width: 420px) {
+    padding-top: 180px;
   }
 }

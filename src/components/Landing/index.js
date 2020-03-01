@@ -3,7 +3,6 @@ import { useSpring, animated } from 'react-spring'
 import ReactDOM from 'react-dom'
 import { useHistory } from 'react-router-dom'
 import { FirebaseContext } from '../Firebase'
-import { yearTasks, monthTasks, dayTasks, year, month } from './demoData'
 import styles from './styles.module.scss'
 import { YearGoalsDemo } from './YearGoalsDemo'
 import { MonthGoalsDemo } from './MonthGoalsDemo'
@@ -69,12 +68,9 @@ function Landing() {
   const [error, setError] = useState(null)
   const [heightAnimation, setHeightAnimation] = useState(true)
   const scrollRef = useRef(null)
-  const [yearTasksState, setYearTasksState] = useState(yearTasks)
-  const [monthTasksState, setMonthTasksState] = useState(monthTasks)
-  const [dayTasksState, setDayTasksState] = useState(dayTasks)
 
   const yearVisibility = useSpring({
-    padding: heightAnimation ? '25vh 0 20vh 0' : '0vh 0vh 0vh 0vh',
+    padding: heightAnimation ? '30vh 0 20vh 0' : '15vh 0vh 0vh 0vh',
   })
 
   const firebase = useContext(FirebaseContext)
@@ -108,32 +104,10 @@ function Landing() {
 
   useEffect(() => {
     firebase.logEvent('visit_the_landing_page')
-    document.body.style.height = '100vh'
-    document.body.style.overflow = 'hidden'
-  }, []) // eslint-disable-line
-
-  function createTasksFromLanding(userId) {
-    const allTasks = [
-      ...yearTasksState,
-      ...monthTasksState,
-      ...dayTasksState,
-    ].filter(t => !t.isDemo)
-
-    if (allTasks.length > 0) {
-      allTasks
-        .map(t => ({
-          ...t,
-          userId,
-        }))
-        .forEach(t => {
-          firebase.createTask(t, userId, t.id)
-        })
-    }
-  }
+    document.body.style.display = 'block'
+  }) // eslint-disable-line
 
   function handleSignIn(socialAuthUser) {
-    createTasksFromLanding(socialAuthUser.user.uid)
-
     return firebase.user(socialAuthUser.user.uid).set({
       username: socialAuthUser.user.displayName,
       email: socialAuthUser.user.email,
@@ -175,9 +149,6 @@ function Landing() {
       <main>
         <section className={styles.Hero}>
           <header>
-            <h1 className={styles.Title}>
-              Achieve your <nobr>long-term</nobr> goals with Tascana
-            </h1>
             <div>
               <button
                 type="button"
@@ -189,32 +160,20 @@ function Landing() {
                 Sign in
               </button>
             </div>
+            <h1 className={styles.Title}>
+              Achieve your <nobr>long-term</nobr> goals with Tascana
+            </h1>
           </header>
           <div className={styles.HeroImage} />
         </section>
       </main>
       <main className={styles.MoreInfoSection} ref={scrollRef}>
+        <div className={styles.MobileHeroImage} />
         <animated.div style={yearVisibility}>
-          <YearGoalsDemo
-            year={year}
-            yearTasksState={yearTasksState}
-            setMonthTasksState={setMonthTasksState}
-            setYearTasksState={setYearTasksState}
-          />
+          <YearGoalsDemo />
         </animated.div>
-        <MonthGoalsDemo
-          monthTasksState={monthTasksState}
-          setYearTasksState={setYearTasksState}
-          yearTasksState={yearTasksState}
-          setMonthTasksState={setMonthTasksState}
-          year={year}
-          month={month}
-        />
-        <DayGoalsDemo
-          dayTasksState={dayTasksState}
-          setDayTasksState={setDayTasksState}
-          monthTasksState={monthTasksState}
-        />
+        <MonthGoalsDemo />
+        <DayGoalsDemo />
         <section className={styles.SignIn} id="signin">
           <h2>Sign in</h2>
           <div className={styles.SignInButtons}>
