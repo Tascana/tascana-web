@@ -8,28 +8,6 @@ import { YearGoalsDemo } from './YearGoalsDemo'
 import { MonthGoalsDemo } from './MonthGoalsDemo'
 import { DayGoalsDemo } from './DayGoalsDemo'
 
-function scroll(element) {
-  let start = null
-  const target = element && element ? element.getBoundingClientRect().top : 0
-  const firstPos = window.pageYOffset || document.documentElement.scrollTop
-  let pos = 0
-
-  ;(function() {
-    var browser = ['ms', 'moz', 'webkit', 'o']
-
-    for (
-      let x = 0, length = browser.length;
-      x < length && !window.requestAnimationFrame;
-      x++
-    ) {
-      window.requestAnimationFrame =
-        window[browser[x] + 'RequestAnimationFrame']
-      window.cancelAnimationFrame =
-        window[browser[x] + 'CancelAnimationFrame'] ||
-        window[browser[x] + 'CancelRequestAnimationFrame']
-    }
-  })()
-
   function showAnimation(timestamp) {
     if (!start) {
       start = timestamp || new Date().getTime()
@@ -68,6 +46,7 @@ function Landing() {
   const [error, setError] = useState(null)
   const [heightAnimation, setHeightAnimation] = useState(true)
   const scrollRef = useRef(null)
+  const signInRef = useRef(null)
 
   const yearVisibility = useSpring({
     padding: heightAnimation ? '30vh 0 20vh 0' : '15vh 0vh 0vh 0vh',
@@ -147,6 +126,10 @@ function Landing() {
       })
   }
 
+  function scrollInto() {
+    signInRef.current.scrollIntoView()
+  }
+
   return ReactDOM.createPortal(
     <>
       <main onScroll={console.log}>
@@ -157,7 +140,7 @@ function Landing() {
                 type="button"
                 onClick={() => {
                   firebase.logEvent('scroll_to_signin_buttons')
-                  scroll(document.getElementById('signin'))
+                  scrollInto()
                 }}
               >
                 Sign in
@@ -177,7 +160,7 @@ function Landing() {
         </animated.div>
         <MonthGoalsDemo />
         <DayGoalsDemo />
-        <section className={styles.SignIn} id="signin">
+        <section ref={signInRef} className={styles.SignIn} id="signin">
           <h2>Sign in</h2>
           <div className={styles.SignInButtons}>
             <button
