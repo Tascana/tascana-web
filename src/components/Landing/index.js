@@ -2,6 +2,8 @@ import React, { useEffect, useContext, useState, useRef } from 'react'
 import { useSpring, animated } from 'react-spring'
 import ReactDOM from 'react-dom'
 import { useHistory } from 'react-router-dom'
+import { useInView } from 'react-intersection-observer'
+
 import { FirebaseContext } from '../Firebase'
 import styles from './styles.module.scss'
 import { YearGoalsDemo } from './YearGoalsDemo'
@@ -10,12 +12,12 @@ import { DayGoalsDemo } from './DayGoalsDemo'
 
 function Landing() {
   const [error, setError] = useState(null)
-  const [heightAnimation, setHeightAnimation] = useState(true)
-  const scrollRef = useRef(null)
+  const [heightAnimation, setHeightAnimation] = useState(false)
   const signInRef = useRef(null)
+  const [scrollRef, inViewScroll] = useInView()
 
   const yearVisibility = useSpring({
-    padding: heightAnimation ? '30vh 0 20vh 0' : '15vh 0vh 0vh 0vh',
+    padding: heightAnimation ? '15vh 0 0vh 0' : '30vh 0vh 20vh 0vh',
   })
 
   const firebase = useContext(FirebaseContext)
@@ -30,22 +32,12 @@ function Landing() {
   })
 
   useEffect(() => {
-    const eventListener = e => {
-      const top = e.srcElement.scrollTop
-
-      if (top === 0) {
-        setHeightAnimation(true)
-      } else {
-        setHeightAnimation(false)
-        refCurrent.removeEventListener('scroll', eventListener)
-      }
+    if (inViewScroll) {
+      setHeightAnimation(true)
+    } else if (!heightAnimation) {
+      setHeightAnimation(false)
     }
-    const refCurrent = scrollRef.current
-
-    refCurrent.addEventListener('scroll', eventListener)
-
-    return () => refCurrent.removeEventListener('scroll', eventListener)
-  }, [scrollRef])
+  }, [inViewScroll])
 
   useEffect(() => {
     firebase.logEvent('visit_the_landing_page')
@@ -77,20 +69,20 @@ function Landing() {
       })
   }
 
-  function signInWithFb() {
-    firebase.logEvent('clicked_signin_with_facebook')
-    firebase
-      .signInWithFacebook()
-      .then(handleSignIn)
-      .then(() => {
-        firebase.logEvent('signin')
-        setError(null)
-        history.push('/')
-      })
-      .catch(error => {
-        setError(error.message)
-      })
-  }
+  // function signInWithFb() {
+  //   firebase.logEvent('clicked_signin_with_facebook')
+  //   firebase
+  //     .signInWithFacebook()
+  //     .then(handleSignIn)
+  //     .then(() => {
+  //       firebase.logEvent('signin')
+  //       setError(null)
+  //       history.push('/')
+  //     })
+  //     .catch(error => {
+  //       setError(error.message)
+  //     })
+  // }
 
   function scrollInto() {
     signInRef.current.scrollIntoView()
@@ -119,12 +111,14 @@ function Landing() {
           <div className={styles.HeroImage} />
         </section>
       </main>
-      <main className={styles.MoreInfoSection} ref={scrollRef}>
+      <main className={styles.MoreInfoSection}>
         <div className={styles.MobileHeroImage} />
         <animated.div style={yearVisibility}>
           <YearGoalsDemo />
         </animated.div>
-        <MonthGoalsDemo />
+        <div ref={scrollRef}>
+          <MonthGoalsDemo />
+        </div>
         <DayGoalsDemo />
         <section ref={signInRef} className={styles.SignIn} id="signin">
           <h2>Sign in</h2>
@@ -138,7 +132,7 @@ function Landing() {
             >
               with Google
             </button>
-            <button
+            {/* <button
               className={styles.Facebook}
               type="button"
               onClick={() => {
@@ -146,7 +140,7 @@ function Landing() {
               }}
             >
               with Facebook
-            </button>
+            </button> */}
           </div>
           {error && <div>{error}</div>}
           <p className={styles.Note}>
