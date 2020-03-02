@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { format } from 'date-fns'
+import format from 'date-fns/format'
 
 const INITIAL_STATE = {
   date: format(new Date(), 'yyyy-MM-dd'),
-  swipeableLine: null,
   prevDate: null,
+  virtualDate: null,
+  virtualPrevDate: null,
 }
 
 export const swipeSlice = createSlice({
@@ -13,9 +14,8 @@ export const swipeSlice = createSlice({
   reducers: {
     swipe: (state, action) => {
       return {
-        prevDate: action.payload.prevDate,
-        date: action.payload.date,
-        swipeableLine: action.payload.swipeableLine,
+        ...state,
+        ...action.payload,
       }
     },
   },

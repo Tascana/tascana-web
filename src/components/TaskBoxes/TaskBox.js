@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ProgressBar from './ProgressBar'
-import { separateClicks } from './separateClicks'
+import ActionsBar from './ActionsBar'
+import LinkParentBar from './LinkParentBar'
 import { useOnClickOutside } from './useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
 import {
@@ -10,18 +11,12 @@ import {
   completeTask,
   deleteTask,
   editTask,
+  changeColor,
 } from '../../redux/tasks'
 import { getTasksBy } from '../../redux/utils'
 import { YEAR, MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
-
-import linkGrey from '../../assets/icons/link__grey.svg'
-import linkWhite from '../../assets/icons/link__white.svg'
-import smallAdd from '../../assets/icons/small-add.svg'
-import checkWhite from '../../assets/icons/check__white.svg'
-import checkGrey from '../../assets/icons/check__grey.svg'
-import checkDone from '../../assets/icons/done.svg'
 
 function TaskBox({ task, className = '', date, style = {}, ...rest }) {
   const [isEditMode, setEditMode_] = useState(false)
@@ -40,6 +35,11 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
     if (isLinkMode) {
       if (parentId) dispatch(linkTasks({ childId: isLinkMode, parentId }))
       setLinkMode(false)
+      dispatch(
+        selectTreeAction({
+          todo: null,
+        }),
+      )
     }
   })
 
@@ -73,7 +73,17 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
     setEditMode(true)
   }
 
+  function onDone() {
+    dispatch(completeTask(task.id))
+  }
+
+  function onRemove() {
+    dispatch(deleteTask(task.id))
+  }
+
   function onEdit() {
+    const prevText = task.text
+
     setEditMode(false)
     if (value) {
       dispatch(
@@ -84,105 +94,32 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
           },
         }),
       )
+    } else {
+      if (window.confirm('Do you want to delete a task?')) {
+        onRemove()
+      } else {
+        setValue(prevText)
+      }
     }
   }
 
-  function onDone() {
-    dispatch(completeTask(task.id))
-  }
-
-  function onRemove() {
-    dispatch(deleteTask(task.id))
-  }
-
-  function renderActions(task) {
-    if (!isLinkMode) {
-      return (
-        <>
-          {task.type !== YEAR && !task.firstParentId && (
-            <button
-              type="button"
-              onClick={e => {
-                e.stopPropagation()
-
-                setLinkMode(task.id)
-              }}
-              className={styles.ActionButton}
-            >
-              <img src={task.progress === 100 ? linkWhite : linkGrey} alt="" />
-            </button>
-          )}
-          {(task.firstParentId || task.type === YEAR) &&
-            !(task.progress === 100 && task.type === MONTH) && (
-              <button
-                type="button"
-                onClick={e => {
-                  e.stopPropagation()
-
-                  onDone()
-                }}
-                className={cx(styles.ActionButton, styles.DoneButton, {
-                  [styles.Done]: task.progress === 100,
-                })}
-              >
-                <img
-                  src={
-                    task.progress === 100
-                      ? checkDone
-                      : task.type === YEAR
-                      ? checkWhite
-                      : checkGrey
-                  }
-                  alt=""
-                />
-              </button>
-            )}
-        </>
-      )
+  function returnContextMenuHandlers() {
+    let handlerObj = {
+      onEdit: () => setEditMode(true),
+      onDone,
+      onRemove,
     }
 
-    return (
-      <ul className={styles.Links}>
-        {yearTasks.map(t => (
-          <li
-            key={t.id}
-            role="button"
-            onClick={e => {
-              e.stopPropagation()
+    if (task.type === 'MONTH') {
+      return handlerObj
+    }
 
-              if (parentId === t.id) {
-                selectParentId(null)
-                return
-              }
-
-              selectParentId(t.id)
-            }}
-            className={cx(styles.Parent, {
-              [styles.isSelected]: parentId === t.id,
-            })}
-            style={{ backgroundImage: t.background }}
-          ></li>
-        ))}
-        <li>
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation()
-              dispatch(
-                ui.actions.toggleAddMode({
-                  on: true,
-                  child: task.id,
-                  type: YEAR,
-                }),
-              )
-              setLinkMode(false)
-            }}
-          >
-            <img src={smallAdd} alt="" />
-          </button>
-        </li>
-      </ul>
-    )
+    return {
+      changeColor: () => {
+        dispatch(changeColor(task.id))
+      },
+      ...handlerObj,
+    }
   }
 
   return (
@@ -213,20 +150,31 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
                 x: e.clientX,
                 y: e.clientY,
               },
-              handlers: {
-                onEdit: () => setEditMode(true),
-                onDone,
-                onRemove,
-              },
+              handlers: returnContextMenuHandlers(),
             }),
           )
+        }}
+        onDoubleClick={e => {
+          e.stopPropagation()
+          onDoubleClick(e)
         }}
         onClick={e => {
           e.stopPropagation()
 
           if (isEditMode) return
 
-          separateClicks(e, { onClick, onDoubleClick })
+          if (!e.currentTarget.getAttribute('clicked')) {
+            onClick(e)
+          }
+          e.currentTarget.setAttribute('clicked', true)
+
+          setTimeout(
+            e => {
+              e.removeAttribute('clicked')
+            },
+            500,
+            e.currentTarget,
+          )
         }}
         style={{
           backgroundImage:
@@ -238,30 +186,71 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         {...rest}
       >
         {isEditMode ? (
-          <textarea
-            ref={textarea}
-            spellCheck={false}
-            maxLength={80}
-            value={value}
-            onChange={e => {
-              setValue(e.target.value)
-            }}
-            onKeyPress={e => {
-              e.stopPropagation()
-              if (e.key === 'Enter') onEdit()
-            }}
-            onBlur={() => {
-              onEdit()
-            }}
-          />
+          <div className={styles.TaskText}>
+            <textarea
+              ref={textarea}
+              autoFocus
+              spellCheck={false}
+              maxLength={80}
+              value={value}
+              onChange={e => {
+                setValue(e.target.value)
+              }}
+              onMouseDown={e => {
+                e.stopPropagation()
+              }}
+              onKeyPress={e => {
+                e.stopPropagation()
+                if (e.key === 'Enter') onEdit()
+              }}
+              onBlur={() => {
+                onEdit()
+              }}
+            />
+          </div>
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
-        <ProgressBar progress={task.progress} />
+        {task.progress !== 100 && (
+          <ProgressBar type={task.type} progress={task.progress} />
+        )}
         <div
           className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
         >
-          {renderActions(task)}
+          {isLinkMode ? (
+            <LinkParentBar
+              task={task}
+              date={date}
+              setLinkMode={setLinkMode}
+              parentId={parentId}
+              selectParentId={selectParentId}
+            />
+          ) : (
+            <ActionsBar
+              task={task}
+              onLink={() => {
+                setLinkMode(task.id)
+              }}
+              onDone={onDone}
+              onContextMenu={e => {
+                e.preventDefault()
+                dispatch(
+                  ui.actions.toggleContextMenu({
+                    taskId: task.id,
+                    position: {
+                      x: e.clientX - 134 / 2,
+                      y: e.clientY - 147,
+                    },
+                    handlers: {
+                      onEdit: () => setEditMode(true),
+                      onDone,
+                      onRemove,
+                    },
+                  }),
+                )
+              }}
+            />
+          )}
         </div>
       </div>
     </>

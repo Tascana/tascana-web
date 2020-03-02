@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import { getDaysInMonth } from 'date-fns'
-import range from 'lodash/range'
+import range from 'lodash.range'
 import months from '../../constants/months'
 import classes from './styles.module.scss'
 

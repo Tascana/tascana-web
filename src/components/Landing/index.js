@@ -1,76 +1,22 @@
-import React, { useEffect, useContext, useState } from 'react'
+import React, { useEffect, useContext, useState, useRef } from 'react'
+import { useSpring, animated } from 'react-spring'
+import ReactDOM from 'react-dom'
 import { useHistory } from 'react-router-dom'
-import nanoid from 'nanoid'
-import { format } from 'date-fns'
-import TaskBox from './TaskBox'
-import AddingTaskBox from './AddingTaskBox'
-import DayTaskBox from './DayTaskBox'
 import { FirebaseContext } from '../Firebase'
-import * as types from '../../constants/task-types'
-import { yearTasks, monthTasks, dayTasks, year, month } from './demoData'
 import styles from './styles.module.scss'
-
-function scroll(element) {
-  let start = null
-  const target = element && element ? element.getBoundingClientRect().top : 0
-  const firstPos = window.pageYOffset || document.documentElement.scrollTop
-  let pos = 0
-
-  ;(function() {
-    var browser = ['ms', 'moz', 'webkit', 'o']
-
-    for (
-      let x = 0, length = browser.length;
-      x < length && !window.requestAnimationFrame;
-      x++
-    ) {
-      window.requestAnimationFrame =
-        window[browser[x] + 'RequestAnimationFrame']
-      window.cancelAnimationFrame =
-        window[browser[x] + 'CancelAnimationFrame'] ||
-        window[browser[x] + 'CancelRequestAnimationFrame']
-    }
-  })()
-
-  function showAnimation(timestamp) {
-    if (!start) {
-      start = timestamp || new Date().getTime()
-    }
-
-    let elapsed = timestamp - start
-    let progress = elapsed / 600
-
-    const outQuad = function(n) {
-      return n * (2 - n)
-    }
-
-    let easeInPercentage = +outQuad(progress).toFixed(2)
-
-    pos =
-      target === 0
-        ? firstPos - firstPos * easeInPercentage
-        : firstPos + target * easeInPercentage
-
-    window.scrollTo(0, pos)
-
-    if (
-      (target !== 0 && pos >= firstPos + target) ||
-      (target === 0 && pos <= 0)
-    ) {
-      cancelAnimationFrame(start)
-      pos = 0
-    } else {
-      window.requestAnimationFrame(showAnimation)
-    }
-  }
-  window.requestAnimationFrame(showAnimation)
-}
+import { YearGoalsDemo } from './YearGoalsDemo'
+import { MonthGoalsDemo } from './MonthGoalsDemo'
+import { DayGoalsDemo } from './DayGoalsDemo'
 
 function Landing() {
   const [error, setError] = useState(null)
-  const [yearTasksState, setYearTasksState] = useState(yearTasks)
-  const [monthTasksState, setMonthTasksState] = useState(monthTasks)
-  const [dayTasksState, setDayTasksState] = useState(dayTasks)
+  const [heightAnimation, setHeightAnimation] = useState(true)
+  const scrollRef = useRef(null)
+  const signInRef = useRef(null)
+
+  const yearVisibility = useSpring({
+    padding: heightAnimation ? '30vh 0 20vh 0' : '15vh 0vh 0vh 0vh',
+  })
 
   const firebase = useContext(FirebaseContext)
   const history = useHistory()
@@ -83,28 +29,33 @@ function Landing() {
     })
   })
 
-  function createTasksFromLanding(userId) {
-    const allTasks = [
-      ...yearTasksState,
-      ...monthTasksState,
-      ...dayTasksState,
-    ].filter(t => !t.isDemo)
+  useEffect(() => {
+    const eventListener = e => {
+      const top = e.srcElement.scrollTop
 
-    if (allTasks.length > 0) {
-      allTasks
-        .map(t => ({
-          ...t,
-          userId,
-        }))
-        .forEach(t => {
-          firebase.createTask(t, userId, t.id)
-        })
+      if (top === 0) {
+        setHeightAnimation(true)
+      } else {
+        setHeightAnimation(false)
+        refCurrent.removeEventListener('scroll', eventListener)
+      }
     }
-  }
+    const refCurrent = scrollRef.current
+
+    refCurrent.addEventListener('scroll', eventListener)
+
+    return () => refCurrent.removeEventListener('scroll', eventListener)
+  }, [scrollRef])
+
+  useEffect(() => {
+    firebase.logEvent('visit_the_landing_page')
+    document.body.style.display = 'block'
+    document.getElementById('root').style.display = 'none'
+
+    return () => (document.getElementById('root').style.display = 'block')
+  }, []) // eslint-disable-line
 
   function handleSignIn(socialAuthUser) {
-    createTasksFromLanding(socialAuthUser.user.uid)
-
     return firebase.user(socialAuthUser.user.uid).set({
       username: socialAuthUser.user.displayName,
       email: socialAuthUser.user.email,
@@ -112,10 +63,12 @@ function Landing() {
   }
 
   function signInWithGoogle() {
+    firebase.logEvent('clicked_signin_with_google')
     firebase
       .signInWithGoogle()
       .then(handleSignIn)
       .then(user => {
+        firebase.logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -125,10 +78,12 @@ function Landing() {
   }
 
   function signInWithFb() {
+    firebase.logEvent('clicked_signin_with_facebook')
     firebase
       .signInWithFacebook()
       .then(handleSignIn)
       .then(() => {
+        firebase.logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -137,263 +92,70 @@ function Landing() {
       })
   }
 
-  return (
-    <main>
-      <section className={styles.Hero}>
-        <header>
-          <h1 className={styles.Title}>
-            Achieve your <nobr>long-term</nobr> goals with Tascana
-          </h1>
-          <div>
+  function scrollInto() {
+    signInRef.current.scrollIntoView()
+  }
+
+  return ReactDOM.createPortal(
+    <>
+      <main onScroll={console.log}>
+        <section className={styles.Hero}>
+          <header>
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  firebase.logEvent('scroll_to_signin_buttons')
+                  scrollInto()
+                }}
+              >
+                Sign in
+              </button>
+            </div>
+            <h1 className={styles.Title}>
+              Achieve your <nobr>long-term</nobr> goals with Tascana
+            </h1>
+          </header>
+          <div className={styles.HeroImage} />
+        </section>
+      </main>
+      <main className={styles.MoreInfoSection} ref={scrollRef}>
+        <div className={styles.MobileHeroImage} />
+        <animated.div style={yearVisibility}>
+          <YearGoalsDemo />
+        </animated.div>
+        <MonthGoalsDemo />
+        <DayGoalsDemo />
+        <section ref={signInRef} className={styles.SignIn} id="signin">
+          <h2>Sign in</h2>
+          <div className={styles.SignInButtons}>
             <button
+              className={styles.Google}
               type="button"
               onClick={() => {
-                scroll(document.getElementById('signin'))
+                signInWithGoogle()
               }}
             >
-              Sign in
+              with Google
+            </button>
+            <button
+              className={styles.Facebook}
+              type="button"
+              onClick={() => {
+                signInWithFb()
+              }}
+            >
+              with Facebook
             </button>
           </div>
-        </header>
-        <div className={styles.HeroImage} />
-      </section>
-      <section className={styles.Section}>
-        <div className={styles.DescriptionBlock}>
-          <h2>
-            Focus on&nbsp;<nobr>long-term</nobr> impact
-          </h2>
-          <p>
-            It&nbsp;is&nbsp;irrelevant what you achieve on&nbsp;the February, 2
-            along, though it&nbsp;is&nbsp;important what you achieve
-            in&nbsp;a&nbsp;year.
-            <br />
-            In&nbsp;Tascana we&nbsp;help you define what is&nbsp;truly important
-            in&nbsp;the next 12 months
+          {error && <div>{error}</div>}
+          <p className={styles.Note}>
+            reach us at <a href="mailto:team@tascana.com">team@tascana.com</a>
           </p>
-        </div>
-        <div className={styles.AbilityBlock}>
-          <h3>{year}'s goals</h3>
-          <div className={styles.Tasks}>
-            {yearTasksState.map((task, index, array) => {
-              function onEdit(value) {
-                setMonthTasksState(
-                  array.map(t => {
-                    if (t.id === task.id) {
-                      return {
-                        ...t,
-                        task: value,
-                        updatedAt: Date.now(),
-                      }
-                    }
-
-                    return t
-                  }),
-                )
-              }
-
-              if (index === 0) {
-                return (
-                  <div key={task.id} className={styles.TooltipWrapper}>
-                    <TaskBox defaultValue={task.task} onEdit={onEdit} />
-                    <div className={styles.Tooltip}>
-                      Double-click to edit the task or add one more
-                    </div>
-                  </div>
-                )
-              }
-
-              return (
-                <TaskBox
-                  key={task.id}
-                  defaultValue={task.task}
-                  onEdit={onEdit}
-                />
-              )
-            })}
-            {yearTasksState.length === 1 && (
-              <AddingTaskBox
-                onAdd={value => {
-                  const newId = nanoid(10)
-
-                  setYearTasksState([
-                    ...yearTasksState,
-                    {
-                      task: value,
-                      done: false,
-                      progress: 0,
-                      type: 'YEAR',
-                      subtype: null,
-                      id: newId,
-                      year,
-                      month: -1,
-                      day: -1,
-                      parentId: null,
-                      userId: '',
-                      createdAt: Date.now(),
-                      updatedAt: -1,
-                    },
-                  ])
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </section>
-      <section className={styles.Section}>
-        <div className={styles.DescriptionBlock}>
-          <h2>Make a&nbsp;plan</h2>
-          <p>
-            Reaching yearly goals might feel hard. But not if&nbsp;you break
-            them in&nbsp;a&nbsp;few monthly priorities.
-          </p>
-        </div>
-        <div className={styles.AbilityBlock}>
-          <h3>{format(new Date(), 'MMMM')}'s targets</h3>
-          <div className={styles.Tasks}>
-            {monthTasksState.map((task, index, array) => {
-              function onEdit(value) {
-                setYearTasksState(
-                  array.map(t => {
-                    if (t.id === task.id) {
-                      return {
-                        ...t,
-                        task: value,
-                        updatedAt: Date.now(),
-                      }
-                    }
-
-                    return t
-                  }),
-                )
-              }
-
-              if (index === 0) {
-                return (
-                  <div key={task.id} className={styles.TooltipWrapper}>
-                    <TaskBox defaultValue={task.task} onEdit={onEdit} />
-                    <div className={styles.Tooltip}>
-                      Can you break down your year's goal into a plan?
-                    </div>
-                  </div>
-                )
-              }
-
-              return (
-                <TaskBox
-                  key={task.id}
-                  defaultValue={task.task}
-                  onEdit={onEdit}
-                />
-              )
-            })}
-            {monthTasksState.length === 2 && (
-              <AddingTaskBox
-                disabled={!yearTasksState.find(t => !t.isDemo)}
-                onAdd={value => {
-                  const newId = nanoid(10)
-
-                  setMonthTasksState([
-                    ...monthTasksState,
-                    {
-                      task: value,
-                      done: false,
-                      progress: 0,
-                      type: 'MONTH',
-                      subtype: null,
-                      id: newId,
-                      year,
-                      month,
-                      day: -1,
-                      parentId: yearTasksState.find(t => !t.isDemo).id,
-                      userId: '',
-                      createdAt: Date.now(),
-                      updatedAt: -1,
-                    },
-                  ])
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </section>
-      <section className={styles.Section}>
-        <div className={styles.DescriptionBlock}>
-          <h2>Use natural breaks</h2>
-          <p>
-            You need time to&nbsp;focus and to&nbsp;stay productive. Context
-            switching has a&nbsp;cost. It&nbsp;is&nbsp;impossible
-            to&nbsp;predict how many minutes or&nbsp;hours a&nbsp;given task
-            will take, so&nbsp;why bother? We&nbsp;help you to&nbsp;group{' '}
-            <nobr>context-related</nobr> tasks together and put them in&nbsp;one
-            of&nbsp;3 available time slots: morning, afternoon, and evening.
-          </p>
-        </div>
-        <div className={styles.AbilityBlock}>
-          <h3>Today's plan</h3>
-          <div className={styles.Tasks}>
-            {[types.MORNING, types.AFTERNOON, types.EVENING].map((i, index) =>
-              index === 0 ? (
-                <div className={styles.TooltipWrapper} key={i}>
-                  <DayTaskBox
-                    tasks={dayTasksState}
-                    setTasks={setDayTasksState}
-                    subtype={i}
-                    disabled={!monthTasksState.find(t => !t.isDemo)}
-                    parentId={
-                      monthTasksState.find(t => !t.isDemo) &&
-                      monthTasksState.find(t => !t.isDemo).id
-                    }
-                  />
-                  <div className={styles.Tooltip}>
-                    Now, take your monthly target and add a tiny step for
-                    tomorrow
-                  </div>
-                </div>
-              ) : (
-                <DayTaskBox
-                  key={i}
-                  tasks={dayTasksState}
-                  setTasks={setDayTasksState}
-                  subtype={i}
-                  disabled={!monthTasksState.find(t => !t.isDemo)}
-                  parentId={
-                    monthTasksState.find(t => !t.isDemo) &&
-                    monthTasksState.find(t => !t.isDemo).id
-                  }
-                />
-              ),
-            )}
-          </div>
-        </div>
-      </section>
-      <section className={styles.SignIn} id="signin">
-        <h2>Sign in</h2>
-        <div className={styles.SignInButtons}>
-          <button
-            className={styles.Google}
-            type="button"
-            onClick={() => {
-              signInWithGoogle()
-            }}
-          >
-            with Google
-          </button>
-          <button
-            className={styles.Facebook}
-            type="button"
-            onClick={() => {
-              signInWithFb()
-            }}
-          >
-            with Facebook
-          </button>
-        </div>
-        {error && <div>{error}</div>}
-        <p className={styles.Note}>
-          Your tasks will be saved, unless you reload the page
-        </p>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>,
+    document.getElementById('landing-root'),
   )
 }
 

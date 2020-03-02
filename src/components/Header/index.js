@@ -42,13 +42,14 @@ function Header() {
             />
             {isOpenSettings ? (
               <div className={classes.settings}>
-                <button type="button">Settings</button>
+                {/* <button type="button">Settings</button>
                 <div className={classes.separator} />
                 <button type="button">About</button>
-                <div className={classes.separator} />
+                <div className={classes.separator} /> */}
                 <button
                   type="button"
                   onClick={() => {
+                    firebase.logEvent('logged_out')
                     firebase.signOut()
                   }}
                 >

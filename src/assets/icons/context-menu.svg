@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="41" height="41" viewBox="0 0 41 41">
+    <g fill="none" fill-rule="evenodd">
+        <path fill="#F2F2F2" fill-rule="nonzero" d="M20.5.5c11.046 0 20 8.954 20 20s-8.954 20-20 20-20-8.954-20-20 8.954-20 20-20zm0 3c-9.389 0-17 7.611-17 17s7.611 17 17 17 17-7.611 17-17-7.611-17-17-17z" opacity=".902"/>
+        <circle cx="21" cy="21" r="3" fill="#EDEDED"/>
+        <circle cx="30" cy="21" r="3" fill="#EDEDED"/>
+        <circle cx="12" cy="21" r="3" fill="#EDEDED"/>
+    </g>
+</svg>

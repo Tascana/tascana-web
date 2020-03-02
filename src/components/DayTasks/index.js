@@ -12,6 +12,8 @@ import { getTasksBy } from '../../redux/utils'
 
 import styles from './styles.module.scss'
 
+const GREY_BG = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+
 function DayTasks({ subtype, date, className, ...rest }) {
   const [isInAddMode, setAddMode] = useState(false)
   const addTextareaRef = useRef(null)
@@ -22,9 +24,12 @@ function DayTasks({ subtype, date, className, ...rest }) {
   const parentGradient = useSelector(({ UI, tasks }) => {
     const [parent] = UI.selectedTree
 
-    if (parent) return tasks.find(t => t.id === parent).background
+    if (parent)
+      return tasks.find(t => t.id === parent)
+        ? tasks.find(t => t.id === parent).background
+        : GREY_BG
 
-    return 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+    return GREY_BG
   })
 
   useEffect(() => {
@@ -66,7 +71,7 @@ function DayTasks({ subtype, date, className, ...rest }) {
             className={styles.TaskList}
           >
             {tasks.map((task, index) => (
-              <DayTask key={task.id} index={index} {...task} />
+              <DayTask key={task.id} index={index} date={date} {...task} />
             ))}
             {isInAddMode && (
               <li>

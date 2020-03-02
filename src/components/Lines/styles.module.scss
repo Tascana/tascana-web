@@ -4,7 +4,7 @@
   margin-top: 120px;
   overflow: hidden;
   touch-action: pan-y;
-  user-select: initial;
+  user-select: none;
 }
 
 .Line {
@@ -51,5 +51,13 @@
   div {
     width: 10%;
     height: 100%;
+  }
+
+  :nth-child(1) {
+    cursor: w-resize;
+  }
+  
+  :nth-child(2) {
+    cursor: e-resize;
   }
 }

@@ -134,8 +134,18 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
   getState,
 ) => {
   const {
-    UI: { selectedTree },
+    UI: { selectedTree, isLinking },
   } = getState()
+
+  if (isLinking && todo) {
+    dispatch(UISlice.actions.selectTree([todo.id, isLinking]))
+    return
+  }
+
+  if (todo === null) {
+    dispatch(UISlice.actions.selectTree([]))
+    return
+  }
 
   if (selectedTree.length && selectedTree.includes(todo.id) && !addedTaskId) {
     dispatch(UISlice.actions.selectTree([]))

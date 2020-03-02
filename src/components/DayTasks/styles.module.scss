@@ -38,9 +38,11 @@
   .TaskList {
     margin-top: 8px;
 
-    li {
+    > li {
+      position: relative;
       display: flex;
       align-items: center;
+      min-height: 40px;
       padding-top: 8px;
       padding-bottom: 8px;
       font-size: 18px;
@@ -50,8 +52,22 @@
       border-bottom: 1px solid #f5f5f5;
       outline: none;
 
+      > div {
+        bottom: unset;
+      }
+
+      // p.isLinkMode {
+      //   overflow: hidden;
+      //   text-overflow: ellipsis;
+      //   white-space: nowrap;
+      // }
+
+      &:hover button {
+        pointer-events: initial;
+        opacity: 1;
+      }
+
       &:last-child {
-        padding-bottom: 0;
         border-bottom: none;
       }
 
@@ -63,6 +79,7 @@
 }
 
 .DayTaskField {
+  width: 100%;
   min-height: 22px;
   line-height: 22px;
   resize: none;
@@ -72,6 +89,55 @@
 }
 
 .TaskMark {
-  min-width: 13px;
+  width: 16px;
+  min-width: 16px;
   margin-right: 6px;
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 8px;
+  user-select: none;
+
+  &.isLinkMode {
+    opacity: 1;
+  }
+
+  button {
+    margin-left: 7px;
+
+    &.isNotYearTask {
+      margin-left: 5px;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.Links {
+  display: flex;
+  margin: -3.5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+
+  li {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin: 3.5px;
+    border-radius: 50%;
+
+    &.Parent:hover {
+      border: 3px solid #ebebeb;
+    }
+
+    &.isSelected {
+      border: 3px solid #ebebeb;
+    }
+  }
 }

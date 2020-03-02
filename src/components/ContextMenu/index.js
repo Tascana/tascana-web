@@ -11,6 +11,9 @@ function ContextMenuComponent() {
   const { taskId, position, handlers } = useSelector(
     state => state.UI.contextMenu,
   )
+  const tasks = useSelector(state => state.tasks)
+
+  const task = tasks.find(t => t.id === taskId)
 
   const onClose = () => {
     dispatch(
@@ -77,6 +80,18 @@ function ContextMenuComponent() {
           <div className={styles.Separator} />
         </>
       )}
+      {handlers.changeColor && (
+        <>
+          <button
+            type="button"
+            onClick={handlers.changeColor}
+            className={styles.Button}
+          >
+            Change color
+          </button>
+          <div className={styles.Separator} />
+        </>
+      )}
       {handlers.onDone && (
         <>
           <button
@@ -84,7 +99,7 @@ function ContextMenuComponent() {
             onClick={handlers.onDone}
             className={styles.Button}
           >
-            Done
+            {task && task.progress === 100 ? 'Undone' : 'Done'}
           </button>
           <div className={styles.Separator} />
         </>

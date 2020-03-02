@@ -5,7 +5,7 @@
   z-index: 2;
   width: calc(100vw - 32px);
   max-width: 1080px;
-  touch-action: pan-y;
+  cursor: default;
   background-color: transparent;
 
   @media (max-width: 1144px) {
@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
 
-  @media (max-width: 420px) {
+  @media (max-width: 768px) {
     display: none;
   }
 }
@@ -49,15 +49,19 @@
   width: 100%;
   height: 64px;
 
-  @media (max-width: 420px) {
+  @media (max-width: 768px) {
     position: initial;
   }
 
   > div {
-    width: 630px;
-  
-    @media (max-width: 420px) {
+    width: 662px;
+
+    @media (max-width: 768px) {
       width: 100%;
+    }
+
+    @media (min-width: 1080px) {
+      width: 872px;
     }
   }
 }
@@ -77,7 +81,7 @@
   line-height: 24px;
   color: #000;
 
-  @media (max-width: 420px) {
+  @media (max-width: 768px) {
     display: none;
   }
 }
@@ -100,20 +104,24 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  width: 156px;
-  padding: 15px 25px;
+  width: 134px;
+  padding: 10px 0;
   background-color: #f8f8f8;
   border-radius: 19px;
 
   button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    height: 21px;
+    padding: 7px 0;
     font-family: 'Helvetica Now', sans-serif;
     font-size: 18px;
     font-weight: 700;
     line-height: 21px;
     color: #000;
     text-align: center;
+    transition: 0.2s ease;
 
     &:last-child {
       margin-bottom: 0;
@@ -123,7 +131,6 @@
   .separator {
     width: 100%;
     height: 1px;
-    margin: 7px 0;
     border-bottom: 1px solid #808080;
     opacity: 0.15;
   }

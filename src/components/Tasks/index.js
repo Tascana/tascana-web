@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash.isequal'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { useTransition, animated } from 'react-spring'
 import { DragDropContext } from 'react-beautiful-dnd'
@@ -26,6 +26,7 @@ const DraggableTaskBox = SortableElement(({ children }) => children)
 function Tasks({ type, id, date, title, current, onRowHide }) {
   const [hidden, setHidden] = useState(false)
   const isSort = useSelector(state => state.UI.sort)
+  const isLinking = useSelector(state => state.UI.isLinking)
   const allTasks = useSelector(state => state.tasks)
   let currentTasks = useSelector(state =>
     getTasksBy(state.tasks)({ type, ...date }),
@@ -107,6 +108,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
               <animated.div style={props} key={key}>
                 <DragDropContext
                   onBeforeDragStart={() => {
+                    if (isLinking) return
                     dispatch(setSort(true))
                   }}
                   onDragEnd={({ destination, source, draggableId }) => {
@@ -124,9 +126,10 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                       droppableTasks,
                       source.index,
                       destination.index,
-                    )
+                    ).filter(Boolean)
 
                     if (destination.droppableId === source.droppableId) {
+                      console.log(sorted)
                       dispatch(
                         sortTask(
                           sorted.map((t, index) => ({
@@ -217,7 +220,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
         </h1>
         <button
           type="button"
-          className={hidden && styles.hidden}
+          className={hidden ? styles.hidden : ''}
           onClick={e => {
             e.stopPropagation()
 
@@ -260,9 +263,21 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                 helperClass={styles.isSortable}
                 axis={'xy'}
                 onSortStart={() => {
+                  if (isLinking) return
                   dispatch(setSort(true))
+                  const el = document.querySelector('.' + styles.isSortable)
+                  if (el) {
+                    el.style.transform = el.style.transform + 'scale(1.05)'
+                  }
+                }}
+                onSortMove={e => {
+                  const el = document.querySelector('.' + styles.isSortable)
+                  if (el) {
+                    el.style.transform = el.style.transform + 'scale(1.05)'
+                  }
                 }}
                 onSortEnd={({ oldIndex, newIndex }) => {
+                  document.body.style.cursor = 'default'
                   const reorderedTasks = reorder(
                     currentTasks,
                     oldIndex,

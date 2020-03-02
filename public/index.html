@@ -1,13 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
+    <meta property="og:title" content="Tascana" />
+    <meta
+      property="og:description"
+      content="Achieve your long-term goals with Tascana"
+    />
+    <meta property="og:image" content="%PUBLIC_URL%/banner.jpg" />
+    <meta property="og:url" content="https://www.tascana.com/" />
+    <meta property="og:site_name" content="Tascana" />
+    <meta property="og:type" content="website" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Achieve your long-term goals with Tascana"
     />
     <link rel="apple-touch-icon" href="logo192.png" />
     <!--
@@ -28,8 +37,10 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="landing-root"></div>
     <div id="root"></div>
     <div id="context-menu-root"></div>
+    <div id="react-dnd-draggable"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

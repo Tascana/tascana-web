@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import nanoid from 'nanoid'
-import differenceBy from 'lodash/differenceBy'
-import findLastIndex from 'lodash/findLastIndex'
+import differenceBy from 'lodash.differenceby'
+import findLastIndex from 'lodash.findlastindex'
 import { randomGrad } from '../components/Tasks/utils'
 import { YEAR } from '../constants/task-types'
 import { selectTreeAction } from './UI'
@@ -17,10 +17,14 @@ export const tasksSlice = createSlice({
 
       const sortedLoadedTasks = loadedTasks
         .sort((a, b) => a.position - b.position)
-        .map(t => {
+        .map((t, index) => {
+          if (t.index) delete t.index
+
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
           if (!Array.isArray(t.parents)) task.parents = []
+          if (typeof task.incrementIndex !== 'number')
+            task.incrementIndex = index
 
           return task
         })
@@ -49,15 +53,14 @@ const recalculateProgress = () => (dispatch, getState) => {
     session: {
       authUser: { uid },
     },
-    UI: { day, month, year },
   } = getState()
 
-  getTasksBy(tasks)({ day, month, year }).forEach((task, index, arr) => {
+  tasks.forEach((task, index, arr) => {
     if (!task.children.length) return
 
     const completedChildren = task.children
       .map(id => getTaskById(arr, id))
-      .filter(t => t.progress === 100)
+      .filter(t => t && t.progress === 100)
 
     const progress = completedChildren.length
       ? (completedChildren.length / task.children.length) * 100
@@ -150,17 +153,20 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   const [parentId] = selectedTree // Has selected parent
 
   const filteredTasks = getTasksBy(tasks)({ type, subtype, day, month, year })
-  const newTaskIndex = findLastIndex(filteredTasks)
+  const lastIndex = findLastIndex(filteredTasks)
 
-  const position = newTaskIndex + 1
+  const position = lastIndex + 1
 
   const id = nanoid()
   const createdAt = Date.now()
 
   const parent = getTaskById(tasks, parentId)
 
+  const indexes = filteredTasks.map(t => t.incrementIndex)
+  const nextIndex = indexes.length ? Math.max(...indexes) + 1 : 0
+
   const getBg = () => {
-    if (type === YEAR) return randomGrad(newTaskIndex + 1)
+    if (type === YEAR) return randomGrad(nextIndex)
 
     if (parent && type !== parent.type) return parent.background
 
@@ -174,6 +180,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
 
   const newTask = {
     id,
+    incrementIndex: nextIndex,
     background,
     progress: 0,
     parents: [],
@@ -240,6 +247,48 @@ export const linkTasks = ({ childId, parentId }) => async (
   firebase.editTask(getTaskById(getState().tasks, child.id), uid, child.id)
 
   dispatch(recalculateProgress())
+}
+
+export const changeColor = taskId => async (dispatch, getState) => {
+  const {
+    session: {
+      authUser: { uid },
+    },
+    tasks,
+    swipe: { date },
+  } = getState()
+
+  const year = new Date(date).getFullYear()
+  const task = getTaskById(tasks, taskId)
+
+  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(
+    t => t.incrementIndex,
+  )
+  const maxIndex = Math.max(...indexes)
+  const newBg = randomGrad(maxIndex + 1)
+
+  dispatch(
+    tasksSlice.actions.updateTask({
+      id: taskId,
+      updatedFields: {
+        incrementIndex: maxIndex + 1,
+        background: newBg,
+      },
+    }),
+  )
+  firebase.editTask(getTaskById(getState().tasks, taskId), uid, taskId)
+
+  task.children.forEach(id => {
+    dispatch(
+      tasksSlice.actions.updateTask({
+        id,
+        updatedFields: {
+          background: newBg,
+        },
+      }),
+    )
+    firebase.editTask(getTaskById(getState().tasks, id), uid, id)
+  })
 }
 
 export const editTask = payload => async (dispatch, getState) => {
