@@ -142,7 +142,6 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         onContextMenu={e => {
           e.preventDefault()
           e.stopPropagation()
-          console.log(task)
 
           dispatch(
             ui.actions.toggleContextMenu({

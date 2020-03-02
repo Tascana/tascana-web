@@ -60,7 +60,7 @@ const recalculateProgress = () => (dispatch, getState) => {
 
     const completedChildren = task.children
       .map(id => getTaskById(arr, id))
-      .filter(t => t.progress === 100)
+      .filter(t => t && t.progress === 100)
 
     const progress = completedChildren.length
       ? (completedChildren.length / task.children.length) * 100
