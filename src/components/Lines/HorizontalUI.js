@@ -236,6 +236,7 @@ function HorizontalUI({
             x: spring.x,
             opacity: spring.opacity,
             willChange: 'transform, opacity',
+            position: 'fixed',
           }}
         >
           <Tasks
