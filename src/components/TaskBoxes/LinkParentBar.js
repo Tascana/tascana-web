@@ -65,7 +65,7 @@ function LinkParentBar({
               }),
             )
           }}
-          onClick={e => {
+          onMouseOver={e => {
             e.stopPropagation()
 
             if (!e.currentTarget.getAttribute('clicked')) {
@@ -86,15 +86,25 @@ function LinkParentBar({
                 }),
               )
             }
-            e.currentTarget.setAttribute('clicked', true)
+          }}
+          onClick={e => {
+            e.stopPropagation()
 
-            setTimeout(
-              e => {
-                e.removeAttribute('clicked')
-              },
-              500,
-              e.currentTarget,
-            )
+            e.currentTarget.setAttribute('clicked', true)
+          }}
+          onMouseOut={e => {
+            e.stopPropagation()
+
+            if (!e.currentTarget.getAttribute('clicked')) {
+              selectParentId(null)
+              dispatch(
+                selectTreeAction({
+                  todo: null,
+                }),
+              )
+              return
+            }
+            e.currentTarget.removeAttribute('clicked')
           }}
           className={cx(styles.Parent, {
             [styles.isSelected]: parentId === t.id,

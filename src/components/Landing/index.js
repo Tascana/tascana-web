@@ -37,7 +37,7 @@ function Landing() {
     } else if (!heightAnimation) {
       setHeightAnimation(false)
     }
-  }, [inViewScroll])
+  }, [heightAnimation, inViewScroll])
 
   useEffect(() => {
     firebase.logEvent('visit_the_landing_page')

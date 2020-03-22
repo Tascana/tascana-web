@@ -9,8 +9,8 @@ export const DayGoalsDemo = () => {
       <div className={styles.DescriptionBlock}>
         <h2>Use natural breaks</h2>
         <p>
-          It is impossible to predict how many minutes or
-          hours a given task will take, so why bother?
+          It is impossible to predict how many minutes or hours a given task
+          will take, so why bother?
         </p>
         <p>
           We help you to group context-related tasks together and put them in
