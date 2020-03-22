@@ -9,7 +9,7 @@ export const DayGoalsDemo = () => {
       <div className={styles.DescriptionBlock}>
         <h2>Use natural breaks</h2>
         <p>
-          Use natural breaks It is impossible to predict how many minutes or
+          It is impossible to predict how many minutes or
           hours a given task will take, so why bother?
         </p>
         <p>
