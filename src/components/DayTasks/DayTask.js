@@ -196,7 +196,7 @@ function DayTask(props) {
             ) : (
               <>
                 <p
-                  className={cx({
+                  className={cx(styles.DayTaskParagraph, {
                     [styles.isLinkMode]: isLinkMode,
                   })}
                 >
