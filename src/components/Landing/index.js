@@ -69,20 +69,20 @@ function Landing() {
       })
   }
 
-  // function signInWithFb() {
-  //   firebase.logEvent('clicked_signin_with_facebook')
-  //   firebase
-  //     .signInWithFacebook()
-  //     .then(handleSignIn)
-  //     .then(() => {
-  //       firebase.logEvent('signin')
-  //       setError(null)
-  //       history.push('/')
-  //     })
-  //     .catch(error => {
-  //       setError(error.message)
-  //     })
-  // }
+  function signInWithFb() {
+    firebase.logEvent('clicked_signin_with_facebook')
+    firebase
+      .signInWithFacebook()
+      .then(handleSignIn)
+      .then(() => {
+        firebase.logEvent('signin')
+        setError(null)
+        history.push('/')
+      })
+      .catch(error => {
+        setError(error.message)
+      })
+  }
 
   function scrollInto() {
     signInRef.current.scrollIntoView()
@@ -90,7 +90,7 @@ function Landing() {
 
   return ReactDOM.createPortal(
     <>
-      <main onScroll={console.log}>
+      <main>
         <section className={styles.Hero}>
           <header>
             <div>
@@ -132,7 +132,7 @@ function Landing() {
             >
               with Google
             </button>
-            {/* <button
+            <button
               className={styles.Facebook}
               type="button"
               onClick={() => {
@@ -140,7 +140,7 @@ function Landing() {
               }}
             >
               with Facebook
-            </button> */}
+            </button>
           </div>
           {error && <div>{error}</div>}
           <p className={styles.Note}>

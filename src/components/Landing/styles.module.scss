@@ -420,6 +420,10 @@
       border-radius: 12px;
       transition: 0.2s ease;
 
+      &.Facebook {
+        margin-left: 20px;
+      }
+
       &:hover {
         color: #fff;
 
