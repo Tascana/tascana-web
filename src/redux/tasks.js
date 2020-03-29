@@ -7,6 +7,7 @@ import { YEAR } from '../constants/task-types'
 import { selectTreeAction } from './UI'
 import { getTasksBy, getTaskById, getTree } from './utils'
 import { firebase } from '../index'
+import { getRandomBg } from '../constants/gradients'
 
 export const tasksSlice = createSlice({
   name: 'tasks',
@@ -166,7 +167,7 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   const nextIndex = indexes.length ? Math.max(...indexes) + 1 : 0
 
   const getBg = () => {
-    if (type === YEAR) return randomGrad(nextIndex)
+    if (type === YEAR) return getRandomBg(nextIndex)
 
     if (parent && type !== parent.type) return parent.background
 
