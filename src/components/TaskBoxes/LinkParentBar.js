@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import ui, { selectTreeAction } from '../../redux/UI'
@@ -20,6 +20,7 @@ function LinkParentBar({
   styles = wrapperStyles,
   hasAddParentButton = true,
 }) {
+  const [selected, setSelected] = useState(false)
   const dispatch = useDispatch()
 
   const possibleParents = useSelector(state =>
@@ -68,7 +69,7 @@ function LinkParentBar({
           onMouseOver={e => {
             e.stopPropagation()
 
-            if (!e.currentTarget.getAttribute('clicked')) {
+            if (!selected && !e.currentTarget.getAttribute('clicked')) {
               if (parentId === t.id) {
                 selectParentId(null)
                 dispatch(
@@ -89,13 +90,23 @@ function LinkParentBar({
           }}
           onClick={e => {
             e.stopPropagation()
+            setSelected(true)
+
+            if (selected) {
+              selectParentId(t.id)
+              dispatch(
+                selectTreeAction({
+                  todo: t,
+                }),
+              )
+            }
 
             e.currentTarget.setAttribute('clicked', true)
           }}
           onMouseOut={e => {
             e.stopPropagation()
 
-            if (!e.currentTarget.getAttribute('clicked')) {
+            if (!selected && !e.currentTarget.getAttribute('clicked')) {
               selectParentId(null)
               dispatch(
                 selectTreeAction({
