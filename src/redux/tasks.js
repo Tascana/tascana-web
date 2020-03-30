@@ -266,7 +266,7 @@ export const changeColor = taskId => async (dispatch, getState) => {
     t => t.incrementIndex,
   )
   const maxIndex = Math.max(...indexes)
-  const newBg = randomGrad(maxIndex + 1)
+  const newBg = getRandomBg()
 
   dispatch(
     tasksSlice.actions.updateTask({
