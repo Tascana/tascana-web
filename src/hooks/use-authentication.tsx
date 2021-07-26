@@ -1,16 +1,16 @@
 // @ts-nocheck
-import { useEffect, useContext } from 'react'
+import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { FirebaseContext } from '../components/Firebase'
 import session from '../redux/session'
+import { useAuth } from './use-auth'
 
 function useAuthentication() {
   const dispatch = useDispatch()
-  const firebase = useContext(FirebaseContext)
+  const auth = useAuth()
   const { setAuthUser } = session.actions
 
   useEffect(() => {
-    const listener = firebase.onAuthUserListener(
+    const listener = auth.onAuthUserListener(
       authUser => {
         localStorage.setItem('authUser', JSON.stringify(authUser))
         dispatch(setAuthUser(authUser))

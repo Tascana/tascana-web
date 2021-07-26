@@ -2,9 +2,9 @@
 import React, { useState, useContext, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import useOnClickOutside from 'use-onclickoutside'
-import { FirebaseContext } from '../Firebase'
 import classes from './styles.module.scss'
 import Datepicker from '../Datepicker'
+import { FirebaseContext } from '../../context/firebase'
 
 function Header() {
   const [isOpenSettings, toggleSettings] = useState(false)

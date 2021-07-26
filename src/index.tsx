@@ -5,17 +5,21 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import App from './components/App'
-import Firebase, { FirebaseContext } from './components/Firebase'
 import store from './redux/store'
 import * as serviceWorker from './serviceWorker'
+import { AuthProvider } from './context/auth'
+import { FirebaseProvider } from './context/firebase'
+import { Firebase } from './services/firebase'
 
 export const firebase = new Firebase()
 
 ReactDOM.render(
   <Provider store={store}>
-    <FirebaseContext.Provider value={firebase}>
-      <App />
-    </FirebaseContext.Provider>
+    <FirebaseProvider provider={firebase}>
+      <AuthProvider provider={firebase}>
+        <App />
+      </AuthProvider>
+    </FirebaseProvider>
   </Provider>,
   document.getElementById('root'),
 )

@@ -1,11 +1,10 @@
-// @ts-nocheck
 import React from 'react'
-import { useCheckAuth } from '../components/Session'
 import Header from '../components/Header'
 import Months from '../components/Months'
+import useAuthorization from '../hooks/use-authorization'
 
 function YearPage() {
-  useCheckAuth(authUser => !!authUser)
+  useAuthorization()
 
   return (
     <>

@@ -1,16 +1,16 @@
 // @ts-nocheck
-import { useEffect, useContext } from 'react'
+import { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { FirebaseContext } from '../components/Firebase'
+import { useAuth } from './use-auth'
 
-function useAuthorization(condition) {
+function useAuthorization() {
   const history = useHistory()
-  const firebase = useContext(FirebaseContext)
+  const auth = useAuth()
   const authUser = useSelector(state => state.session.authUser)
 
   useEffect(() => {
-    const listener = firebase.onAuthUserListener(
+    const listener = auth.onAuthUserListener(
       authUser => {
         if (!Boolean(authUser)) {
           history.push('/signin')
