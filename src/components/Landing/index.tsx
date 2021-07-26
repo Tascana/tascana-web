@@ -5,11 +5,16 @@ import ReactDOM from 'react-dom'
 import { useHistory } from 'react-router-dom'
 import { useInView } from 'react-intersection-observer'
 
-import { FirebaseContext } from '../Firebase'
 import styles from './styles.module.scss'
 import { YearGoalsDemo } from './YearGoalsDemo'
 import { MonthGoalsDemo } from './MonthGoalsDemo'
 import { DayGoalsDemo } from './DayGoalsDemo'
+import {
+  SignInButton,
+  SignInButtonProvider,
+  SignInButtonSize,
+} from '../SignInButton'
+import { FirebaseContext } from '../../context/firebase'
 
 function Landing() {
   const [error, setError] = useState(null)
@@ -95,15 +100,14 @@ function Landing() {
         <section className={styles.Hero}>
           <header>
             <div>
-              <button
-                type="button"
+              <SignInButton
+                text="Sign in"
                 onClick={() => {
                   firebase.logEvent('scroll_to_signin_buttons')
                   scrollInto()
                 }}
-              >
-                Sign in
-              </button>
+                size={SignInButtonSize.S}
+              />
             </div>
             <h1 className={styles.Title}>
               Achieve your <nobr>long-term</nobr> goals with Tascana
@@ -124,24 +128,16 @@ function Landing() {
         <section ref={signInRef} className={styles.SignIn} id="signin">
           <h2>Sign in</h2>
           <div className={styles.SignInButtons}>
-            <button
-              className={styles.Google}
-              type="button"
-              onClick={() => {
-                signInWithGoogle()
-              }}
-            >
-              with Google
-            </button>
-            <button
-              className={styles.Facebook}
-              type="button"
-              onClick={() => {
-                signInWithFb()
-              }}
-            >
-              with Facebook
-            </button>
+            <SignInButton
+              text="with Google"
+              onClick={signInWithGoogle}
+              provider={SignInButtonProvider.GOOGLE}
+            />
+            <SignInButton
+              text="with Facebook"
+              onClick={signInWithFb}
+              provider={SignInButtonProvider.FACEBOOK}
+            />
           </div>
           {error && <div>{error}</div>}
           <p className={styles.Note}>
