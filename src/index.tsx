@@ -10,13 +10,15 @@ import * as serviceWorker from './serviceWorker'
 import { AuthProvider } from './context/auth'
 import { FirebaseProvider } from './context/firebase'
 import { Firebase } from './services/firebase'
+import { FirebaseAuthService } from './services/auth'
 
 export const firebase = new Firebase()
+const authService = new FirebaseAuthService(firebase)
 
 ReactDOM.render(
   <Provider store={store}>
     <FirebaseProvider provider={firebase}>
-      <AuthProvider provider={firebase}>
+      <AuthProvider provider={authService}>
         <App />
       </AuthProvider>
     </FirebaseProvider>

@@ -9,18 +9,16 @@ import styles from './styles.module.scss'
 import { YearGoalsDemo } from './YearGoalsDemo'
 import { MonthGoalsDemo } from './MonthGoalsDemo'
 import { DayGoalsDemo } from './DayGoalsDemo'
-import {
-  SignInButton,
-  SignInButtonProvider,
-  SignInButtonSize,
-} from '../SignInButton'
+import { SignInButton, SignInButtonProvider, SignInButtonSize } from '../SignInButton'
 import { FirebaseContext } from '../../context/firebase'
+import { useAuth } from '../../hooks/use-auth'
 
 function Landing() {
   const [error, setError] = useState(null)
   const [heightAnimation, setHeightAnimation] = useState(false)
   const signInRef = useRef(null)
   const [scrollRef, inViewScroll] = useInView()
+  const [auth] = useAuth()
 
   const yearVisibility = useSpring({
     padding: heightAnimation ? '15vh 0 0vh 0' : '30vh 0vh 20vh 0vh',
@@ -53,18 +51,10 @@ function Landing() {
     return () => (document.getElementById('root').style.display = 'block')
   }, []) // eslint-disable-line
 
-  function handleSignIn(socialAuthUser) {
-    return firebase.user(socialAuthUser.user.uid).set({
-      username: socialAuthUser.user.displayName,
-      email: socialAuthUser.user.email,
-    })
-  }
-
   function signInWithGoogle() {
     firebase.logEvent('clicked_signin_with_google')
-    firebase
+    auth
       .signInWithGoogle()
-      .then(handleSignIn)
       .then(user => {
         firebase.logEvent('signin')
         setError(null)
@@ -77,9 +67,8 @@ function Landing() {
 
   function signInWithFb() {
     firebase.logEvent('clicked_signin_with_facebook')
-    firebase
+    auth
       .signInWithFacebook()
-      .then(handleSignIn)
       .then(() => {
         firebase.logEvent('signin')
         setError(null)

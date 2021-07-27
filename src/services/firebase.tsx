@@ -1,10 +1,7 @@
-import firebase from 'firebase'
+import * as firebase from 'firebase'
 import app from 'firebase/app'
-import 'firebase/auth'
 import 'firebase/database'
 import 'firebase/analytics'
-
-import { IAuthProvider } from '../context/auth'
 
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -17,63 +14,21 @@ const config = {
   measurementId: process.env.REACT_APP_MEASUREMENT_ID,
 }
 
-export class Firebase implements IAuthProvider {
-  private auth: firebase.auth.Auth
+export class Firebase {
+  private app: firebase.app.App
   private db: firebase.database.Database
   private analytics: firebase.analytics.Analytics
-  private googleProvider: firebase.auth.GoogleAuthProvider
-  private facebookProvider: firebase.auth.FacebookAuthProvider
 
   constructor() {
-    app.initializeApp(config)
+    this.app = app.initializeApp(config)
 
-    this.auth = app.auth()
     this.db = app.database()
     this.analytics = app.analytics()
-
-    this.googleProvider = new app.auth.GoogleAuthProvider()
-    this.facebookProvider = new app.auth.FacebookAuthProvider()
   }
 
-  signInWithGoogle = () => this.auth.signInWithPopup(this.googleProvider)
-
-  signInWithFacebook = () => this.auth.signInWithPopup(this.facebookProvider)
-
-  signOut = () => this.auth.signOut()
-
-  onAuthUserListener = (next: (...args: any[]) => any, fallback: () => any) =>
-    this.auth.onAuthStateChanged((authUser: firebase.User | null) => {
-      if (authUser == null) {
-        fallback()
-        return undefined
-      }
-
-      this.user(authUser.uid)
-        .once('value')
-        .then(snapshot => {
-          const dbUser = snapshot.val()
-
-          let providerData = {}
-
-          if (
-            authUser &&
-            Array.isArray(authUser.providerData) &&
-            authUser.providerData[0]
-          ) {
-            providerData = { ...authUser.providerData[0] }
-          }
-
-          const user = {
-            uid: authUser.uid,
-            email: authUser.email,
-            emailVerified: authUser.emailVerified,
-            providerData,
-            ...dbUser,
-          }
-
-          next(user)
-        })
-    })
+  getInstance(): firebase.app.App {
+    return this.app
+  }
 
   user(uid: string) {
     return this.db.ref(`users/${uid}`)

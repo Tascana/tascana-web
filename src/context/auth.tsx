@@ -1,5 +1,6 @@
 import React, { createContext, FC, ReactNode } from 'react'
 import firebase from 'firebase'
+import { User } from '../entities/user'
 
 interface AuthProviderProps {
   provider: IAuthProvider
@@ -7,12 +8,12 @@ interface AuthProviderProps {
 }
 
 export interface IAuthProvider {
-  signInWithGoogle: () => Promise<firebase.auth.UserCredential>
-  signInWithFacebook: () => Promise<firebase.auth.UserCredential>
+  signInWithGoogle: () => Promise<User>
+  signInWithFacebook: () => Promise<User>
   signOut: () => Promise<void>
-  onAuthUserListener: (
-    next: (user: firebase.User) => void,
-    fallback: () => void,
+  onAuthStateChanged: (
+    onSignIn: (user: User) => void,
+    onSignOut: () => void,
   ) => firebase.Unsubscribe
 }
 

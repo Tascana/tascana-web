@@ -1,10 +1,10 @@
 import React from 'react'
 import Header from '../components/Header'
 import Months from '../components/Months'
-import useAuthorization from '../hooks/use-authorization'
+import { useAuthStateChange } from '../hooks/use-auth-state-change'
 
 function YearPage() {
-  useAuthorization()
+  useAuthStateChange()
 
   return (
     <>

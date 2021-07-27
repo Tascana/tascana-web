@@ -5,15 +5,18 @@ import Lines from '../components/Lines'
 import Header from '../components/Header'
 import { FirebaseContext } from '../context/firebase'
 import ContextMenu from '../components/ContextMenu'
-import useAuthorization from '../hooks/use-authorization'
 import { tasksSlice } from '../redux/tasks'
+import { useAuthStateChange } from '../hooks/use-auth-state-change'
+import { useAuth } from '../hooks/use-auth'
 
 function IndexPage() {
+  useAuthStateChange()
+
   const firebase = useContext(FirebaseContext)
   const dispatch = useDispatch()
   const isSort = useSelector(state => state.UI.sort)
 
-  const authUser = useAuthorization()
+  const [, authUser] = useAuth()
 
   useEffect(() => {
     if (authUser) {

@@ -5,11 +5,13 @@ import useOnClickOutside from 'use-onclickoutside'
 import classes from './styles.module.scss'
 import Datepicker from '../Datepicker'
 import { FirebaseContext } from '../../context/firebase'
+import { useAuth } from '../../hooks/use-auth'
 
 function Header() {
   const [isOpenSettings, toggleSettings] = useState(false)
   const user = useSelector(state => state.session.authUser)
   const firebase = useContext(FirebaseContext)
+  const [auth] = useAuth()
   const ref = useRef(null)
 
   useOnClickOutside(ref, () => toggleSettings(false))
@@ -34,11 +36,11 @@ function Header() {
               else toggleSettings(true)
             }}
           >
-            <p className={classes.username}>{user.username}</p>
+            <p className={classes.username}>{user.name}</p>
             <div
               className={classes.avatar}
               style={{
-                backgroundImage: `url(${user.providerData.photoURL})`,
+                backgroundImage: `url(${user.avatar})`,
               }}
             />
             {isOpenSettings ? (
@@ -51,7 +53,7 @@ function Header() {
                   type="button"
                   onClick={() => {
                     firebase.logEvent('logged_out')
-                    firebase.signOut()
+                    auth.signOut()
                   }}
                 >
                   Log Out
