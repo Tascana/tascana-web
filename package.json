@@ -24,7 +24,7 @@
     "react-intersection-visible-hook": "^1.4.2",
     "react-redux": "^7.1.3",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.2.0",
+    "react-scripts": "4.0.3",
     "react-shortcuts-hook": "^1.1.0",
     "react-sortable-hoc": "^1.7.1",
     "react-spring": "^9.0.0-beta.34",
@@ -82,7 +82,8 @@
     "trailingComma": "all",
     "jsxBracketSameLine": false,
     "arrowParens": "avoid",
-    "endOfLine": "auto"
+    "endOfLine": "auto",
+    "proseWrap": "never"
   },
   "husky": {
     "hooks": {

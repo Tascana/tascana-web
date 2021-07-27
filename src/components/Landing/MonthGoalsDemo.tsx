@@ -11,8 +11,8 @@ export const MonthGoalsDemo = () => {
       <div className={styles.DescriptionBlock}>
         <h2>Make a&nbsp;plan</h2>
         <p>
-          Reaching yearly goals might feel hard. But not if&nbsp;you break them
-          in&nbsp;a&nbsp;few monthly priorities.
+          Reaching yearly goals might feel hard. But not if&nbsp;you break them in&nbsp;a&nbsp;few
+          monthly priorities.
         </p>
       </div>
       <div className={styles.AbilityBlock}>

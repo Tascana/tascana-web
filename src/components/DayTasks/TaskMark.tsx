@@ -24,14 +24,7 @@ function TaskMark({ id, done, gradient, onClick }) {
       className={styles.TaskMark}
     >
       <defs>
-        <linearGradient
-          id={id}
-          gradientUnits="userSpaceOnUse"
-          x1="8"
-          y1="0"
-          x2="8"
-          y2="16"
-        >
+        <linearGradient id={id} gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="8" y2="16">
           <stop offset="0%" stopColor={first} />
           <stop offset="100%" stopColor={last} />
         </linearGradient>

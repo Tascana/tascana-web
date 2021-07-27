@@ -9,9 +9,7 @@ import styles from './styles.module.scss'
 
 function ContextMenuComponent() {
   const dispatch = useDispatch()
-  const { taskId, position, handlers } = useSelector(
-    state => state.UI.contextMenu,
-  )
+  const { taskId, position, handlers } = useSelector(state => state.UI.contextMenu)
   const tasks = useSelector(state => state.tasks)
 
   const task = tasks.find(t => t.id === taskId)
@@ -60,22 +58,14 @@ function ContextMenuComponent() {
     >
       {handlers.onCollapse && (
         <>
-          <button
-            type="button"
-            onClick={handlers.onCollapse}
-            className={styles.Button}
-          >
+          <button type="button" onClick={handlers.onCollapse} className={styles.Button}>
             Collapse
           </button>
         </>
       )}
       {handlers.onEdit && (
         <>
-          <button
-            type="button"
-            onClick={handlers.onEdit}
-            className={styles.Button}
-          >
+          <button type="button" onClick={handlers.onEdit} className={styles.Button}>
             Edit
           </button>
           <div className={styles.Separator} />
@@ -83,11 +73,7 @@ function ContextMenuComponent() {
       )}
       {handlers.changeColor && (
         <>
-          <button
-            type="button"
-            onClick={handlers.changeColor}
-            className={styles.Button}
-          >
+          <button type="button" onClick={handlers.changeColor} className={styles.Button}>
             Change color
           </button>
           <div className={styles.Separator} />
@@ -95,11 +81,7 @@ function ContextMenuComponent() {
       )}
       {handlers.onDone && (
         <>
-          <button
-            type="button"
-            onClick={handlers.onDone}
-            className={styles.Button}
-          >
+          <button type="button" onClick={handlers.onDone} className={styles.Button}>
             {task && task.progress === 100 ? 'Undone' : 'Done'}
           </button>
           <div className={styles.Separator} />

@@ -7,13 +7,7 @@ import ActionsBar from './ActionsBar'
 import LinkParentBar from './LinkParentBar'
 import { useOnClickOutside } from './useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
-import {
-  linkTasks,
-  completeTask,
-  deleteTask,
-  editTask,
-  changeColor,
-} from '../../redux/tasks'
+import { linkTasks, completeTask, deleteTask, editTask, changeColor } from '../../redux/tasks'
 import { getTasksBy } from '../../redux/utils'
 import { YEAR, MONTH } from '../../constants/task-types'
 
@@ -28,9 +22,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
   const taskBox = useRef(null)
   const dispatch = useDispatch()
 
-  const yearTasks = useSelector(state =>
-    getTasksBy(state.tasks)({ type: YEAR, ...date }),
-  )
+  const yearTasks = useSelector(state => getTasksBy(state.tasks)({ type: YEAR, ...date }))
 
   useOnClickOutside(taskBox, () => {
     if (isLinkMode) {
@@ -212,12 +204,8 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
         ) : (
           <div className={styles.TaskText}>{value}</div>
         )}
-        {task.progress !== 100 && (
-          <ProgressBar type={task.type} progress={task.progress} />
-        )}
-        <div
-          className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}
-        >
+        {task.progress !== 100 && <ProgressBar type={task.type} progress={task.progress} />}
+        <div className={cx(styles.Actions, { [styles.isLinkMode]: isLinkMode })}>
           {isLinkMode ? (
             <LinkParentBar
               task={task}

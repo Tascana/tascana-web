@@ -9,6 +9,7 @@ export const reorder = (list, startIndex, endIndex) => {
   return result
 }
 
+// eslint-disable-next-line
 export const getTodosByType = (
   store,
   type,
@@ -21,13 +22,11 @@ export const getTodosByType = (
     case 'YEAR':
       return todos.filter(todo => todo.type === type && todo.year === year)
     case 'MONTH':
-      return todos.filter(
-        todo =>
-          todo.type === type && todo.year === year && todo.month === month,
-      )
+      return todos.filter(todo => todo.type === type && todo.year === year && todo.month === month)
     case 'DAY':
       return todos.filter(
         todo =>
+          // eslint-disable-next-line
           todo.type === type &&
           todo.year === year &&
           todo.month === month &&
@@ -53,8 +52,7 @@ export function getTodos(state, type, id) {
 
 export function randomGrad(i) {
   const deg = Math.round(20 * i + 210 - 30 / Math.trunc((i + 18) / 18)) % 360
-  const deg2 =
-    Math.round(20 * i + 210 + 20 - 30 / Math.trunc((i + 18) / 18)) % 360
+  const deg2 = Math.round(20 * i + 210 + 20 - 30 / Math.trunc((i + 18) / 18)) % 360
   return (
     'linear-gradient(330deg, rgb(' +
     rainbow[deg * 4 + 0] +

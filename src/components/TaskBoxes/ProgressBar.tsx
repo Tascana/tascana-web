@@ -22,12 +22,7 @@ function ProgressBar({ progress, type }) {
       </svg>
     )
   }
-  return (
-    <hr
-      className={styles.ProgressBar}
-      style={{ width: progress * 0.94 + 6 + '%' }}
-    />
-  )
+  return <hr className={styles.ProgressBar} style={{ width: progress * 0.94 + 6 + '%' }} />
 }
 
 export default ProgressBar

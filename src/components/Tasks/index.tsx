@@ -29,9 +29,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
   const isSort = useSelector(state => state.UI.sort)
   const isLinking = useSelector(state => state.UI.isLinking)
   const allTasks = useSelector(state => state.tasks)
-  let currentTasks = useSelector(state =>
-    getTasksBy(state.tasks)({ type, ...date }),
-  )
+  let currentTasks = useSelector(state => getTasksBy(state.tasks)({ type, ...date }))
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
@@ -91,12 +89,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
           </h1>
           {hidden && (
             <button type="button" data-circled="true">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                 <path d="M10 17l5-5-5-5v10z" />
                 <path d="M0 24V0h24v24H0z" fill="none" />
               </svg>
@@ -123,11 +116,9 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                       ...date,
                     })
 
-                    const sorted = reorder(
-                      droppableTasks,
-                      source.index,
-                      destination.index,
-                    ).filter(Boolean)
+                    const sorted = reorder(droppableTasks, source.index, destination.index)
+                      .filter(destination.index)
+                      .filter(Boolean)
 
                     if (destination.droppableId === source.droppableId) {
                       console.log(sorted)
@@ -140,9 +131,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                         ),
                       )
                     } else {
-                      const draggableItem = allTasks.find(
-                        t => t.id === draggableId,
-                      )
+                      const draggableItem = allTasks.find(t => t.id === draggableId)
                       const tasks = droppableTasks.slice()
 
                       tasks.splice(destination.index, 0, draggableItem)
@@ -159,16 +148,14 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                     }
                   }}
                 >
-                  {[types.MORNING, types.AFTERNOON, types.EVENING].map(
-                    subtype => (
-                      <DayTasks
-                        key={subtype}
-                        subtype={subtype}
-                        date={date}
-                        className={styles.DayTaskBox}
-                      />
-                    ),
-                  )}
+                  {[types.MORNING, types.AFTERNOON, types.EVENING].map(subtype => (
+                    <DayTasks
+                      key={subtype}
+                      subtype={subtype}
+                      date={date}
+                      className={styles.DayTaskBox}
+                    />
+                  ))}
                 </DragDropContext>
               </animated.div>
             ),
@@ -243,12 +230,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
         </button>
         {hidden && (
           <button type="button" data-circled="true">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 0 24 24"
-              width="24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
               <path d="M10 17l5-5-5-5v10z" />
               <path d="M0 24V0h24v24H0z" fill="none" />
             </svg>
@@ -279,11 +261,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                 }}
                 onSortEnd={({ oldIndex, newIndex }) => {
                   document.body.style.cursor = 'default'
-                  const reorderedTasks = reorder(
-                    currentTasks,
-                    oldIndex,
-                    newIndex,
-                  )
+                  const reorderedTasks = reorder(currentTasks, oldIndex, newIndex)
 
                   dispatch(
                     sortTask(
@@ -304,8 +282,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                       className={cx(styles.TaskBox, {
                         [styles.BoxSelected]: selectedTree.includes(item.id),
                         [styles.BoxUnselected]:
-                          selectedTree.length > 0 &&
-                          !selectedTree.includes(item.id),
+                          selectedTree.length > 0 && !selectedTree.includes(item.id),
                         [styles.BoxSorted]: isSort,
                       })}
                       task={item}

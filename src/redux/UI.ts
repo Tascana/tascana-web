@@ -50,11 +50,7 @@ const UISlice = createSlice({
             swipeableLine: 'YEAR',
           }
         case 'MONTH': {
-          let date = new Date(
-            state.year,
-            state.month - 1 + action.payload.id,
-            state.day,
-          )
+          let date = new Date(state.year, state.month - 1 + action.payload.id, state.day)
           date =
             +date.getMonth() + 1 !== state.month + action.payload.id &&
             +date.getMonth() !== 0 &&
@@ -73,11 +69,7 @@ const UISlice = createSlice({
           }
         }
         case 'DAY': {
-          const date = new Date(
-            state.year,
-            state.month - 1,
-            state.day + action.payload.id,
-          )
+          const date = new Date(state.year, state.month - 1, state.day + action.payload.id)
           return {
             ...state,
             prevyear: state.year,
@@ -153,9 +145,7 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
     return
   }
 
-  const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(
-    Boolean,
-  )
+  const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(Boolean)
 
   dispatch(UISlice.actions.selectTree(tree))
 }

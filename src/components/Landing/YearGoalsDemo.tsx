@@ -14,13 +14,12 @@ export const YearGoalsDemo = () => {
           Focus on&nbsp;<nobr>long-term</nobr> impact
         </h2>
         <p>
-          It&nbsp;is&nbsp;irrelevant what you achieve on&nbsp;the February, 2
-          along, though it&nbsp;is&nbsp;important what you achieve
-          in&nbsp;a&nbsp;year.
+          It&nbsp;is&nbsp;irrelevant what you achieve on&nbsp;the February,2 along, though
+          it&nbsp;is&nbsp;important what you achieve in&nbsp;a&nbsp;year.
         </p>
         <p>
-          In&nbsp;Tascana we&nbsp;help you define what is&nbsp;truly important
-          in&nbsp;the next 12 months
+          In&nbsp;Tascana we&nbsp;help you define what is&nbsp;truly important in&nbsp;the next 12
+          months
         </p>
       </div>
       <div className={styles.AbilityBlock}>

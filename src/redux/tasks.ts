@@ -24,8 +24,7 @@ export const tasksSlice = createSlice({
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
           if (!Array.isArray(t.parents)) task.parents = []
-          if (typeof task.incrementIndex !== 'number')
-            task.incrementIndex = index
+          if (typeof task.incrementIndex !== 'number') task.incrementIndex = index
 
           return task
         })
@@ -43,8 +42,7 @@ export const tasksSlice = createSlice({
 
         return task
       }),
-    deleteTask: (state, action) =>
-      state.filter(task => task.id !== action.payload),
+    deleteTask: (state, action) => state.filter(task => task.id !== action.payload),
   },
 })
 
@@ -108,11 +106,7 @@ const updateTree = changedTask => (dispatch, getState) => {
     }),
   )
 
-  firebase.editTask(
-    getTaskById(getState().tasks, changedTask.id),
-    uid,
-    changedTask.id,
-  )
+  firebase.editTask(getTaskById(getState().tasks, changedTask.id), uid, changedTask.id)
 
   const tree = [...parents, ...children]
 
@@ -123,10 +117,8 @@ const updateTree = changedTask => (dispatch, getState) => {
 
     let updatedFields = {}
 
-    if (parents.length)
-      updatedFields.children = task.children.concat(changedTask.id)
-    if (children.length)
-      updatedFields.parents = task.parents.concat(changedTask.id)
+    if (parents.length) updatedFields.children = task.children.concat(changedTask.id)
+    if (children.length) updatedFields.parents = task.parents.concat(changedTask.id)
 
     dispatch(
       tasksSlice.actions.updateTask({
@@ -207,14 +199,10 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
   dispatch(updateTree(newTask))
   dispatch(recalculateProgress())
 
-  if (isCorrectParent)
-    dispatch(selectTreeAction({ todo: parent, addedTaskId: id }))
+  if (isCorrectParent) dispatch(selectTreeAction({ todo: parent, addedTaskId: id }))
 }
 
-export const linkTasks = ({ childId, parentId }) => async (
-  dispatch,
-  getState,
-) => {
+export const linkTasks = ({ childId, parentId }) => async (dispatch, getState) => {
   const {
     tasks,
     session: {
@@ -262,9 +250,7 @@ export const changeColor = taskId => async (dispatch, getState) => {
   const year = new Date(date).getFullYear()
   const task = getTaskById(tasks, taskId)
 
-  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(
-    t => t.incrementIndex,
-  )
+  const indexes = getTasksBy(tasks)({ type: task.type, year }).map(t => t.incrementIndex)
   const maxIndex = Math.max(...indexes)
   const newBg = getRandomBg()
 

@@ -32,12 +32,7 @@ const SignInButton: React.FC<SignInButtonProps> = ({
   <button
     type="button"
     onClick={onClick}
-    className={cn(
-      styles.root,
-      styles[`_${provider}`],
-      styles[`_${size}`],
-      className,
-    )}
+    className={cn(styles.root, styles[`_${provider}`], styles[`_${size}`], className)}
   >
     {text}
   </button>

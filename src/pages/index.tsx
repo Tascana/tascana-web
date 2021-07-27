@@ -46,8 +46,7 @@ function IndexPage() {
     document.body.style.height = 'initial'
     document.body.style.overflow = 'initial'
 
-    return () =>
-      (document.getElementById('landing-root').style.display = 'block')
+    return () => (document.getElementById('landing-root').style.display = 'block')
   }, [])
 
   if (!authUser) return null

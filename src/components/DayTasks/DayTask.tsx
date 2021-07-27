@@ -9,12 +9,7 @@ import Textarea from './Textarea'
 import { ActionsBar, LinkParentBar } from '../TaskBoxes'
 import { useOnClickOutside } from '../TaskBoxes/useOnClickOutside'
 import ui, { selectTreeAction } from '../../redux/UI'
-import {
-  completeTask,
-  deleteTask,
-  editTask,
-  linkTasks,
-} from '../../redux/tasks'
+import { completeTask, deleteTask, editTask, linkTasks } from '../../redux/tasks'
 import { MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
@@ -30,15 +25,7 @@ function optionalPortal(styles, element) {
 }
 
 function DayTask(props) {
-  const {
-    id,
-    progress,
-    background,
-    text: textTask,
-    index,
-    firstParentId,
-    date,
-  } = props
+  const { id, progress, background, text: textTask, index, firstParentId, date } = props
 
   const task = {
     ...props,
@@ -74,10 +61,7 @@ function DayTask(props) {
   useEffect(() => {
     if (isInEditMode) {
       editTextareaRef.current.focus()
-      editTextareaRef.current.setSelectionRange(
-        textTask.length,
-        textTask.length,
-      )
+      editTextareaRef.current.setSelectionRange(textTask.length, textTask.length)
     }
   }, [isInEditMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -172,8 +156,7 @@ function DayTask(props) {
             className={cx({
               [styles.isDone]: progress === 100,
               [tasksStyles.BoxSelected]: selectedTree.includes(id),
-              [tasksStyles.BoxUnselected]:
-                selectedTree.length > 0 && !selectedTree.includes(id),
+              [tasksStyles.BoxUnselected]: selectedTree.length > 0 && !selectedTree.includes(id),
               [tasksStyles.BoxSorted]: isSort,
             })}
           >

@@ -9,11 +9,6 @@ interface AuthProviderProps {
 // @ts-ignore
 export const FirebaseContext = createContext<Firebase>(null)
 
-export const FirebaseProvider: FC<AuthProviderProps> = ({
-  children,
-  provider,
-}) => (
-  <FirebaseContext.Provider value={provider}>
-    {children}
-  </FirebaseContext.Provider>
+export const FirebaseProvider: FC<AuthProviderProps> = ({ children, provider }) => (
+  <FirebaseContext.Provider value={provider}>{children}</FirebaseContext.Provider>
 )

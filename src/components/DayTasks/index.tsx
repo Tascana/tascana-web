@@ -19,9 +19,7 @@ function DayTasks({ subtype, date, className, ...rest }) {
   const [isInAddMode, setAddMode] = useState(false)
   const addTextareaRef = useRef(null)
   const dispatch = useDispatch()
-  const tasks = useSelector(state =>
-    getTasksBy(state.tasks)({ type: DAY, subtype, ...date }),
-  )
+  const tasks = useSelector(state => getTasksBy(state.tasks)({ type: DAY, subtype, ...date }))
   const parentGradient = useSelector(({ UI, tasks }) => {
     const [parent] = UI.selectedTree
 
@@ -66,21 +64,13 @@ function DayTasks({ subtype, date, className, ...rest }) {
               </svg>
             </button>
           </div>
-          <ul
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={styles.TaskList}
-          >
+          <ul ref={provided.innerRef} {...provided.droppableProps} className={styles.TaskList}>
             {tasks.map((task, index) => (
               <DayTask key={task.id} index={index} date={date} {...task} />
             ))}
             {isInAddMode && (
               <li>
-                <TaskMark
-                  id="new-task"
-                  done={false}
-                  gradient={parentGradient}
-                />
+                <TaskMark id="new-task" done={false} gradient={parentGradient} />
                 <Textarea
                   ref={addTextareaRef}
                   className={styles.DayTaskField}

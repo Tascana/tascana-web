@@ -36,11 +36,7 @@ function getHeight(ref) {
   }
 }
 
-function HorizontalUI({
-  type,
-  swipeableLine: swipeableLineFromProps,
-  onScroll,
-}) {
+function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll }) {
   const [visibilityRef, inView] = useInView()
   const date = useSelector(state => new Date(state.swipe.date))
   const virtualDate = useSelector(state =>
@@ -79,10 +75,7 @@ function HorizontalUI({
         dispatch(
           swipeSlice.actions.swipe({
             virtualPrevDate: format(date, DATE_FORMAT),
-            virtualDate: format(
-              changeDateFn(date, dx > 0 ? -1 : 1),
-              DATE_FORMAT,
-            ),
+            virtualDate: format(changeDateFn(date, dx > 0 ? -1 : 1), DATE_FORMAT),
             changeType: 'SWIPE',
           }),
         )
@@ -142,10 +135,7 @@ function HorizontalUI({
 
   useEffect(() => {
     const changedDays = differenceInCalendarDays(virtualDate, virtualPrevDate)
-    const changedMonth = differenceInCalendarMonths(
-      virtualDate,
-      virtualPrevDate,
-    )
+    const changedMonth = differenceInCalendarMonths(virtualDate, virtualPrevDate)
     const changedYears = differenceInCalendarYears(virtualDate, virtualPrevDate)
 
     const changeDate = () => {
@@ -199,14 +189,8 @@ function HorizontalUI({
     if (swipeableLineFromProps === type) changeDirectionOnClick(pos)
   }
 
-  useShortcuts(['ArrowLeft'], () => swipeLine(-1), [
-    swipeableLineFromProps,
-    date,
-  ])
-  useShortcuts(['ArrowRight'], () => swipeLine(1), [
-    swipeableLineFromProps,
-    date,
-  ])
+  useShortcuts(['ArrowLeft'], () => swipeLine(-1), [swipeableLineFromProps, date])
+  useShortcuts(['ArrowRight'], () => swipeLine(1), [swipeableLineFromProps, date])
 
   const dateObject = getDateObject(type, year, month, day)
 

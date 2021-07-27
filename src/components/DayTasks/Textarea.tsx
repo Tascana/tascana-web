@@ -3,10 +3,7 @@ import React, { forwardRef, useState, useEffect } from 'react'
 import TextareaAutosize from 'react-autosize-textarea'
 
 const Textarea = forwardRef(
-  (
-    { defaultValue = '', onEnterPress, onBlur, className, needClear = false },
-    ref,
-  ) => {
+  ({ defaultValue = '', onEnterPress, onBlur, className, needClear = false }, ref) => {
     const [value, setValue] = useState(defaultValue)
 
     useEffect(() => {

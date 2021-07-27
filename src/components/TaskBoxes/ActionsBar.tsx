@@ -63,9 +63,7 @@ function ActionsBar({ task, onContextMenu, onLink, onDone }) {
     <>
       {hasDoneButton && <DoneButton task={task} onClick={onDone} />}
       {hasLinkButton && <LinkButton task={task} onClick={onLink} />}
-      {hasContextButton && (
-        <ContextButton task={task} onClick={onContextMenu} />
-      )}
+      {hasContextButton && <ContextButton task={task} onClick={onContextMenu} />}
     </>
   )
 }

@@ -8,10 +8,7 @@ export const getTasksBy = tasks => params => {
     case types.YEAR:
       return tasks.filter(task => task.type === type && task.year === year)
     case types.MONTH:
-      return tasks.filter(
-        task =>
-          task.type === type && task.year === year && task.month === month,
-      )
+      return tasks.filter(task => task.type === type && task.year === year && task.month === month)
     case types.DAY:
       return tasks.filter(
         task =>
@@ -39,8 +36,7 @@ export const getTasksBy = tasks => params => {
   }
 }
 
-export const getTaskById = (tasks, id) =>
-  id ? tasks.find(task => task.id === id) : undefined
+export const getTaskById = (tasks, id) => (id ? tasks.find(task => task.id === id) : undefined)
 
 export const addSibling = (siblings, newSibling) =>
   siblings
