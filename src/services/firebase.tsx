@@ -17,13 +17,11 @@ const config = {
 export class Firebase {
   private app: firebase.app.App
   private db: firebase.database.Database
-  private analytics: firebase.analytics.Analytics
 
   constructor() {
     this.app = app.initializeApp(config)
 
     this.db = app.database()
-    this.analytics = app.analytics()
   }
 
   getInstance(): firebase.app.App {
@@ -55,9 +53,5 @@ export class Firebase {
 
   setTasks(tasks: any, uid: string) {
     return this.db.ref(`todos/${uid}`).set(tasks)
-  }
-
-  logEvent(eventName: string, eventParams: any) {
-    return this.analytics.logEvent(eventName, eventParams)
   }
 }

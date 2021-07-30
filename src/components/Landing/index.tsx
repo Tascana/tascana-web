@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useContext, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useSpring, animated } from 'react-spring'
 import ReactDOM from 'react-dom'
 import { useHistory } from 'react-router-dom'
@@ -10,8 +10,8 @@ import { YearGoalsDemo } from './YearGoalsDemo'
 import { MonthGoalsDemo } from './MonthGoalsDemo'
 import { DayGoalsDemo } from './DayGoalsDemo'
 import { SignInButton, SignInButtonProvider, SignInButtonSize } from '../SignInButton'
-import { FirebaseContext } from '../../context/firebase'
 import { useAuth } from '../../hooks/use-auth'
+import { useLogger } from '../../hooks/use-logger'
 
 function Landing() {
   const [error, setError] = useState(null)
@@ -19,12 +19,12 @@ function Landing() {
   const signInRef = useRef(null)
   const [scrollRef, inViewScroll] = useInView()
   const [auth] = useAuth()
+  const { logEvent } = useLogger()
 
   const yearVisibility = useSpring({
     padding: heightAnimation ? '15vh 0 0vh 0' : '30vh 0vh 20vh 0vh',
   })
 
-  const firebase = useContext(FirebaseContext)
   const history = useHistory()
 
   useEffect(() => {
@@ -44,7 +44,7 @@ function Landing() {
   }, [heightAnimation, inViewScroll])
 
   useEffect(() => {
-    firebase.logEvent('visit_the_landing_page')
+    logEvent('visit_the_landing_page')
     document.body.style.display = 'block'
     document.getElementById('root').style.display = 'none'
 
@@ -52,11 +52,11 @@ function Landing() {
   }, []) // eslint-disable-line
 
   function signInWithGoogle() {
-    firebase.logEvent('clicked_signin_with_google')
+    logEvent('clicked_signin_with_google')
     auth
       .signInWithGoogle()
       .then(user => {
-        firebase.logEvent('signin')
+        logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -66,11 +66,11 @@ function Landing() {
   }
 
   function signInWithFb() {
-    firebase.logEvent('clicked_signin_with_facebook')
+    logEvent('clicked_signin_with_facebook')
     auth
       .signInWithFacebook()
       .then(() => {
-        firebase.logEvent('signin')
+        logEvent('signin')
         setError(null)
         history.push('/')
       })
@@ -92,7 +92,7 @@ function Landing() {
               <SignInButton
                 text="Sign in"
                 onClick={() => {
-                  firebase.logEvent('scroll_to_signin_buttons')
+                  logEvent('scroll_to_signin_buttons')
                   scrollInto()
                 }}
                 size={SignInButtonSize.S}

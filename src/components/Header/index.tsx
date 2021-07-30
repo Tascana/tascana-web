@@ -1,17 +1,17 @@
-// @ts-nocheck
-import React, { useState, useContext, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import useOnClickOutside from 'use-onclickoutside'
 import classes from './styles.module.scss'
 import Datepicker from '../Datepicker'
-import { FirebaseContext } from '../../context/firebase'
 import { useAuth } from '../../hooks/use-auth'
+import { useLogger } from '../../hooks/use-logger'
 
 function Header() {
   const [isOpenSettings, toggleSettings] = useState(false)
+  // @ts-ignore
   const user = useSelector(state => state.session.authUser)
-  const firebase = useContext(FirebaseContext)
-  const [auth] = useAuth()
+  const [{ signOut }] = useAuth()
+  const { logEvent } = useLogger()
   const ref = useRef(null)
 
   useOnClickOutside(ref, () => toggleSettings(false))
@@ -52,8 +52,8 @@ function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    firebase.logEvent('logged_out')
-                    auth.signOut()
+                    logEvent('logged_out')
+                    signOut()
                   }}
                 >
                   Log Out
