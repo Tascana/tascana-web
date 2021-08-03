@@ -1,0 +1,17 @@
+@import '../../styles/_variables.scss';
+
+.root {
+  width: 630px;
+  margin: 0 auto;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+
+  @media (min-width: $l-breakpoint) {
+    width: 840px;
+  }
+
+  @media (max-width: $m-breakpoint) {
+    width: 100%;
+  }
+}

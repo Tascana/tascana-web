@@ -45,7 +45,7 @@
     font-size: 24px;
     line-height: $height - 2px;
 
-    @media (max-width: $small-breakpoint) {
+    @media (max-width: $s-breakpoint) {
       $height: 45px;
       height: $height;
       font-size: 18px;

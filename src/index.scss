@@ -12,6 +12,20 @@
   font-weight: normal;
 }
 
+@font-face {
+  font-family: 'SFProText';
+  src: url('./assets/fonts/sf-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'SFProDisplay';
+  src: url('./assets/fonts/sf-d-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
+}
+
 *,
 *::after,
 *::before {
@@ -103,7 +117,7 @@ ul {
   user-select: none;
 }
 
-.noselect:focus() {
+.noselect:focus {
   user-select: initial;
 }
 

@@ -1,0 +1,14 @@
+@import '../../styles/_mixins.scss';
+
+$width: 24px;
+$height: 40px;
+
+.root {
+  @include size($width, $height);
+  font-family: 'SFProText', sans-serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: $height;
+  color: #151515;
+  text-align: center;
+}

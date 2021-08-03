@@ -1,67 +1,54 @@
+// @ts-nocheck
 import React, { useState, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
+import cn from 'classnames'
 import useOnClickOutside from 'use-onclickoutside'
-import classes from './styles.module.scss'
+
+import { Logo } from '../Logo'
+import { Avatar } from '../Avatar'
+import { ProfileSettings } from '../ProfileSettings'
+import { Wrapper } from '../Wrapper'
 import Datepicker from '../Datepicker'
 import { useAuth } from '../../hooks/use-auth'
-import { useLogger } from '../../hooks/use-logger'
+import { INDEX_PAGE_PATH } from '../../constants/route'
+
+import styles from './Header.module.scss'
 
 function Header() {
-  const [isOpenSettings, toggleSettings] = useState(false)
-  // @ts-ignore
-  const user = useSelector(state => state.session.authUser)
-  const [{ signOut }] = useAuth()
-  const { logEvent } = useLogger()
-  const ref = useRef(null)
+  const [isOpenSettings, setIsOpenSettings] = useState(false)
+  const [, { name, avatar }] = useAuth()
+  const history = useHistory()
+  const ref = useRef()
+  const isIndexPage = history.location.pathname === INDEX_PAGE_PATH
 
-  useOnClickOutside(ref, () => toggleSettings(false))
+  useOnClickOutside(ref, () => setIsOpenSettings(false))
 
   return (
-    <header className={classes.header}>
-      <div className={classes.content}>
-        <div className={classes.left}>
-          <div className={classes.logo}>T</div>
+    <header className={styles.root}>
+      <div className={styles.content}>
+        <Logo
+          className={cn(styles.logo, isIndexPage && styles.logo_disable)}
+          onClick={() => history.push(INDEX_PAGE_PATH)}
+        />
+
+        <Wrapper>
+          <Datepicker />
+        </Wrapper>
+
+        <div
+          ref={ref}
+          className={styles.profile}
+          onClick={() => setIsOpenSettings(!isOpenSettings)}
+        >
+          <div className={styles.username}>{name}</div>
+          <Avatar avatar={avatar} />
+
+          {isOpenSettings && (
+            <div className={styles.settings}>
+              <ProfileSettings />
+            </div>
+          )}
         </div>
-        <div className={classes.center}>
-          <div>
-            <Datepicker />
-          </div>
-        </div>
-        {user ? (
-          <div
-            ref={ref}
-            className={classes.right}
-            onClick={() => {
-              if (isOpenSettings) toggleSettings(false)
-              else toggleSettings(true)
-            }}
-          >
-            <p className={classes.username}>{user.name}</p>
-            <div
-              className={classes.avatar}
-              style={{
-                backgroundImage: `url(${user.avatar})`,
-              }}
-            />
-            {isOpenSettings ? (
-              <div className={classes.settings}>
-                {/* <button type="button">Settings</button>
-                <div className={classes.separator} />
-                <button type="button">About</button>
-                <div className={classes.separator} /> */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    logEvent('logged_out')
-                    signOut()
-                  }}
-                >
-                  Log Out
-                </button>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </div>
     </header>
   )

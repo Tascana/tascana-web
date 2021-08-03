@@ -1,0 +1,12 @@
+@import '../../styles/_mixins.scss';
+
+$size: 40px;
+
+.root {
+  @include size($size);
+  background-color: #d8d8d8;
+  background-position: center;
+  background-size: cover;
+  border: 1px solid #979797;
+  border-radius: $size;
+}
