@@ -28,6 +28,7 @@
     "react-shortcuts-hook": "1.1.2",
     "react-sortable-hoc": "1.11.0",
     "react-spring": "9.0.0-beta.34",
+    "react-use": "17.2.4",
     "react-use-gesture": "7.0.16",
     "redux": "4.1.0",
     "use-onclickoutside": "0.4.0"

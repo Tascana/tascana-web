@@ -12,13 +12,14 @@ import { DayGoalsDemo } from './DayGoalsDemo'
 import { SignInButton, SignInButtonProvider, SignInButtonSize } from '../SignInButton'
 import { useAuth } from '../../hooks/use-auth'
 import { useLogger } from '../../hooks/use-logger'
+import { INDEX_PAGE_PATH } from '../../constants/route'
 
 function Landing() {
   const [error, setError] = useState(null)
   const [heightAnimation, setHeightAnimation] = useState(false)
   const signInRef = useRef(null)
   const [scrollRef, inViewScroll] = useInView()
-  const [auth] = useAuth()
+  const [, user] = useAuth()
   const { logEvent } = useLogger()
 
   const yearVisibility = useSpring({
@@ -51,36 +52,23 @@ function Landing() {
     return () => (document.getElementById('root').style.display = 'block')
   }, []) // eslint-disable-line
 
-  function signInWithGoogle() {
-    logEvent('clicked_signin_with_google')
-    auth
-      .signInWithGoogle()
-      .then(user => {
-        logEvent('signin')
-        setError(null)
-        history.push('/')
-      })
-      .catch(error => {
-        setError(error.message)
-      })
+  function onError(error) {
+    setError(error.message)
   }
 
-  function signInWithFb() {
-    logEvent('clicked_signin_with_facebook')
-    auth
-      .signInWithFacebook()
-      .then(() => {
-        logEvent('signin')
-        setError(null)
-        history.push('/')
-      })
-      .catch(error => {
-        setError(error.message)
-      })
+  function onSignIn() {
+    logEvent('signin')
+    setError(null)
+    history.push(INDEX_PAGE_PATH)
   }
 
   function scrollInto() {
     signInRef.current.scrollIntoView()
+  }
+
+  if (user) {
+    history.push(INDEX_PAGE_PATH)
+    return null
   }
 
   return ReactDOM.createPortal(
@@ -119,12 +107,16 @@ function Landing() {
           <div className={styles.SignInButtons}>
             <SignInButton
               text="with Google"
-              onClick={signInWithGoogle}
+              onClick={() => logEvent('clicked_signin_with_google')}
+              onSignInSuccess={onSignIn}
+              onSignInFailure={onError}
               provider={SignInButtonProvider.GOOGLE}
             />
             <SignInButton
               text="with Facebook"
-              onClick={signInWithFb}
+              onClick={() => logEvent('clicked_signin_with_facebook')}
+              onSignInSuccess={onSignIn}
+              onSignInFailure={onError}
               provider={SignInButtonProvider.FACEBOOK}
             />
           </div>
