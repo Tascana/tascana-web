@@ -4,6 +4,7 @@ import cx from 'classnames'
 import { YEAR, DAY, MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
+import { useDevice } from '../../hooks/use-device'
 
 function ContextButton({ task, onClick }) {
   return (
@@ -55,7 +56,8 @@ function DoneButton({ task, onClick }) {
 }
 
 function ActionsBar({ task, onContextMenu, onLink, onDone }) {
-  let hasContextButton = true
+  const { isMobile } = useDevice()
+  let hasContextButton = isMobile
   let hasLinkButton = task.type !== YEAR && !task.firstParentId
   let hasDoneButton = task.type !== DAY
 
