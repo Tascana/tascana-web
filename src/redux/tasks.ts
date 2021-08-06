@@ -348,15 +348,20 @@ export const deleteTask = id => (dispatch, getState) => {
     tree.forEach(id => {
       const task = getTaskById(getState().tasks, id)
 
-      let updatedFields = {}
+      if (task === undefined) {
+        return undefined
+      }
 
+      let updatedFields = {}
       if (deletedTask.parents.length) {
-        updatedFields.children = task.children.filter(t => t.id === id)
+        updatedFields.children = task.children.filter(childrenId => childrenId !== deletedTask.id)
       }
       if (deletedTask.children.length) {
-        updatedFields.parents = task.parents.filter(t => t.id === id)
+        updatedFields.parents = task.parents.filter(parentId => parentId !== deletedTask.id)
         updatedFields.firstParentId = null
-        updatedFields.background = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+        if (task.type !== YEAR) {
+          updatedFields.background = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
+        }
       }
 
       dispatch(
