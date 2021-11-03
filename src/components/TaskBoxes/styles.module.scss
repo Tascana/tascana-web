@@ -25,7 +25,7 @@
 
     > div:first-child {
       width: 100%;
-      padding: 10px;
+      padding-top: 6px;
       margin: 2px;
       color: #000;
       background: #fff;
@@ -47,10 +47,10 @@
 
   .TaskText {
     padding: 10px;
+    padding-top: 7px;
     overflow: hidden;
     font-size: 18px;
     font-weight: bold;
-    line-height: 24px;
     color: #fff;
     text-overflow: ellipsis;
     user-select: none;
@@ -61,12 +61,10 @@
     height: 100%;
     font-size: 18px;
     font-weight: bold;
-    line-height: 24px;
     color: inherit;
     resize: none;
     background-color: transparent;
     border: none;
-    border-radius: 12px;
     outline: none;
   }
 
