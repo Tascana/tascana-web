@@ -48,6 +48,10 @@ function SignInEndPointFacebook() {
   const dispatch = useDispatch()
   const { setAuthUser } = session.actions
 
+  if (user) {
+    history.push(INDEX_PAGE_PATH)
+    return null
+  }
   auth
     .getRedirectResult()
     .then(function(result) {
@@ -72,10 +76,6 @@ function SignInEndPointFacebook() {
       onError(error)
     })
 
-  if (user) {
-    history.push(INDEX_PAGE_PATH)
-    return null
-  }
   signInWithRedirect()
   return <></>
 }
