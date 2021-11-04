@@ -35,6 +35,7 @@ a {
 
 .section-2 {
   height: 100vh;
+  overflow-x:hidden;
 }
 
 .slide-nav {
