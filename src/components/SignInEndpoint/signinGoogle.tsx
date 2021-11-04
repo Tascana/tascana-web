@@ -1,19 +1,33 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../hooks/use-auth'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { useLogger } from '../../hooks/use-logger'
 import { INDEX_PAGE_PATH, LOGIN_PAGE_PATH } from '../../constants/route'
 
+import { User } from '../../entities/user'
+
+import * as fb from 'firebase/app'
+import 'firebase/auth'
+
+import { firebase } from '../../index'
+
 import session from '../../redux/session'
 
-enum SignInButtonProvider {
-  NONE = 'none',
-  GOOGLE = 'google',
-  FACEBOOK = 'facebook',
+const FIREBASE_EMPTY_USER_INFO = { displayName: null, email: null }
+
+const prepareUserData = ({ uid, providerData, photoURL: avatar }: fb.User): User => {
+  const userInfo = Array.isArray(providerData) ? providerData[0] : null
+  const { displayName: name, email } = userInfo || FIREBASE_EMPTY_USER_INFO
+
+  return { uid, email, name, avatar }
 }
 
-function SignInEndPointFacebook() {
+function SignInEndPointGoogle() {
+  const auth = firebase.getInstance().auth()
+  const provider = new fb.auth.GoogleAuthProvider()
+  const signInWithRedirect = () => auth.signInWithRedirect(provider)
+
   const history = useHistory()
   const { logEvent } = useLogger()
 
@@ -29,35 +43,43 @@ function SignInEndPointFacebook() {
     setError(null)
     history.push(INDEX_PAGE_PATH)
   }
-  const [{ signInWithFacebook, signInWithGoogle }, user] = useAuth()
+  const [, user] = useAuth()
 
-  const provider = SignInButtonProvider.GOOGLE // Change this
   const dispatch = useDispatch()
   const { setAuthUser } = session.actions
-  const signInFn = useCallback(() => {
-    const map = {
-      [SignInButtonProvider.NONE]: () => Promise.resolve(null),
-      [SignInButtonProvider.GOOGLE]: signInWithGoogle,
-      [SignInButtonProvider.FACEBOOK]: signInWithFacebook,
-    }
-
-    return map[provider]()
-      .then(user => {
-        dispatch(setAuthUser(user))
-        return user
-      })
-      .then(onSignIn)
-      .catch(onError)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signInWithGoogle, signInWithFacebook, provider])
 
   if (user) {
+    alert('Redirect back')
     history.push(INDEX_PAGE_PATH)
     return null
   }
-  signInFn()
-
+  auth
+    .getRedirectResult()
+    .then(function(result) {
+      alert(result)
+      console.log(result)
+      // The signed-in user info.
+      var user = result.user
+      if (user === null) {
+        alert('SignInWithRedirect')
+        signInWithRedirect()
+        return undefined
+      }
+      console.log(user)
+      dispatch(setAuthUser(prepareUserData(user!)))
+      onSignIn()
+    })
+    .catch(function(error) {
+      alert(error)
+      // Handle Errors here.
+      var errorCode = error.code
+      var errorMessage = error.message
+      // The email of the user's account used.
+      console.log(errorCode, errorMessage)
+      // ...
+      onError(error)
+    })
   return <></>
 }
 
-export default SignInEndPointFacebook
+export default SignInEndPointGoogle

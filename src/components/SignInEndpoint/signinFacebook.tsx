@@ -59,7 +59,7 @@ function SignInEndPointFacebook() {
       // The signed-in user info.
       var user = result.user
       if (user === null) {
-        onError({})
+        signInWithRedirect()
         return undefined
       }
       console.log(user)
@@ -76,7 +76,6 @@ function SignInEndPointFacebook() {
       onError(error)
     })
 
-  signInWithRedirect()
   return <></>
 }
 
