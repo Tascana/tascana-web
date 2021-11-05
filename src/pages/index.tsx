@@ -28,6 +28,7 @@ function IndexPage() {
       firebase.tasks(authUser.uid).once('value', snapshot => {
         if (!snapshot.val()) {
           dispatch(tasksSlice.actions.loadTasks({}))
+          dispatch(sessionSlice.actions.firebaseReady(true))
           return
         }
         dispatch(tasksSlice.actions.loadTasks(snapshot.val()))
