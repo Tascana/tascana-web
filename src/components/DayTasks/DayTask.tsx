@@ -50,7 +50,7 @@ function DayTask(props) {
   const possibleParent = tasks.find(t => t.id === parentId)
 
   const [spring, set] = useSpring(() => ({
-    x: 0,
+    x: 1,
     config: { duration: 100 },
   }))
 
