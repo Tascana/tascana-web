@@ -116,7 +116,7 @@ function DayTask(props) {
       {(provided, snapshot) =>
         optionalPortal(
           provided.draggableProps.style,
-          <li
+          <animated.li
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             ref={provided.innerRef}
@@ -243,7 +243,7 @@ function DayTask(props) {
                 </div>
               </>
             )}
-          </li>,
+          </animated.li>,
         )
       }
     </Draggable>

@@ -63,6 +63,7 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
 
   const [spring, set] = useSpring(() => ({
     x: 0,
+    config: { duration: 100 },
   }))
   const bind = useDrag(
     ({ down, cancel, movement: [x, y], direction: [dx] }) => {
