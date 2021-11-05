@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import { FirebaseContext } from '../context/firebase'
 import ContextMenu from '../components/ContextMenu'
 import { tasksSlice } from '../redux/tasks'
+import sessionSlice from '../redux/session'
 import { useAuthStateChange } from '../hooks/use-auth-state-change'
 import { useAuth } from '../hooks/use-auth'
 import { useLogger } from '../hooks/use-logger'
@@ -29,8 +30,8 @@ function IndexPage() {
           dispatch(tasksSlice.actions.loadTasks({}))
           return
         }
-
         dispatch(tasksSlice.actions.loadTasks(snapshot.val()))
+        dispatch(sessionSlice.actions.firebaseReady(true))
       })
     }
   }, [authUser]) // eslint-disable-line

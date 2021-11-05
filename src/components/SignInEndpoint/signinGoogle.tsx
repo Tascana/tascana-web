@@ -49,19 +49,16 @@ function SignInEndPointGoogle() {
   const { setAuthUser } = session.actions
 
   if (user) {
-    alert('Redirect back')
     history.push(INDEX_PAGE_PATH)
     return null
   }
   auth
     .getRedirectResult()
     .then(function(result) {
-      alert(result)
       console.log(result)
       // The signed-in user info.
       var user = result.user
       if (user === null) {
-        alert('SignInWithRedirect')
         signInWithRedirect()
         return undefined
       }
@@ -70,7 +67,6 @@ function SignInEndPointGoogle() {
       onSignIn()
     })
     .catch(function(error) {
-      alert(error)
       // Handle Errors here.
       var errorCode = error.code
       var errorMessage = error.message

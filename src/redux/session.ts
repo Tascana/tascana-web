@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const INITIAL_STATE = {
   authUser: null,
+  firebaseReady: false,
 }
 
 const sessionSlice = createSlice({
@@ -12,6 +13,7 @@ const sessionSlice = createSlice({
       ...state,
       authUser: action.payload,
     }),
+    firebaseReady: (state, action) => ({ ...state, firebaseReady: action.payload }),
   },
 })
 

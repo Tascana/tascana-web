@@ -36,6 +36,24 @@ export const getTasksBy = tasks => params => {
   }
 }
 
+export const getTasksByType = tasks => params => {
+  const { type, subtype } = params
+
+  switch (type) {
+    case types.YEAR:
+      return tasks.filter(task => task.type === type)
+    case types.MONTH:
+      return tasks.filter(task => task.type === type)
+    case types.DAY:
+      return subtype
+        ? tasks.filter(task => task.type === type && task.subtype === subtype)
+        : tasks.filter(task => task.type === type)
+    default: {
+      return tasks
+    }
+  }
+}
+
 export const getTaskById = (tasks, id) => (id ? tasks.find(task => task.id === id) : undefined)
 
 export const addSibling = (siblings, newSibling) =>
