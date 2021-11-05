@@ -1,0 +1,83 @@
+@import '../../styles/_variables.scss';
+
+$inner-padding: 16px;
+
+.root {
+  position: fixed;
+  top: 15px;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0 16px;
+  color: #000;
+
+  @media (max-width: 420px) {
+    padding: 0 10px;
+  }
+}
+
+.content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1080px;
+  height: 64px;
+  padding: 0 $inner-padding;
+  margin: 0 auto;
+  background-color: #f8f8f8;
+  border-radius: 19px;
+}
+
+.profile {
+  position: absolute;
+  top: 50%;
+  right: $inner-padding;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 16px;
+  margin-left: auto;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.logo {
+  position: absolute;
+  top: 50%;
+  left: $inner-padding;
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  @media (max-width: $m-breakpoint) {
+    display: none;
+  }
+
+  &_disable {
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+.username {
+  max-width: 250px;
+  margin-right: 14px;
+  overflow: hidden;
+  font-family: 'SFProDisplay', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+
+  @media (max-width: $m-breakpoint) {
+    display: none;
+  }
+}
+
+.settings {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: -16px;
+  z-index: 1;
+}

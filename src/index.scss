@@ -12,6 +12,20 @@
   font-weight: normal;
 }
 
+@font-face {
+  font-family: 'SFProText';
+  src: url('./assets/fonts/sf-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'SFProDisplay';
+  src: url('./assets/fonts/sf-d-bold.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
+}
+
 *,
 *::after,
 *::before {
@@ -60,23 +74,25 @@ ul {
 }
 
 #root {
-  width: 630px;
-  padding-bottom: 80px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  // padding-bottom: 80px;
   margin: 0 auto;
   overflow-x: hidden;
   user-select: none;
 
-  @media (min-width: 1080px) {
-    width: 840px;
-  }
+  // @media (min-width: 1080px) {
+  //   width: 840px;
+  // }
 
-  @media (max-width: 630px) {
-    width: 420px;
-  }
+  // @media (max-width: 630px) {
+  //   width: 420px;
+  // }
 
-  @media (max-width: 420px) {
-    width: 100%;
-  }
+  // @media (max-width: 420px) {
+  //   width: 100%;
+  // }
 }
 
 #react-dnd-draggable {
@@ -101,7 +117,7 @@ ul {
   user-select: none;
 }
 
-.noselect:focus() {
+.noselect:focus {
   user-select: initial;
 }
 

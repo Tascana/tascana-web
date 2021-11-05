@@ -123,7 +123,6 @@
   overflow-x: auto;
   overflow-y: hidden;
 
-
   li {
     width: 21px;
     min-width: 21px;
@@ -140,4 +139,10 @@
       border: 3px solid #ebebeb;
     }
   }
+}
+
+.DayTaskParagraph {
+  font-size: 18px;
+  line-height: 22px;
+  cursor: pointer;
 }

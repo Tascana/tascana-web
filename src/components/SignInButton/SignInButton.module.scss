@@ -1,0 +1,56 @@
+@import '../../styles/_colors.scss';
+@import '../../styles/_variables.scss';
+
+.root {
+  padding: 0 15px;
+  text-align: center;
+  letter-spacing: -0.58px;
+  background-color: transparent;
+  border: solid 1px $border-color;
+  border-radius: 12px;
+  transition:
+          background-color $transition-duration $transition-timing,
+          border-color $transition-duration $transition-timing,
+          color $transition-duration $transition-timing;
+
+  &:hover {
+    color: $white;
+
+    &._none {
+      background-color: $black;
+      border-color: $black;
+    }
+
+    &._google {
+      background-color: $google-color;
+      border-color: $google-color;
+    }
+
+    &._facebook {
+      background-color: $facebook-color;
+      border-color: $facebook-color;
+    }
+  }
+
+  &._small {
+    $height: 34px;
+    height: $height;
+    font-size: 18px;
+    line-height: $height - 2px;
+  }
+
+  &._medium {
+    $height: 60px;
+    height: $height;
+    font-size: 24px;
+    line-height: $height - 2px;
+
+    @media (max-width: $s-breakpoint) {
+      $height: 45px;
+      height: $height;
+      font-size: 18px;
+      line-height: $height - 2px;
+      letter-spacing: -0.44px;
+    }
+  }
+}
