@@ -16,7 +16,7 @@ import { reorder } from './utils'
 import styles from './styles.module.scss'
 import { separateClicks } from '../TaskBoxes/separateClicks'
 
-import { getTasksBy } from '../../redux/utils'
+import { getTasksBy, getTasksByType } from '../../redux/utils'
 
 // TODO: Use react-sortable-hoc while actual issue in react-beautiful-dnd
 const DroppableTasksArea = SortableContainer(({ children }) => {
@@ -30,6 +30,8 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
   const isLinking = useSelector(state => state.UI.isLinking)
   const allTasks = useSelector(state => state.tasks)
   let currentTasks = useSelector(state => getTasksBy(state.tasks)({ type, ...date }))
+  let allTasksByType = useSelector(state => getTasksByType(state.tasks)({ type }))
+  const firebaseReady = useSelector(state => state.session.firebaseReady)
   const selectedTree = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
@@ -96,6 +98,12 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
             </button>
           )}
         </div>
+        {firebaseReady && allTasksByType.length === 0 && (
+          <img
+            src={'/images/Day_Onboarding.svg'}
+            className={cx(styles.OnboardingImage, [styles.DayType])}
+          />
+        )}
         {transitions.map(
           ({ item, key, props }) =>
             item && (
@@ -275,6 +283,16 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                   dispatch(setSort(false))
                 }}
               >
+                {firebaseReady && allTasksByType.length === 0 && (
+                  <img
+                    src={
+                      type == types.MONTH
+                        ? '/images/Month_Onboarding.svg'
+                        : '/images/Year_Onboarding.svg'
+                    }
+                    className={styles.OnboardingImage}
+                  />
+                )}
                 {currentTasks.map((item, index) => (
                   <DraggableTaskBox key={item.id} index={index}>
                     <TaskBoxComponent
