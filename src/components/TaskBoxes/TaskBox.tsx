@@ -11,9 +11,11 @@ import { linkTasks, completeTask, deleteTask, editTask, changeColor } from '../.
 import { getTasksBy } from '../../redux/utils'
 import { YEAR, MONTH } from '../../constants/task-types'
 
+import { useSpring, animated } from 'react-spring'
+
 import styles from './styles.module.scss'
 
-function TaskBox({ task, className = '', date, style = {}, ...rest }) {
+function TaskBox({ task, className = '', date, style = {}, shouldBeTransparent, ...rest }) {
   const [isEditMode, setEditMode_] = useState(false)
   const [isLinkMode, setLinkMode_] = useState(false)
   const [value, setValue] = useState(task.text)
@@ -21,6 +23,13 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
   const textarea = useRef(null)
   const taskBox = useRef(null)
   const dispatch = useDispatch()
+
+  const [spring, set] = useSpring(() => ({
+    x: 0,
+    config: { duration: 100 },
+  }))
+
+  set({ x: shouldBeTransparent ? 0.3 : 1 })
 
   const yearTasks = useSelector(state => getTasksBy(state.tasks)({ type: YEAR, ...date }))
 
@@ -117,7 +126,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
 
   return (
     <>
-      <div
+      <animated.div
         ref={taskBox}
         role="button"
         tabIndex="0"
@@ -170,6 +179,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
           )
         }}
         style={{
+          opacity: spring.x,
           backgroundImage:
             isLinkMode && parentId
               ? yearTasks.find(t => t.id === parentId).background
@@ -241,7 +251,7 @@ function TaskBox({ task, className = '', date, style = {}, ...rest }) {
             />
           )}
         </div>
-      </div>
+      </animated.div>
     </>
   )
 }

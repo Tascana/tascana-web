@@ -13,6 +13,8 @@ import ui, { setSort } from '../../redux/UI'
 import * as types from '../../constants/task-types'
 import { reorder } from './utils'
 
+import { useSpring } from 'react-spring'
+
 import styles from './styles.module.scss'
 import { separateClicks } from '../TaskBoxes/separateClicks'
 
@@ -45,6 +47,12 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
     onStart: onRowHide,
     onRest: onRowHide,
   })
+  const [spring, set] = useSpring(() => ({
+    x: 0,
+    config: { duration: 100 },
+  }))
+
+  set({ x: selectedTree.length > 0 ? 0.3 : 1 })
 
   if (type === types.DAY) {
     return (
@@ -66,7 +74,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
             })
           }}
         >
-          <h1
+          <animated.h1
             onContextMenu={e => {
               if (!hidden) {
                 e.preventDefault()
@@ -86,9 +94,10 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                 )
               }
             }}
+            style={{ opacity: spring.x }}
           >
             {title}
-          </h1>
+          </animated.h1>
           {hidden && (
             <button type="button" data-circled="true">
               <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -162,6 +171,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                       subtype={subtype}
                       date={date}
                       className={styles.DayTaskBox}
+                      h4ShouldBeTransparent={selectedTree.length > 0}
                     />
                   ))}
                 </DragDropContext>
@@ -171,7 +181,33 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
       </div>
     )
   }
+  /*
 
+
+
+
+
+
+
+
+
+
+^^^^^^^^ DAY SECTION ^^^^^^^^^^^^^
+
+vvvvvvvv YEAR/MONTH SECTION vvvvvv
+
+
+
+
+
+
+
+
+
+
+
+
+*/
   return (
     <div>
       <div
@@ -191,7 +227,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
           })
         }}
       >
-        <h1
+        <animated.h1
           onContextMenu={e => {
             if (!hidden) {
               e.preventDefault()
@@ -211,9 +247,10 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
               )
             }
           }}
+          style={{ opacity: spring.x }}
         >
           {title}
-        </h1>
+        </animated.h1>
         <button
           type="button"
           className={hidden ? styles.hidden : ''}
@@ -293,20 +330,25 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                     className={styles.OnboardingImage}
                   />
                 )}
-                {currentTasks.map((item, index) => (
-                  <DraggableTaskBox key={item.id} index={index}>
-                    <TaskBoxComponent
-                      date={date}
-                      className={cx(styles.TaskBox, {
-                        [styles.BoxSelected]: selectedTree.includes(item.id),
-                        [styles.BoxUnselected]:
-                          selectedTree.length > 0 && !selectedTree.includes(item.id),
-                        [styles.BoxSorted]: isSort,
-                      })}
-                      task={item}
-                    />
-                  </DraggableTaskBox>
-                ))}
+                {currentTasks.map((item, index) => {
+                  return (
+                    <DraggableTaskBox key={item.id} index={index}>
+                      <TaskBoxComponent
+                        date={date}
+                        className={cx(styles.TaskBox, {
+                          // [styles.BoxSelected]: selectedTree.includes(item.id),
+                          // [styles.BoxUnselected]:
+                          //   selectedTree.length > 0 && !selectedTree.includes(item.id),
+                          [styles.BoxSorted]: isSort,
+                        })}
+                        task={item}
+                        shouldBeTransparent={
+                          selectedTree.length > 0 && !selectedTree.includes(item.id)
+                        }
+                      />
+                    </DraggableTaskBox>
+                  )
+                })}
                 {addMode.on && addMode.type === type && isEqual(current, id) && (
                   <AddingTaskBox
                     date={date}

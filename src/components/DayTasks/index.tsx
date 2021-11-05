@@ -11,11 +11,13 @@ import { DAY } from '../../constants/task-types'
 import { createTask } from '../../redux/tasks'
 import { getTasksBy } from '../../redux/utils'
 
+import { useSpring, animated } from 'react-spring'
+
 import styles from './styles.module.scss'
 
 const GREY_BG = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
 
-function DayTasks({ subtype, date, className, ...rest }) {
+function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) {
   const [isInAddMode, setAddMode] = useState(false)
   const addTextareaRef = useRef(null)
   const dispatch = useDispatch()
@@ -30,6 +32,13 @@ function DayTasks({ subtype, date, className, ...rest }) {
 
     return GREY_BG
   })
+
+  const [spring, set] = useSpring(() => ({
+    x: 0,
+    config: { duration: 100 },
+  }))
+
+  set({ x: h4ShouldBeTransparent ? 0.3 : 1 })
 
   useEffect(() => {
     if (isInAddMode) {
@@ -49,7 +58,7 @@ function DayTasks({ subtype, date, className, ...rest }) {
       {(provided, snapshot) => (
         <div className={cx(styles.DayTaskBox, className)} {...rest}>
           <div className={styles.Header}>
-            <h4>{subtype.toLowerCase()}</h4>
+            <animated.h4 style={{ opacity: spring.x }}>{subtype.toLowerCase()}</animated.h4>
             <button
               type="button"
               onClick={() => {

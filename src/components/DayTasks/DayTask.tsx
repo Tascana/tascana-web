@@ -14,6 +14,9 @@ import { MONTH } from '../../constants/task-types'
 
 import styles from './styles.module.scss'
 import tasksStyles from '../Tasks/styles.module.scss'
+import { Spring } from '@react-spring/core'
+
+import { useSpring, animated } from 'react-spring'
 
 const _dragEl = document.getElementById('react-dnd-draggable')
 
@@ -45,6 +48,13 @@ function DayTask(props) {
   const isSort = useSelector(state => state.UI.sort)
 
   const possibleParent = tasks.find(t => t.id === parentId)
+
+  const [spring, set] = useSpring(() => ({
+    x: 0,
+    config: { duration: 100 },
+  }))
+
+  set({ x: selectedTree.length > 0 && !selectedTree.includes(id) ? 0.3 : 1 })
 
   useOnClickOutside(actionsBar, () => {
     if (isLinkMode) {
@@ -155,10 +165,11 @@ function DayTask(props) {
             }}
             className={cx({
               [styles.isDone]: progress === 100,
-              [tasksStyles.BoxSelected]: selectedTree.includes(id),
-              [tasksStyles.BoxUnselected]: selectedTree.length > 0 && !selectedTree.includes(id),
+              // [tasksStyles.BoxSelected]: selectedTree.includes(id),
+              // [tasksStyles.BoxUnselected]: selectedTree.length > 0 && !selectedTree.includes(id),
               [tasksStyles.BoxSorted]: isSort,
             })}
+            style={{ opacity: spring.x }}
           >
             <TaskMark
               onClick={e => {
