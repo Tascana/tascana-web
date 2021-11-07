@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../hooks/use-auth'
 import { useHistory } from 'react-router-dom'
