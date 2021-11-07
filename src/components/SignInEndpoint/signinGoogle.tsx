@@ -23,10 +23,13 @@ const prepareUserData = ({ uid, providerData, photoURL: avatar }: fb.User): User
   return { uid, email, name, avatar }
 }
 
+const FIREBASE_PERSISTENCE_STRATEGY = fb.auth.Auth.Persistence.LOCAL
+
 function SignInEndPointGoogle() {
   const auth = firebase.getInstance().auth()
   const provider = new fb.auth.GoogleAuthProvider()
-  const signInWithRedirect = () => auth.signInWithRedirect(provider)
+  const signInWithRedirect = auth.setPersistence(FIREBASE_PERSISTENCE_STRATEGY)
+      .then(() => auth.signInWithRedirect(provider))
 
   const history = useHistory()
   const { logEvent } = useLogger()
