@@ -29,7 +29,7 @@ const FIREBASE_PERSISTENCE_STRATEGY = fb.auth.Auth.Persistence.LOCAL
 function SignInEndPointGoogle() {
   const auth = firebase.getInstance().auth()
   const provider = new fb.auth.GoogleAuthProvider()
-  const signInWithRedirect = auth.setPersistence(FIREBASE_PERSISTENCE_STRATEGY)
+  const signInWithRedirect = () => auth.setPersistence(FIREBASE_PERSISTENCE_STRATEGY)
       .then(() => auth.signInWithRedirect(provider))
 
   const history = useHistory()
