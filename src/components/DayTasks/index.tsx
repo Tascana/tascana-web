@@ -22,6 +22,8 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
   const addTextareaRef = useRef(null)
   const dispatch = useDispatch()
   const tasks = useSelector(state => getTasksBy(state.tasks)({ type: DAY, subtype, ...date }))
+  const allTasks = useSelector(state => state.tasks)
+  const [parent] = useSelector(state => state.UI.selectedTree)
   const parentGradient = useSelector(({ UI, tasks }) => {
     const [parent] = UI.selectedTree
 
@@ -33,6 +35,7 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
     return GREY_BG
   })
 
+  const parentType = parent ? allTasks.find(i => i.id === parent).type : ' '
   const [spring, set] = useSpring(() => ({
     x: 0,
     config: { duration: 100 },
@@ -61,7 +64,9 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
             <animated.h4 style={{ opacity: spring.x }}>{subtype.toLowerCase()}</animated.h4>
             <button
               type="button"
-              onClick={() => {
+              className={parentType === 'YEAR' ? styles.BtnDisabled : ''}
+              onClick={e => {
+                e.stopPropagation()
                 setAddMode(true)
               }}
             >

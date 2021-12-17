@@ -240,11 +240,7 @@ function TaskBox({ task, className = '', date, style = {}, shouldBeTransparent, 
                       x: e.clientX - 134 / 2,
                       y: e.clientY - 147,
                     },
-                    handlers: {
-                      onEdit: () => setEditMode(true),
-                      onDone,
-                      onRemove,
-                    },
+                    handlers: returnContextMenuHandlers(),
                   }),
                 )
               }}

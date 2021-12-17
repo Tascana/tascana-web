@@ -36,6 +36,12 @@
       opacity: 0.5;
     }
   }
+
+  
+  .BtnDisabled {
+    pointer-events: none;
+    opacity: 0.2;
+  }
 }
 
 .DayHeader {

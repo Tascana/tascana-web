@@ -23,6 +23,11 @@
       border: 1px solid #b1b1b1;
       border-radius: 50%;
 
+      &.BtnDisabled {
+        pointer-events: none;
+        opacity: 0.2;
+      }
+
       > svg {
         width: 11px;
         height: 11px;

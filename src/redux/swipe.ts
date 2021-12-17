@@ -6,6 +6,7 @@ const INITIAL_STATE = {
   prevDate: null,
   virtualDate: null,
   virtualPrevDate: null,
+  keyStroke: false,
 }
 
 export const swipeSlice = createSlice({

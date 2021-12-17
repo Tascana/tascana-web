@@ -35,6 +35,7 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
   let allTasksByType = useSelector(state => getTasksByType(state.tasks)({ type }))
   const firebaseReady = useSelector(state => state.session.firebaseReady)
   const selectedTree = useSelector(state => state.UI.selectedTree)
+  const [parent] = useSelector(state => state.UI.selectedTree)
   const addMode = useSelector(state => state.UI.addMode)
   const dispatch = useDispatch()
   const transitions = useTransition(!hidden, null, {
@@ -51,6 +52,8 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
     x: 0,
     config: { duration: 100 },
   }))
+
+  const parentType = parent ? allTasks.find(i => i.id === parent).type : ''
 
   set({ x: selectedTree.length > 0 ? 0.3 : 1 })
 
@@ -253,7 +256,13 @@ vvvvvvvv YEAR/MONTH SECTION vvvvvv
         </animated.h1>
         <button
           type="button"
-          className={hidden ? styles.hidden : ''}
+          className={`${hidden ? styles.hidden : ''} ${
+            selectedTree.length > 0 && type === 'YEAR' ? styles.BtnDisabled : ''
+          } ${
+            (parentType === 'MONTH' || parentType === 'DAY') && type === 'MONTH'
+              ? styles.BtnDisabled
+              : ''
+          }`}
           onClick={e => {
             e.stopPropagation()
 

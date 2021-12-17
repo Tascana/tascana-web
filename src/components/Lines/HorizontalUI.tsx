@@ -45,6 +45,7 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
   const virtualPrevDate = useSelector(state =>
     state.swipe.virtualPrevDate ? new Date(state.swipe.virtualPrevDate) : null,
   )
+  const keyStroke = useSelector(state => state.swipe.keyStroke)
   const UI = useSelector(state => state.UI)
   const dispatch = useDispatch()
   const tasksRef = createRef()
@@ -77,6 +78,7 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
             virtualPrevDate: format(date, DATE_FORMAT),
             virtualDate: format(changeDateFn(date, dx > 0 ? -1 : 1), DATE_FORMAT),
             changeType: 'SWIPE',
+            keyStroke: false,
           }),
         )
       } else {
@@ -109,9 +111,8 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView])
 
-  function swipe(pos, cb) {
+  function swipe(pos, cb, keyStroke) {
     const dir = pos > 0 ? 1 : -1
-
     set({
       x: spring.x.getValue() + width * dir,
     })
@@ -129,8 +130,14 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
         x: 0,
         opacity: 1,
       })
-      cb()
+      if (!keyStroke) {
+        cb()
+      }
     }, ANIMATION_TIME + 1)
+
+    if (keyStroke) {
+      cb()
+    }
   }
 
   useEffect(() => {
@@ -158,11 +165,11 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
     }
 
     if (changedDays && type === DAY) {
-      swipe(changedDays > 0 ? -1 : 1, changeDate)
+      swipe(changedDays > 0 ? -1 : 1, changeDate, keyStroke)
     }
   }, [virtualDate, virtualPrevDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function changeDirectionOnClick(dx) {
+  function changeDirectionOnClick(dx, keyStroke) {
     const isSelected = UI.selectedTree.length > 0
     const { isEditing, isLinking, sort } = UI
     if (!isEditing && !isSelected && !isLinking && !sort) {
@@ -170,6 +177,7 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
         swipeSlice.actions.swipe({
           virtualPrevDate: format(date, DATE_FORMAT),
           virtualDate: format(changeDateFn(date, dx > 0 ? 1 : -1), DATE_FORMAT),
+          keyStroke: keyStroke,
         }),
       )
     }
@@ -185,12 +193,12 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
     }, 1)
   }
 
-  function swipeLine(pos) {
-    if (swipeableLineFromProps === type) changeDirectionOnClick(pos)
+  function swipeLine(pos, keyStroke) {
+    if (swipeableLineFromProps === type) changeDirectionOnClick(pos, keyStroke)
   }
 
-  useShortcuts(['ArrowLeft'], () => swipeLine(-1), [swipeableLineFromProps, date])
-  useShortcuts(['ArrowRight'], () => swipeLine(1), [swipeableLineFromProps, date])
+  useShortcuts(['ArrowLeft'], () => swipeLine(-1, true), [swipeableLineFromProps, date])
+  useShortcuts(['ArrowRight'], () => swipeLine(1, true), [swipeableLineFromProps, date])
 
   const dateObject = getDateObject(type, year, month, day)
 
