@@ -64,7 +64,7 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
             <animated.h4 style={{ opacity: spring.x }}>{subtype.toLowerCase()}</animated.h4>
             <button
               type="button"
-              className={parentType === 'YEAR' ? styles.BtnDisabled : ''}
+              className={parentType === 'YEAR' || parentType === 'DAY' ? styles.BtnDisabled : ''}
               onClick={e => {
                 e.stopPropagation()
                 setAddMode(true)

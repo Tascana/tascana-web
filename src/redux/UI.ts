@@ -140,11 +140,6 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
     return
   }
 
-  if (selectedTree.length && selectedTree.includes(todo.id) && !addedTaskId) {
-    dispatch(UISlice.actions.selectTree([]))
-    return
-  }
-
   const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(Boolean)
 
   dispatch(UISlice.actions.selectTree(tree))

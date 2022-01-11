@@ -23,6 +23,7 @@ function TaskBox({ task, className = '', date, style = {}, shouldBeTransparent, 
   const textarea = useRef(null)
   const taskBox = useRef(null)
   const dispatch = useDispatch()
+  const [parent] = useSelector(state => state.UI.selectedTree)
 
   const [spring, set] = useSpring(() => ({
     x: 0,
@@ -67,8 +68,9 @@ function TaskBox({ task, className = '', date, style = {}, shouldBeTransparent, 
   }
 
   function onClick(e) {
-    if (task.type !== YEAR && !task.parents.length) return
-    dispatch(selectTreeAction({ todo: task }))
+    parent === task.id
+      ? dispatch(selectTreeAction({ todo: null }))
+      : dispatch(selectTreeAction({ todo: task }))
   }
 
   function onDoubleClick(e) {

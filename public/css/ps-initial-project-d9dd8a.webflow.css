@@ -309,9 +309,51 @@ a {
   font-size: 48px;
 }
 
+.telegram-block {
+  background: #fff;
+  color: #505050;
+  position: fixed;
+  font-size: 18px;
+  right: 20px;
+  bottom: 20px;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  padding: 8px 14px 8px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 99999;
+}
+
+.telegram-block:hover {
+  border-color: #c8c8c8;
+}
+
+.telegram-block img {
+  width: 44px;
+  padding-right: 12px;
+}
+
+.telegram-block p {
+  margin-bottom: 0;
+}
+
 @media screen and (max-width: 991px) {
   .sticky-nav {
     z-index: 2;
+  }
+
+  .telegram-block {
+    padding: 5px 10px 5px 10px;
+  }
+
+  .telegram-block p {
+    display: none;
+  }
+
+  .telegram-block img {
+    padding-right: 0;
+    width: 34px;
   }
 
   .slider {

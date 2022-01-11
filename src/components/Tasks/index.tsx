@@ -56,7 +56,6 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
   const parentType = parent ? allTasks.find(i => i.id === parent).type : ''
 
   set({ x: selectedTree.length > 0 ? 0.3 : 1 })
-
   if (type === types.DAY) {
     return (
       <div>
@@ -349,6 +348,7 @@ vvvvvvvv YEAR/MONTH SECTION vvvvvv
                           // [styles.BoxUnselected]:
                           //   selectedTree.length > 0 && !selectedTree.includes(item.id),
                           [styles.BoxSorted]: isSort,
+                          [styles.BoxParent]: item.id === parent,
                         })}
                         task={item}
                         shouldBeTransparent={

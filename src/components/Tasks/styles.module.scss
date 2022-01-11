@@ -3,6 +3,11 @@
   flex-wrap: wrap;
 }
 
+.BoxParent {
+  box-shadow: #b1b1b1 0 0 10px;
+  transform: scale(1.03);
+}
+
 .LinesHeader {
   display: flex;
   align-items: center;
