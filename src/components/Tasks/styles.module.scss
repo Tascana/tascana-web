@@ -1,6 +1,7 @@
 .TasksWrapper {
   display: flex;
   flex-wrap: wrap;
+  margin-bottom: 6px;
 }
 
 .BoxParent {
@@ -89,7 +90,35 @@
     margin: 10px 10px 0 0;
   }
 }
+.OnboardingImageMonth {
+  position: relative;
+  margin: 10px 10px 0px 0px;
+  height: 100px;
 
+  &.DayType {
+    margin-top: -10px;
+  }
+
+  @media (max-width: 420px) {
+    width: calc(100vw - 20px);
+    margin: 10px 10px 0 0;
+  }
+}
+
+.OnboardingImageYear {
+  position: relative;
+  margin: 10px 10px 0px 0px;
+  height: 200px;
+
+  &.DayType {
+    margin-top: -10px;
+  }
+
+  @media (max-width: 420px) {
+    width: calc(100vw - 20px);
+    margin: 10px 10px 0 0;
+  }
+}
 .TaskBox {
   position: relative;
   margin: 10px 10px 0px 0px;

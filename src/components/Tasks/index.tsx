@@ -335,7 +335,9 @@ vvvvvvvv YEAR/MONTH SECTION vvvvvv
                         ? '/images/Month_Onboarding.svg'
                         : '/images/Year_Onboarding.svg'
                     }
-                    className={styles.OnboardingImage}
+                    className={
+                      type == types.MONTH ? styles.OnboardingImageMonth : styles.OnboardingImageYear
+                    }
                   />
                 )}
                 {currentTasks.map((item, index) => {
