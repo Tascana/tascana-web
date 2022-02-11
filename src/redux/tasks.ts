@@ -5,7 +5,7 @@ import differenceBy from 'lodash.differenceby'
 import findLastIndex from 'lodash.findlastindex'
 import { YEAR } from '../constants/task-types'
 import { selectTreeAction } from './UI'
-import { getTasksBy, getTaskById, getTree } from './utils'
+import { getTasksBy, getTaskById, getTree, treeActions } from './utils'
 import { firebase } from '../index'
 import { getRandomBg } from '../constants/gradients'
 
@@ -23,9 +23,8 @@ export const tasksSlice = createSlice({
 
           let task = { ...t }
           if (!Array.isArray(t.children)) task.children = []
-          if (!Array.isArray(t.parents)) task.parents = []
+          //if (!Array.isArray(t.parent)) task.parent = []
           if (typeof task.incrementIndex !== 'number') task.incrementIndex = index
-
           return task
         })
       return sortedLoadedTasks
@@ -93,44 +92,22 @@ const updateTree = changedTask => (dispatch, getState) => {
 
   const { parents, children } = getTree(tasks, {
     id: changedTask.id,
-    firstParentId: changedTask.firstParentId,
+    firstParentId: changedTask.parent,
   })
-
-  dispatch(
-    tasksSlice.actions.updateTask({
-      id: changedTask.id,
-      updatedFields: {
-        children,
-        parents,
-      },
-    }),
-  )
-
-  firebase.editTask(getTaskById(getState().tasks, changedTask.id), uid, changedTask.id)
-
-  const tree = [...parents, ...children]
-
-  if (!tree.length) return
-
-  tree.forEach(id => {
-    const task = getTaskById(getState().tasks, id)
-
-    let updatedFields = {}
-
-    if (parents.length) updatedFields.children = task.children.concat(changedTask.id)
-    if (children.length) updatedFields.parents = task.parents.concat(changedTask.id)
-
+  if (parents) {
     dispatch(
       tasksSlice.actions.updateTask({
-        id,
-        updatedFields,
+        id: parents,
+        updatedFields: {
+          children: children,
+        },
       }),
     )
-    firebase.editTask(getTaskById(getState().tasks, id), uid, id)
-  })
+    firebase.editTask(getTaskById(getState().tasks, parents), uid, parents)
+  }
 }
 
-export const createTask = ({ type, subtype, text, day, month, year }) => async (
+export const createTask = ({ type, weightTree, subtype, text, day, month, year }) => async (
   dispatch,
   getState,
 ) => {
@@ -176,7 +153,6 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
     incrementIndex: nextIndex,
     background,
     progress: 0,
-    parents: [],
     children: [],
     year,
     position,
@@ -184,9 +160,10 @@ export const createTask = ({ type, subtype, text, day, month, year }) => async (
     text,
     createdAt,
     userId,
+    weightTree,
   }
 
-  if (isCorrectParent) newTask.firstParentId = parentId
+  if (isCorrectParent) newTask.parent = parentId
   if (month) newTask.month = month
   if (day) newTask.day = day
   if (subtype) newTask.subtype = subtype
@@ -227,8 +204,7 @@ export const linkTasks = ({ childId, parentId }) => async (dispatch, getState) =
     tasksSlice.actions.updateTask({
       id: child.id,
       updatedFields: {
-        parents: child.parents.concat(parentId),
-        firstParentId: parentId,
+        parent: parentId,
         background: parent.background,
       },
     }),
@@ -264,8 +240,9 @@ export const changeColor = taskId => async (dispatch, getState) => {
     }),
   )
   firebase.editTask(getTaskById(getState().tasks, taskId), uid, taskId)
+  const { itemsAllTree } = treeActions(tasks, taskId)
 
-  task.children.forEach(id => {
+  itemsAllTree.forEach(id => {
     dispatch(
       tasksSlice.actions.updateTask({
         id,
@@ -342,7 +319,7 @@ export const deleteTask = id => (dispatch, getState) => {
 
   const deletedTask = getTaskById(tasks, id)
 
-  const tree = [...deletedTask.children, ...deletedTask.parents]
+  const tree = [...deletedTask.children, deletedTask.parent]
 
   if (tree.length) {
     tree.forEach(id => {
@@ -353,12 +330,12 @@ export const deleteTask = id => (dispatch, getState) => {
       }
 
       let updatedFields = {}
-      if (deletedTask.parents.length) {
+      if (deletedTask.parent) {
         updatedFields.children = task.children.filter(childrenId => childrenId !== deletedTask.id)
       }
       if (deletedTask.children.length) {
-        updatedFields.parents = task.parents.filter(parentId => parentId !== deletedTask.id)
-        updatedFields.firstParentId = null
+        //updatedFields.parent = task.parent.filter(parentId => parentId !== deletedTask.id)
+        //updatedFields.firstParentId = null
         if (task.type !== YEAR) {
           updatedFields.background = 'linear-gradient(to bottom, #e2e2e2, #bbb)'
         }

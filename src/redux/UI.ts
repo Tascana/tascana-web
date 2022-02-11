@@ -1,5 +1,7 @@
 // @ts-nocheck
 import { createSlice } from '@reduxjs/toolkit'
+import { id } from 'date-fns/locale'
+import { treeActions } from './utils'
 
 const now = new Date(Date.now())
 
@@ -139,8 +141,11 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
     dispatch(UISlice.actions.selectTree([]))
     return
   }
+  const tasks = getState().tasks
 
-  const tree = [todo.id, ...todo.parents, ...todo.children, addedTaskId].filter(Boolean)
+  const { itemsAllTree } = treeActions(tasks, todo.id)
+
+  const tree = [todo.id, ...itemsAllTree].filter(Boolean)
 
   dispatch(UISlice.actions.selectTree(tree))
 }

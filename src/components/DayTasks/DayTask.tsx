@@ -28,7 +28,7 @@ function optionalPortal(styles, element) {
 }
 
 function DayTask(props) {
-  const { id, progress, background, text: textTask, index, firstParentId, date } = props
+  const { id, progress, background, text: textTask, index, date } = props
 
   const task = {
     ...props,
@@ -129,7 +129,7 @@ function DayTask(props) {
               e.stopPropagation()
 
               if (!e.currentTarget.getAttribute('clicked')) {
-                if (isInEditMode || !firstParentId) return
+                if (isInEditMode || !task.parent) return
                 dispatch(selectTreeAction({ todo: task }))
               }
               e.currentTarget.setAttribute('clicked', true)

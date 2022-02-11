@@ -63,25 +63,54 @@ export const addSibling = (siblings, newSibling) =>
     .join(',')
 
 export function getTree(tasks, { id, firstParentId }) {
-  let parents = []
+  let parents = null
   let children = []
 
   function getParents(parentId) {
     if (!parentId) return parents
-    parents.push(parentId)
+    parents = parentId
     return getParents(getTaskById(tasks, parentId).firstParentId)
   }
 
-  function getChildren(ids) {
-    const childs = tasks.filter(task => ids.includes(task.firstParentId))
-
-    if (!childs.length) return children
-    children.push(...childs.map(c => c.id))
-    return getChildren(childs.map(c => c.id))
+  function getChildren(ids, parent) {
+    if (parent) {
+      const parents = tasks.filter(task => task.id == parent)[0].children
+      const childrens = tasks.filter(task => task.id == ids)[0].id
+      return (children = parents.concat(childrens))
+    }
+    return children
   }
 
   return {
     parents: getParents(firstParentId),
-    children: getChildren([id]),
+    children: getChildren(id, firstParentId),
+  }
+}
+
+export function treeActions(tasks, todo) {
+  const itemsTree = []
+
+  const rootTreeSearch = todo => {
+    let currentTodo = tasks.filter(task => task.id == todo)[0]
+    currentTodo?.parent ? rootTreeSearch(currentTodo.parent) : treeBFS([currentTodo.id])
+  }
+
+  const treeBFS = root => {
+    itemsTree.push(...root)
+    const itemTask = []
+
+    root.map(item => {
+      let currentTask = tasks.filter(task => task.id == item)[0]
+      if (currentTask.children.length) {
+        itemTask.push(...currentTask.children)
+      }
+    })
+
+    if (itemTask.length) treeBFS(itemTask)
+  }
+  rootTreeSearch(todo)
+
+  return {
+    itemsAllTree: itemsTree,
   }
 }

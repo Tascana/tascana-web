@@ -58,7 +58,7 @@ function DoneButton({ task, onClick }) {
 function ActionsBar({ task, onContextMenu, onLink, onDone }) {
   const { isMobile } = useDevice()
   let hasContextButton = isMobile
-  let hasLinkButton = task.type !== YEAR && !task.firstParentId
+  let hasLinkButton = task.type !== YEAR && !task.parent
   let hasDoneButton = task.type !== DAY
 
   return (

@@ -51,7 +51,7 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
 
   function addTask(value) {
     if (value) {
-      dispatch(createTask({ type: DAY, subtype, text: value, ...date }))
+      dispatch(createTask({ type: DAY, weightTree: 5, subtype, text: value, ...date }))
     }
     setAddMode(false)
   }
@@ -80,7 +80,15 @@ function DayTasks({ subtype, date, className, h4ShouldBeTransparent, ...rest }) 
           </div>
           <ul ref={provided.innerRef} {...provided.droppableProps} className={styles.TaskList}>
             {tasks.map((task, index) => (
-              <DayTask key={task.id} index={index} date={date} {...task} />
+              <DayTask
+                className={cx(styles.TaskBox, {
+                  [styles.BoxParent]: true,
+                })}
+                key={task.id}
+                index={index}
+                date={date}
+                {...task}
+              />
             ))}
             {isInAddMode && (
               <li>

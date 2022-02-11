@@ -140,7 +140,6 @@ function Tasks({ type, id, date, title, current, onRowHide }) {
                       .filter(Boolean)
 
                     if (destination.droppableId === source.droppableId) {
-                      console.log(sorted)
                       dispatch(
                         sortTask(
                           sorted.map((t, index) => ({

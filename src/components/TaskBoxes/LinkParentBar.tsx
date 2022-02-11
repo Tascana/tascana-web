@@ -25,7 +25,7 @@ function LinkParentBar({
   const dispatch = useDispatch()
 
   const possibleParents = useSelector(state =>
-    getTasksBy(state.tasks)({ type, ...date }).filter(t => t.type === YEAR || t.firstParentId),
+    getTasksBy(state.tasks)({ type, ...date }).filter(t => t.type === YEAR || t.parent),
   )
   const linkingTask = useSelector(state => state.UI.isLinking)
 
@@ -90,7 +90,6 @@ function LinkParentBar({
           onClick={e => {
             e.stopPropagation()
             setSelected(true)
-
             if (selected) {
               selectParentId(t.id)
               dispatch(

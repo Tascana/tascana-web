@@ -25,6 +25,7 @@ function AddingTaskBox({ type, date, className = '', offAddMode, ...rest }) {
       createTask({
         type,
         text: value,
+        weightTree: type == 'YEAR' ? 1 : 3,
         ...date,
       }),
     )
