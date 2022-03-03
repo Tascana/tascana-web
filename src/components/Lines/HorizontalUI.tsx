@@ -20,6 +20,7 @@ import {
 } from 'date-fns/esm'
 import { DirectionChangeContainer } from './directionChangeContainer'
 import Tasks from '../Tasks'
+import DaysTasks from '../Tasks/dayTasks'
 import { getDateObject, getName } from './util'
 import { swipeSlice } from '../../redux/swipe'
 import useWindowSize from './useWindowSize'
@@ -232,6 +233,14 @@ function HorizontalUI({ type, swipeableLine: swipeableLineFromProps, onScroll })
           }}
         >
           <Tasks
+            type={type}
+            id={dateObject}
+            current={dateObject}
+            title={getName(type, date)}
+            onRowHide={recalculateRowHeight}
+            date={dateObject}
+          />
+          <DaysTasks
             type={type}
             id={dateObject}
             current={dateObject}

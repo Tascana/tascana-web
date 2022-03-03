@@ -89,6 +89,7 @@ export function getTree(tasks, { id, firstParentId }) {
 
 export function treeActions(tasks, todo) {
   const itemsTree = []
+  const itemsBranch = []
 
   const rootTreeSearch = todo => {
     let currentTodo = tasks.filter(task => task.id == todo)[0]
@@ -112,5 +113,40 @@ export function treeActions(tasks, todo) {
 
   return {
     itemsAllTree: itemsTree,
+  }
+}
+export function selectedBranch(tasks, todo) {
+  const itemsBranchParents = []
+  const itemsBranchChildrens = []
+
+  const selectingBranchParents = todo => {
+    let currentTodo = tasks.filter(task => task.id == todo)[0]
+    itemsBranchParents.push(currentTodo.id)
+
+    if (currentTodo?.parent) {
+      selectingBranchParents(currentTodo.parent)
+    }
+    return
+  }
+
+  const selectingBranchChildrens = todo => {
+    const itemTask = []
+    itemsBranchChildrens.push(...todo)
+    let currentTask = tasks.filter(task => task.id == todo)[0]
+
+    todo.map(item => {
+      let currentTask = tasks.filter(task => task.id == item)[0]
+      if (currentTask.children.length) {
+        itemsBranchChildrens.push(...currentTask.children)
+      }
+    })
+    if (itemTask.length) selectingBranchChildrens(itemTask)
+  }
+
+  selectingBranchParents(todo)
+  selectingBranchChildrens([todo])
+
+  return {
+    itemsSelectingTree: [...itemsBranchChildrens, ...itemsBranchParents],
   }
 }
