@@ -142,7 +142,6 @@ export const selectTreeAction = ({ todo, addedTaskId = undefined }) => async (
     return
   }
   const tasks = getState().tasks
-  
   const { itemsSelectingTree } = selectedBranch(tasks, todo.id)
 
   const tree = [todo.id, ...itemsSelectingTree].filter(Boolean)
